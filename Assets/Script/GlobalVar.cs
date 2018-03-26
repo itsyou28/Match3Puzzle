@@ -4,9 +4,7 @@ using UnityEngine;
 
 public static class GlovalVar
 {
-    public const string TableDataNamespace = "TableData";
-    public const string TableEditDataPath = "TableEditData";
-    public const string TableDataPath = "TableData";
+    public const string FieldDataPath = "FieldData";
 }
 
 public enum LogOption

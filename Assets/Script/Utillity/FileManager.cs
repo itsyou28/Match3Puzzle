@@ -285,7 +285,7 @@ public class FileManager
 
         try
         {
-            System.IO.File.WriteAllLines(filePath, stringLines);
+            File.WriteAllLines(filePath, stringLines);
 
 #if DebugFileManger
             Debug.Log("string lines file save to " + filePath);
@@ -295,5 +295,41 @@ public class FileManager
         {
             Debug.LogException(e);
         }
+    }
+
+
+    /// <summary>
+    /// 유니티 에디터에서 생성된 파일이 빌드 파일에 포함되어야 하고, 런타임에도 편집하는 경우 사용한다. 
+    /// </summary>
+    public void EditFileSave(string path, string filename, object saveObject)
+    {
+#if UNITY_EDITOR
+        //에디터일 경우 Resource에 저장한다. (빌드시 파일 포함)
+        FileSave("Resources/" + path, filename + ".bytes", saveObject);
+#else
+        //에디터가 아닐 경우 PersitentDataPath에 저장한다. (빌드 후 리소스 경로에는 쓰기 권한이 없음)
+        FileSave(path, filename, saveObject);
+#endif
+    }
+
+    /// <summary>
+    /// 빌드 후 저장된 편집데이터를 불러오거나, 데이터가 없을 경우 빌드 에디터에서 저장된 파일을 로드한다. 
+    /// </summary>
+    public object EditFileLoad(string path, string filename)
+    {
+        object result = null;
+
+#if UNITY_EDITOR
+        //에디터일 경우 Resources 하위에서 파일을 로드한다
+        if (CheckFileExists("Resources/" + path + "/" + filename + ".bytes"))
+            result = FileLoad("Resources/" + path, filename + ".bytes");
+#else
+        //에디터가 아닐 경우 PersistentDataPath에서 파일을 체크하고 없을 경우 리소스에서 파일을 읽어온다.
+        result = ResourceLoad(path + "/" + filename);
+        if (result == null)
+            result = FileLoad(path, filename + ".bytes");
+#endif
+
+        return result;
     }
 }
