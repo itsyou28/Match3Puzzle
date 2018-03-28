@@ -35,3 +35,14 @@ public interface iUserData
     bool Load();
     bool Save();
 }
+
+public enum BlockType
+{
+    RED,
+    BLUE,
+    GREEN,
+    PURPLE,
+    YELLOW,
+    BLACK,
+    SPECIAL,
+}

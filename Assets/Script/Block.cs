@@ -3,9 +3,11 @@
 [Serializable]
 public class Block
 {
+    BlockField preField;
     BlockField curField;
 
-    public int type;
+    public int BlockType { get { return BlockType; } }
+    int blockType;
 
     public Block()
     {
@@ -17,15 +19,41 @@ public class Block
         //화면에서 제거되고 pool로 돌아간다. 
     }
 
-    public void Initialize(BlockField field, int type)
+    public void Initialize(BlockField field, int blockType)
     {
         curField = field;
-        this.type = type;
+        this.blockType = blockType;
     }
 
+    public void SetBlockType(int blockType)
+    {
+        this.blockType = blockType;
+    }
+
+    public void SetNextField()
+    {
+        BlockField field = curField;
+
+        while (field.next.IsEmpty && field.next.IsPlayable)
+        {
+            field = field.next;
+        }
+
+        preField = curField;
+        curField.SetBlock(null);
+        curField = field;
+        curField.SetBlock(this);
+    }
+
+    public void MoveToNextField()
+    {
+        //preField에서 curField로의 이동애니메이션을 실행한다. 
+    }
+
+    #region override Equals
     public override int GetHashCode()
     {
-        return type.GetHashCode();
+        return BlockType.GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -44,7 +72,7 @@ public class Block
         if (other == null)
             return false;
 
-        if (type != other.type)
+        if (BlockType != other.BlockType)
             return false;
 
         return true;
@@ -70,5 +98,6 @@ public class Block
     public static bool operator !=(Block lValue, Block rValue)
     {
         return !(lValue == rValue);
-    }
+    } 
+    #endregion
 }

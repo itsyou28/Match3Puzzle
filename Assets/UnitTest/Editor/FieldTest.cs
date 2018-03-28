@@ -73,7 +73,7 @@ public class FieldTest
         {
             for (int col = 0; col < testCase.GetLength(1); col++)
             {
-                Assert.AreEqual(testCase[row,col], fields[row+1, col+1].block.type);
+                Assert.AreEqual(testCase[row,col], fields[row+1, col+1].block.BlockType);
             }
         }
     }
@@ -92,8 +92,13 @@ public class FieldTest
     }
 }
 
-public class MatchTest
+public class MatchTest : IPrebuildSetup
 {
+    public void Setup()
+    {
+        Debug.LogWarning("Setup");
+    }
+    
     [Test]
     public void MatchTest1()
     {
@@ -123,11 +128,11 @@ public class MatchTest
 
         stage.ExcuteMatch();
 
-        Assert.AreEqual(arrCorrect.Length, stage.matchBlock.Count);
+        Assert.AreEqual(arrCorrect.Length, stage.matchedField.Count);
 
-        for (int i = 0; i < stage.matchBlock.Count; i++)
+        for (int i = 0; i < stage.matchedField.Count; i++)
         {
-            Assert.AreEqual(arrCorrect[i], stage.matchBlock[i].type);
+            Assert.AreEqual(arrCorrect[i], stage.matchedField[i].block.BlockType);
         }
     }
 }

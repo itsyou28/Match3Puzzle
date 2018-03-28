@@ -11,7 +11,7 @@ public class StageManager
     int colLength, lastCol;
 
     public List<BlockField> ableField = new List<BlockField>();
-    public List<Block> matchBlock = new List<Block>();
+    public List<BlockField> matchedField = new List<BlockField>();
 
     public void LoadFields(string fieldFileName)
     {
@@ -36,17 +36,66 @@ public class StageManager
 
     void BlockInitialize()
     {
-        //블럭생성 및 배치
-        //for (int i = 1; i < lastRow; i++)
-        //{
-        //    for (int j = 1; j < lastCol; j++)
-        //    {
-        //        if(fields[i,j].IsPlayable)
-        //        {
-        //            fields[i,j].block = new Block();
-        //        }
-        //    }
-        //}
+        //Playable Field 위치에 랜덤 블럭 생성
+    }
+
+    event Action BlockMove;
+
+    List<BlockField> movedLineList = new List<BlockField>();
+
+    //이미 처리된 lastField인지 확인하고 아닐 경우 버퍼에 삽입한다. 
+    bool ChkMovedLine(BlockField last)
+    {
+        for (int i = 0; i < movedLineList.Count; i++)
+        {
+            if (movedLineList[i] == last)
+                return true;
+        }
+
+        movedLineList.Add(last);
+
+        return false;
+    }
+
+    //해당 라인의 마지막 Field를 반환한다. 
+    BlockField GetLineLast(BlockField field)
+    {
+        while (!field.IsLast)
+            field = field.next;
+
+        return field;
+    }
+    
+    void MoveAllBlock()
+    {
+        movedLineList.Clear();
+        BlockMove = null;
+
+        BlockField last, cur;
+
+        for (int i = 0; i < matchedField.Count; i++)
+        {
+            last = GetLineLast(matchedField[i]);
+
+            //해당 라인이 이미 처리됐다면 Skip 한다
+            if (ChkMovedLine(last))
+                continue;
+
+            cur = last;
+
+            //해당 라인의 시작필드에 도달할 때까지 한 칸씩 역행하며 빈블럭을 채운다. 
+            while (!cur.IsFirst)
+            {
+                Block block = cur.FindBlockInMyLine();
+                block.SetNextField();
+                BlockMove += block.MoveToNextField;
+                cur = cur.prev;
+            }
+        }
+
+        //이동된 블럭의 화면상의 이동 애니메이션을 실행한다. 
+        if (BlockMove != null)
+            BlockMove();
     }
 
     public void FindMatchAble()
@@ -59,7 +108,7 @@ public class StageManager
 
     public void FindMatch()
     {
-        matchBlock.Clear();
+        matchedField.Clear();
 
         ChkMatchRow(1, lastRow, 1, lastCol);
         ChkMatchCol(1, lastRow, 1, lastCol);
@@ -69,19 +118,21 @@ public class StageManager
     {
         FindMatch();
 
-        for (int i = 0; i < matchBlock.Count; i++)
+        for (int i = 0; i < matchedField.Count; i++)
         {
-            matchBlock[i].Match();
+            matchedField[i].Match();
         }
     }
 
+
+    //row와 row+2가 동일한 블럭을 검색해서 일치할 경우 매치가 가능한 패턴인지 확인한다. 
     void ChkRowAble()
     {
         for (int row = 1; row <= lastRow; row++)
         {
             for (int col = 1; col <= lastCol-2; col++)
             {
-                if (fields[row,col].block == fields[row,col + 2].block)
+                if (fields[row,col].BlockType == fields[row,col + 2].BlockType)
                     ChkRowPattern(row, col);
             }
         }
@@ -93,7 +144,7 @@ public class StageManager
         {
             for (int row = 1; row <= lastRow-2; row++)
             {
-                if (fields[row,col].block == fields[row + 2,col].block)
+                if (fields[row,col].BlockType == fields[row + 2,col].BlockType)
                     ChkColPattern(row, col);
             }
         }
@@ -114,10 +165,10 @@ public class StageManager
     /// □△□ ◆☆■
     void ChkRowPattern(int row, int col)
     {
-        if (fields[row,col].block == fields[row,col + 3].block ||
-            fields[row,col].block == fields[row,col - 1].block ||
-            fields[row,col].block == fields[row + 1,col + 1].block ||
-            fields[row,col].block == fields[row - 1,col + 1].block)
+        if (fields[row,col].BlockType == fields[row,col + 3].BlockType ||
+            fields[row,col].BlockType == fields[row,col - 1].BlockType ||
+            fields[row,col].BlockType == fields[row + 1,col + 1].BlockType ||
+            fields[row,col].BlockType == fields[row - 1,col + 1].BlockType)
         {
             ableField.Add(fields[row,col + 1]);
         }
@@ -130,10 +181,10 @@ public class StageManager
     /// △  ■             
     void ChkColPattern(int row, int col)
     {
-        if (fields[row,col].block == fields[row + 3,col].block ||
-            fields[row,col].block == fields[row - 1,col].block ||
-            fields[row,col].block == fields[row + 1,col + 1].block ||
-            fields[row,col].block == fields[row + 1,col - 1].block)
+        if (fields[row,col].BlockType == fields[row + 3,col].BlockType ||
+            fields[row,col].BlockType == fields[row - 1,col].BlockType ||
+            fields[row,col].BlockType == fields[row + 1,col + 1].BlockType ||
+            fields[row,col].BlockType == fields[row + 1,col - 1].BlockType)
         {
             ableField.Add(fields[row + 1,col]);
         }
@@ -152,7 +203,7 @@ public class StageManager
             cnt = 0;
             while (r < rLimit)
             {
-                if (fields[line,r].IsPlayable && fields[line,l].block == fields[line,r].block)
+                if (fields[line,r].IsPlayable && fields[line,l].BlockType == fields[line,r].BlockType)
                 {
                     cnt++;
                 }
@@ -163,8 +214,8 @@ public class StageManager
                         //cnt+1 match!
                         for (int i = 0; i <= cnt; i++)
                         {
-                            matchBlock.Add(fields[line,l + i].block);
-                            //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line,l+i].block.type);
+                            matchedField.Add(fields[line,l + i]);
+                            //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line,l+i].BlockType.type);
                         }
                     }
 
@@ -178,8 +229,8 @@ public class StageManager
                 //cnt+1 match!
                 for (int i = 0; i <= cnt; i++)
                 {
-                    matchBlock.Add(fields[line, l + i].block);
-                    //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line, l + i].block.type);
+                    matchedField.Add(fields[line, l + i]);
+                    //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line, l + i].BlockType.type);
                 }
             }
         }
@@ -197,7 +248,7 @@ public class StageManager
             cnt = 0;
             while (r < rLimit)
             {
-                    if (fields[r, line].IsPlayable && fields[l, line].block == fields[r, line].block)
+                    if (fields[r, line].IsPlayable && fields[l, line].BlockType == fields[r, line].BlockType)
                     {
                         cnt++;
                     }
@@ -208,8 +259,8 @@ public class StageManager
                             //cnt+1 match!
                             for (int i = 0; i <= cnt; i++)
                             {
-                                matchBlock.Add(fields[l + i, line].block);
-                                //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].block.type);
+                                matchedField.Add(fields[l + i, line]);
+                                //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
                             }
                         }
 
@@ -223,8 +274,8 @@ public class StageManager
                 //cnt+1 match!
                 for (int i = 0; i <= cnt; i++)
                 {
-                    matchBlock.Add(fields[l + i, line].block);
-                    //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].block.type);
+                    matchedField.Add(fields[l + i, line]);
+                    //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
                 }
             }
         }

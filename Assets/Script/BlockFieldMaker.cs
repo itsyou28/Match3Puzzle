@@ -35,9 +35,13 @@ public class BlockFieldMaker
                 fields[row, col] = new BlockField();
 
                 if (row == 0 || row == maxRow - 1 || col == 0 || col == maxCol - 1)
-                    fields[row, col].IsPlayable = false;
+                    fields[row, col].SetNonPlayable();
             }
         }
+
+        //진행방향
+        //first, last 지정
+        //prev, next 지정
 
         return fields;
     }
@@ -95,7 +99,7 @@ public class BlockFieldMaker
         {
             for (int col = 0; col < arr.GetLength(1); col++)
             {
-                curEditFields[row+1, col+1].block.type = arr[row, col];
+                curEditFields[row + 1, col + 1].block.SetBlockType(arr[row, col]);
             }
         }
 
