@@ -48,6 +48,7 @@ public class Block
     public void MoveToNextField()
     {
         //preField에서 curField로의 이동애니메이션을 실행한다. 
+        //병합구간에서상호 간섭 없이 애니를 하려면?
     }
 
     #region override Equals

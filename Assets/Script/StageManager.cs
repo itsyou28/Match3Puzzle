@@ -29,6 +29,8 @@ public class StageManager
         lastRow = rowLength;
         lastCol = colLength;
 
+        BlockField.stage = this;
+
         Debug.Log("stage field load : " + fieldFileName + " " + rowLength + " " + colLength + " " + lastRow + " " + lastCol);
 
         BlockInitialize();
@@ -43,20 +45,6 @@ public class StageManager
 
     List<BlockField> movedLineList = new List<BlockField>();
 
-    //이미 처리된 lastField인지 확인하고 아닐 경우 버퍼에 삽입한다. 
-    bool ChkMovedLine(BlockField last)
-    {
-        for (int i = 0; i < movedLineList.Count; i++)
-        {
-            if (movedLineList[i] == last)
-                return true;
-        }
-
-        movedLineList.Add(last);
-
-        return false;
-    }
-
     //해당 라인의 마지막 Field를 반환한다. 
     BlockField GetLineLast(BlockField field)
     {
@@ -68,18 +56,17 @@ public class StageManager
     
     void MoveAllBlock()
     {
-        movedLineList.Clear();
         BlockMove = null;
 
         BlockField last, cur;
 
         for (int i = 0; i < matchedField.Count; i++)
         {
-            last = GetLineLast(matchedField[i]);
-
-            //해당 라인이 이미 처리됐다면 Skip 한다
-            if (ChkMovedLine(last))
+            //이미 필드에 블럭이 있을 경우 건너뛴다
+            if (!matchedField[i].IsEmpty)
                 continue;
+
+            last = GetLineLast(matchedField[i]);
 
             cur = last;
 
@@ -87,6 +74,10 @@ public class StageManager
             while (!cur.IsFirst)
             {
                 Block block = cur.FindBlockInMyLine();
+                
+                if (block == null)//현재 라인에 이동 가능한 블럭이 없으므로 루프를 중단한다. 
+                    break;
+
                 block.SetNextField();
                 BlockMove += block.MoveToNextField;
                 cur = cur.prev;
@@ -280,4 +271,138 @@ public class StageManager
             }
         }
     }
+
+    #region GetFields
+    public IEnumerable<BlockField> Arounds(BlockField centerField)
+    {
+        for (int i = centerField.row - 1; i < 3; i++)
+        {
+            for (int j = centerField.col - 1; j < 3; j++)
+            {
+                yield return fields[i, j];
+            }
+        }
+    }
+
+    public BlockField GetNextByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.row, centerField.col, 8);
+            case 1://left
+                return GetBlockField(centerField.row, centerField.col, 4);
+            case 2://up
+                return GetBlockField(centerField.row, centerField.col, 2);
+            case 3://right
+                return GetBlockField(centerField.row, centerField.col, 6);
+        }
+    }
+
+    public BlockField GetPrevByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.row, centerField.col, 8);
+            case 1://left
+                return GetBlockField(centerField.row, centerField.col, 4);
+            case 2://up
+                return GetBlockField(centerField.row, centerField.col, 2);
+            case 3://right
+                return GetBlockField(centerField.row, centerField.col, 6);
+        }
+    }
+
+    public BlockField GetRightByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.row, centerField.col, 6);
+            case 1://left
+                return GetBlockField(centerField.row, centerField.col, 8);
+            case 2://up
+                return GetBlockField(centerField.row, centerField.col, 4);
+            case 3://right
+                return GetBlockField(centerField.row, centerField.col, 2);
+        }
+    }
+
+    public BlockField GetLeftByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.row, centerField.col, 4);
+            case 1://left
+                return GetBlockField(centerField.row, centerField.col, 2);
+            case 2://up
+                return GetBlockField(centerField.row, centerField.col, 6);
+            case 3://right
+                return GetBlockField(centerField.row, centerField.col, 8);
+        }
+    }
+
+    public BlockField GetRightDiagnalByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.row, centerField.col, 3);
+            case 1://left
+                return GetBlockField(centerField.row, centerField.col, 9);
+            case 2://up
+                return GetBlockField(centerField.row, centerField.col, 7);
+            case 3://right
+                return GetBlockField(centerField.row, centerField.col, 1);
+        }
+    }
+
+    public BlockField GetLeftDiagnalByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.row, centerField.col, 1);
+            case 1://left
+                return GetBlockField(centerField.row, centerField.col, 3);
+            case 2://up
+                return GetBlockField(centerField.row, centerField.col, 9);
+            case 3://right
+                return GetBlockField(centerField.row, centerField.col, 7);
+        }
+    }
+
+    public BlockField GetBlockField(int row, int col, int dir)
+    {
+        switch (dir)
+        {
+            default:
+            case 1:
+                return fields[row - 1, col - 1];
+            case 2:
+                return fields[row - 1, col];
+            case 3:
+                return fields[row - 1, col + 1];
+            case 4:
+                return fields[row, col - 1];
+            case 6:
+                return fields[row, col + 1];
+            case 7:
+                return fields[row + 1, col - 1];
+            case 8:
+                return fields[row + 1, col];
+            case 9:
+                return fields[row + 1, col + 1];
+        }
+
+    } 
+    #endregion
 }
