@@ -21,8 +21,9 @@ public class BlockFieldMaker
 
     string curFieldsName;
     BlockField[,] curEditFields;
+    BlockFieldManager fieldMng;
 
-    public static BlockField[,] CreateField(int maxRow, int maxCol)
+    public BlockField[,] CreateField(int maxRow, int maxCol)
     {
         maxRow += 2; maxCol += 2;
 
@@ -32,16 +33,19 @@ public class BlockFieldMaker
         {
             for (int col = 0; col < maxCol; col++)
             {
-                fields[row, col] = new BlockField();
+                fields[row, col] = new BlockField(row, col);
 
                 if (row == 0 || row == maxRow - 1 || col == 0 || col == maxCol - 1)
                     fields[row, col].SetNonPlayable();
             }
         }
 
-        //진행방향
-        //first, last 지정
-        //prev, next 지정
+        fieldMng = new BlockFieldManager(fields);
+
+        foreach (var field in fieldMng.GetField())
+        {
+            field.Initialize(0);
+        }
 
         return fields;
     }
@@ -95,11 +99,14 @@ public class BlockFieldMaker
     {
         CreateField(arr.GetLength(0), arr.GetLength(1), fieldName);
 
+        Debug.Log(curEditFields.GetLength(0) + " " + curEditFields.GetLength(1) + " // " + arr.GetLength(0) + " " + arr.GetLength(1));
         for (int row = 0; row < arr.GetLength(0); row++)
         {
             for (int col = 0; col < arr.GetLength(1); col++)
             {
-                curEditFields[row + 1, col + 1].block.SetBlockType(arr[row, col]);
+                Block block = new Block(curEditFields[row + 1, col + 1]);
+                block.SetBlockType(arr[row, col]);
+                curEditFields[row + 1, col + 1].SetBlock(block);
             }
         }
 

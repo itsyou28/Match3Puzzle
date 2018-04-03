@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 [Serializable]
 public class Block
@@ -6,23 +7,24 @@ public class Block
     BlockField preField;
     BlockField curField;
 
-    public int BlockType { get { return BlockType; } }
+    public int BlockType { get { return blockType; } }
     int blockType;
 
-    public Block()
-    {
-
-    }
-
-    public void Match()
-    {
-        //화면에서 제거되고 pool로 돌아간다. 
-    }
-
-    public void Initialize(BlockField field, int blockType)
+    public Block(BlockField field, int blockType)
     {
         curField = field;
         this.blockType = blockType;
+    }
+
+    public Block(BlockField field)
+    {
+        curField = field;
+        blockType = UnityEngine.Random.Range(1, 8);
+    }
+    
+    public void Match()
+    {
+        //화면에서 제거되고 pool로 돌아간다. 
     }
 
     public void SetBlockType(int blockType)

@@ -13,11 +13,11 @@ public class FieldTest
     public void CreateField()
     {
         BlockFieldMaker.Inst.CreateField(rowMax, colMax, "TestField");
-
+        BlockFieldMaker.Inst.SaveField();
     }
 
     [Test]
-    public void FieldLoad()
+    public void LoadField()
     {
         BlockField[,] loadData = BlockFieldMaker.Inst.LoadField("TestField");
 
@@ -28,9 +28,7 @@ public class FieldTest
     [Test]
     public void MatchTest1()
     {
-        StageManager stage = new StageManager();
-
-        stage.LoadFields("TestField");
+        BlockFieldManager stage = new BlockFieldManager("TestField");
 
         stage.ExcuteMatch();
     }
@@ -122,10 +120,8 @@ public class MatchTest : IPrebuildSetup
 
     private static void TestMatch(int[] arrCorrect, string fieldName)
     {
-        StageManager stage = new StageManager();
-
-        stage.LoadFields(fieldName);
-
+        BlockFieldManager stage = new BlockFieldManager(fieldName);
+        
         stage.ExcuteMatch();
 
         Assert.AreEqual(arrCorrect.Length, stage.matchedField.Count);

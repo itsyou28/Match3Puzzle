@@ -6,32 +6,42 @@ using NUnit.Framework;
 [Serializable]
 public class BlockField
 {
-    public static StageManager stage;
-
-    public int row, col;
-
+    public static BlockFieldManager fieldMng;
+    
     public Block block;
-    public int BlockType { get { return block.BlockType; } }
+    public int BlockType { get { return block==null?-1:block.BlockType; } }
 
     public BlockField prev { get; private set; }
     public BlockField next { get; private set; }
 
+    public int row { get; private set; }
+    public int col { get; private set; }
     public bool IsPlayable { get { return isPlayable; } }
     public bool IsEmpty { get { return isEmpty; } }
     public bool IsCreateField { get { return isCreateField; } }
     public bool IsMoveable { get { return isMoveable; } }
     public bool IsLast { get { return !next.isMoveable; } }
     public bool IsFirst { get { return !prev.isMoveable; } }
-    public int Direction { get { return Direction; } }
+    public float X { get; private set; }
+    public float Y { get; private set; }
+    /// <summary>
+    /// 0:down 1:left 2:up 3:right
+    /// </summary>
+    public int Direction { get { return direction; } }
 
     public event Action<BlockField> blockChange;
     
     bool isPlayable = true;
     bool isEmpty = true;
-    bool isLast = false;
     bool isCreateField = false;
     bool isMoveable = true;
     int direction = 0; //0:down 1:left 2:up 3:right
+
+    public BlockField(int row, int col)
+    {
+        this.row = row;
+        this.col = col;
+    }
 
     //nonPlayable 이거나 field가 특수 상태이거나 block이 특수 상태일경우 
     void SetMoveable()
@@ -49,10 +59,15 @@ public class BlockField
     }
 
     /// <param name="dir">//0:down 1:left 2:up 3:right</param>
-    public void SetDir(int dir)
+    public void Initialize(int dir)
     {
-        next = stage.GetNextByDir(this);
-        prev = stage.GetPrevByDir(this);
+        direction = dir;
+
+        next = fieldMng.GetNextByDir(this);
+        prev = fieldMng.GetPrevByDir(this);
+
+        X = col;
+        Y = fieldMng.RowLength - row;
     }
 
     BlockField[] arrPrev;
@@ -70,7 +85,7 @@ public class BlockField
             }
         }
 
-        BlockField diagnalField = stage.GetRightByDir(orderField);
+        BlockField diagnalField = fieldMng.GetRightByDir(orderField);
         if (diagnalField.CanDiagnal(this))
         {
             if (diagnalList == null)
@@ -79,7 +94,7 @@ public class BlockField
             diagnalList.Add(diagnalField);
         }
 
-        diagnalField = stage.GetLeftByDir(orderField);
+        diagnalField = fieldMng.GetLeftByDir(orderField);
         if(diagnalField.CanDiagnal(this))
         {
             if (diagnalList == null)
@@ -180,13 +195,13 @@ public class BlockField
             return false;
         }
 
-        if(next != stage.GetNextByDir(this))
+        if(next != fieldMng.GetNextByDir(this))
         {
             Debug.LogError(row + " " + col + " // 방향과 지정된 next 필드가 일치하지 않습니다. ");
             return false;
         }
 
-        if(prev != stage.GetPrevByDir(this))
+        if(prev != fieldMng.GetPrevByDir(this))
         {
             Debug.LogError(row + " " + col + " // 방향과 지정된 prev 필드가 일치하지 않습니다. ");
             return false;
@@ -213,7 +228,7 @@ public class BlockField
     {
         if (isCreateField && block == null)
         {
-            block = new Block();
+            block = new Block(this);
         }
         else if (block == null)
             isEmpty = true;
@@ -228,7 +243,8 @@ public class BlockField
 
     public void Match()
     {
-        block.Match();
+        if(block != null)
+            block.Match();
     }
 
     public Block FindBlockInMyLine()
