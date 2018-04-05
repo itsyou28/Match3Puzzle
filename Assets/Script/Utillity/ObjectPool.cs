@@ -2,7 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class ObjectPool<T>
+public interface iPool<T>
+{
+    void Push(T obj);
+    T Pop();
+}
+
+public class ObjectPool<T> : iPool<T>
 {
     //특정오브젝트를 Stack에 담을 수 있다. 
     //Stack에 원하는 개수만큼 추가할 수 있다. 

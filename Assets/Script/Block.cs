@@ -1,30 +1,69 @@
 ﻿using System;
 using UnityEngine;
 
+public class BlockPool
+{
+    private static BlockPool instance = null;
+    private static ObjectPool<Block> pool;
+    public static ObjectPool<Block> Pool
+    {
+        get
+        {
+            if (instance == null)
+                instance = new BlockPool();
+            return pool;
+        }
+    }
+
+    private BlockPool()
+    {
+        pool = new ObjectPool<Block>(100, 20, CreateBlock);
+    }
+
+    Block CreateBlock()
+    {
+        return new Block();
+    }
+}
+
+
+/// <summary>
+/// 게임 시간동안 빈번하게 생성/해제가 발생하므로 pool로 관리한다. 
+/// 블럭 타입 관리 및 블럭타입 비교를 구현한다. 
+/// 블럭이 위치하고 있는 필드, 이동할 필드 등을 관리한다. 
+/// </summary>
 [Serializable]
 public class Block
 {
     BlockField preField;
     BlockField curField;
 
+    [NonSerialized]
+    iBlockGO blockGO;
+
     public int BlockType { get { return blockType; } }
     int blockType;
 
-    public Block(BlockField field, int blockType)
+    public void InitByEditor(BlockField field, int blockType)
     {
         curField = field;
         this.blockType = blockType;
     }
 
-    public Block(BlockField field)
+    public void Reset(BlockField field, int blockType)
     {
         curField = field;
-        blockType = UnityEngine.Random.Range(1, 8);
+        this.blockType = blockType;
+
+        DeployScreen();
     }
-    
-    public void Match()
+
+    public void ResetRand(BlockField field, int randMax)
     {
-        //화면에서 제거되고 pool로 돌아간다. 
+        curField = field;
+        blockType = UnityEngine.Random.Range(1, randMax);
+
+        DeployScreen();
     }
 
     public void SetBlockType(int blockType)
@@ -51,6 +90,28 @@ public class Block
     {
         //preField에서 curField로의 이동애니메이션을 실행한다. 
         //병합구간에서상호 간섭 없이 애니를 하려면?
+    }
+
+    public void DeployScreen()
+    {
+        if(blockGO == null)
+            blockGO = BlockGOPool.pool.Pop();
+        blockGO.SetBlock(this, curField.X, curField.Y);
+    }
+
+    public void Match()
+    {
+        //화면에서 제거되고 pool로 돌아간다. 
+        blockGO.Match();
+        BlockGOPool.pool.Push(blockGO);
+        blockGO = null;
+    }
+
+    public void CleanUp()
+    {
+        blockGO.PushBack();
+        BlockGOPool.pool.Push(blockGO);
+        blockGO = null;
     }
 
     #region override Equals

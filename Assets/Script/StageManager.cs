@@ -3,11 +3,6 @@ using System.Collections;
 
 public class StageManager : MonoBehaviour
 {
-    [SerializeField]
-    BlockFieldDraw fieldDraw;
-    [SerializeField]
-    BlockDraw blockDraw;
-
     BlockFieldManager fieldMng;
 
     private void Start()
@@ -17,10 +12,7 @@ public class StageManager : MonoBehaviour
 
     void InitFieldManager()
     {
-        fieldMng = new BlockFieldManager("TestField");
+        fieldMng = new BlockFieldManager("TestField2");
         fieldMng.BlockInitialize();
-
-        fieldDraw.DrawField(fieldMng);
-        blockDraw.DeployBlock(fieldMng);
     }
 }

@@ -104,8 +104,8 @@ public class BlockFieldMaker
         {
             for (int col = 0; col < arr.GetLength(1); col++)
             {
-                Block block = new Block(curEditFields[row + 1, col + 1]);
-                block.SetBlockType(arr[row, col]);
+                Block block = new Block();
+                block.InitByEditor(curEditFields[row + 1, col + 1], arr[row, col]);
                 curEditFields[row + 1, col + 1].SetBlock(block);
             }
         }

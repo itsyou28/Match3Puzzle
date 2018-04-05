@@ -1,12 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BlockGO : MonoBehaviour
+public interface iBlockGO
+{
+    void SetBlock(Block block, float x, float y);
+    void Match();
+    void PushBack();
+}
+
+public class BlockGO : MonoBehaviour, iBlockGO
 {
     [SerializeField]
     SpriteRenderer sprite;
 
-    public void SetBlock(Block block)
+    public void SetBlock(Block block, float x, float y)
     {
         switch(block.BlockType)
         {
@@ -35,5 +42,33 @@ public class BlockGO : MonoBehaviour
                 sprite.color = Color.black;
                 break;
         }
+
+        transform.localPosition = new Vector3(x, y);
+        gameObject.SetActive(true);
+    }
+    
+    public void Match()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void PushBack()
+    {
+        gameObject.SetActive(false);
+    }
+}
+
+public class BlockGODummy : iBlockGO
+{
+    public void SetBlock(Block block, float x, float y)
+    {
+    }
+
+    public void Match()
+    {
+    }
+
+    public void PushBack()
+    {
     }
 }

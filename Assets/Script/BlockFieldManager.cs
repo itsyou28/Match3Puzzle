@@ -17,6 +17,18 @@ public class BlockFieldManager
     public List<BlockField> ableField = new List<BlockField>();
     public List<BlockField> matchedField = new List<BlockField>();
 
+    public void CleanUp()
+    {
+        for (int row = 0; row <= rowArrLastIdx; row++)
+        {
+            for (int col = 0; col < colArrLastIdx; col++)
+            {
+                fields[row, col].CleanUp();
+            }
+        }
+    }
+
+    // 에디터, 테스터 등에서 호출한다. 
     public BlockFieldManager(BlockField[,] fields)
     {
         this.fields = fields;
@@ -24,6 +36,9 @@ public class BlockFieldManager
         Initialize();
     }
 
+    /// <summary>
+    /// 파일로 저장되어 있는 필드를 불러온다. 
+    /// </summary>
     public BlockFieldManager(string fieldFileName)
     {
         //필드로드
@@ -42,8 +57,8 @@ public class BlockFieldManager
 
     void Initialize()
     {
-        rowArrLastIdx = fields.GetLength(0)-1;
-        colArrLastIdx = fields.GetLength(1)-1;
+        rowArrLastIdx = fields.GetLength(0) - 1;
+        colArrLastIdx = fields.GetLength(1) - 1;
         RowLength = rowArrLastIdx - 1;
         ColLength = colArrLastIdx - 1;
         lastRow = RowLength;
@@ -62,9 +77,15 @@ public class BlockFieldManager
             for (int j = 0; j <= colArrLastIdx; j++)
             {
                 field = fields[i, j];
-                if (field.IsPlayable && field.block == null)
+
+                field.DeployScreen();
+
+                if (field.IsPlayable)
                 {
-                    field.SetBlock(new Block(field));
+                    if (field.block == null)
+                        field.CreateBlock();
+                    else
+                        field.block.DeployScreen();
                 }
             }
         }
@@ -95,7 +116,7 @@ public class BlockFieldManager
 
         return field;
     }
-    
+
     void MoveAllBlock()
     {
         BlockMove = null;
@@ -116,7 +137,7 @@ public class BlockFieldManager
             while (!cur.IsFirst)
             {
                 Block block = cur.FindBlockInMyLine();
-                
+
                 if (block == null)//현재 라인에 이동 가능한 블럭이 없으므로 루프를 중단한다. 
                     break;
 
@@ -163,9 +184,9 @@ public class BlockFieldManager
     {
         for (int row = 1; row <= lastRow; row++)
         {
-            for (int col = 1; col <= lastCol-2; col++)
+            for (int col = 1; col <= lastCol - 2; col++)
             {
-                if (fields[row,col].BlockType == fields[row,col + 2].BlockType)
+                if (fields[row, col].BlockType == fields[row, col + 2].BlockType)
                     ChkRowPattern(row, col);
             }
         }
@@ -175,9 +196,9 @@ public class BlockFieldManager
     {
         for (int col = 1; col <= lastCol; col++)
         {
-            for (int row = 1; row <= lastRow-2; row++)
+            for (int row = 1; row <= lastRow - 2; row++)
             {
-                if (fields[row,col].BlockType == fields[row + 2,col].BlockType)
+                if (fields[row, col].BlockType == fields[row + 2, col].BlockType)
                     ChkColPattern(row, col);
             }
         }
@@ -198,12 +219,12 @@ public class BlockFieldManager
     /// □△□ ◆☆■
     void ChkRowPattern(int row, int col)
     {
-        if (fields[row,col].BlockType == fields[row,col + 3].BlockType ||
-            fields[row,col].BlockType == fields[row,col - 1].BlockType ||
-            fields[row,col].BlockType == fields[row + 1,col + 1].BlockType ||
-            fields[row,col].BlockType == fields[row - 1,col + 1].BlockType)
+        if (fields[row, col].BlockType == fields[row, col + 3].BlockType ||
+            fields[row, col].BlockType == fields[row, col - 1].BlockType ||
+            fields[row, col].BlockType == fields[row + 1, col + 1].BlockType ||
+            fields[row, col].BlockType == fields[row - 1, col + 1].BlockType)
         {
-            ableField.Add(fields[row,col + 1]);
+            ableField.Add(fields[row, col + 1]);
         }
     }
 
@@ -214,12 +235,12 @@ public class BlockFieldManager
     /// △  ■             
     void ChkColPattern(int row, int col)
     {
-        if (fields[row,col].BlockType == fields[row + 3,col].BlockType ||
-            fields[row,col].BlockType == fields[row - 1,col].BlockType ||
-            fields[row,col].BlockType == fields[row + 1,col + 1].BlockType ||
-            fields[row,col].BlockType == fields[row + 1,col - 1].BlockType)
+        if (fields[row, col].BlockType == fields[row + 3, col].BlockType ||
+            fields[row, col].BlockType == fields[row - 1, col].BlockType ||
+            fields[row, col].BlockType == fields[row + 1, col + 1].BlockType ||
+            fields[row, col].BlockType == fields[row + 1, col - 1].BlockType)
         {
-            ableField.Add(fields[row + 1,col]);
+            ableField.Add(fields[row + 1, col]);
         }
     }
 
@@ -232,11 +253,11 @@ public class BlockFieldManager
         for (int line = minRow; line <= maxRow; line++)
         {
             l = minCol;
-            r = minCol+1;
+            r = minCol + 1;
             cnt = 0;
             while (r < rLimit)
             {
-                if (fields[line,r].IsPlayable && fields[line,l].BlockType == fields[line,r].BlockType)
+                if (fields[line, r].IsPlayable && fields[line, l].BlockType == fields[line, r].BlockType)
                 {
                     cnt++;
                 }
@@ -247,7 +268,7 @@ public class BlockFieldManager
                         //cnt+1 match!
                         for (int i = 0; i <= cnt; i++)
                         {
-                            matchedField.Add(fields[line,l + i]);
+                            matchedField.Add(fields[line, l + i]);
                             //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line,l+i].BlockType.type);
                         }
                     }
@@ -277,30 +298,30 @@ public class BlockFieldManager
         for (int line = minCol; line <= maxCol; line++)
         {
             l = minRow;
-            r = minRow+1;
+            r = minRow + 1;
             cnt = 0;
             while (r < rLimit)
             {
-                    if (fields[r, line].IsPlayable && fields[l, line].BlockType == fields[r, line].BlockType)
+                if (fields[r, line].IsPlayable && fields[l, line].BlockType == fields[r, line].BlockType)
+                {
+                    cnt++;
+                }
+                else
+                {
+                    if (cnt > 1)
                     {
-                        cnt++;
-                    }
-                    else
-                    {
-                        if (cnt > 1)
+                        //cnt+1 match!
+                        for (int i = 0; i <= cnt; i++)
                         {
-                            //cnt+1 match!
-                            for (int i = 0; i <= cnt; i++)
-                            {
-                                matchedField.Add(fields[l + i, line]);
-                                //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
-                            }
+                            matchedField.Add(fields[l + i, line]);
+                            //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
                         }
-
-                        l = r;
-                        cnt = 0;
                     }
-                    r++;
+
+                    l = r;
+                    cnt = 0;
+                }
+                r++;
             }
             if (cnt > 1)
             {
@@ -482,6 +503,6 @@ public class BlockFieldManager
                     return null;
                 return fields[row + 1, col + 1];
         }
-    } 
+    }
     #endregion
 }

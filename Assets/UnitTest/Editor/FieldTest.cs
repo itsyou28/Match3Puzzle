@@ -17,6 +17,13 @@ public class FieldTest
     }
 
     [Test]
+    public void CreateField2()
+    {
+        BlockFieldMaker.Inst.CreateField(9, 9, "TestField2");
+        BlockFieldMaker.Inst.SaveField();
+    }
+
+    [Test]
     public void LoadField()
     {
         BlockField[,] loadData = BlockFieldMaker.Inst.LoadField("TestField");

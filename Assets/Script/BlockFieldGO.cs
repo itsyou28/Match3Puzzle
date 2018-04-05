@@ -1,7 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BlockFieldGO : MonoBehaviour
+public interface iBlockFieldGO
+{
+    void SetBlockField(BlockField field);
+    void PushBack();
+}
+
+public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 {
     //배경 이미지
     //진행방향
@@ -28,5 +34,23 @@ public class BlockFieldGO : MonoBehaviour
                 dirImg.transform.localRotation = Quaternion.Euler(0, 0, -90);
                 break;
         }
+
+        transform.localPosition = new Vector3(field.X, field.Y);
+        gameObject.SetActive(true);
+    }
+
+    public void PushBack()
+    {
+        gameObject.SetActive(false);
+    }
+}
+
+public class BlockFieldGODummy : iBlockFieldGO
+{
+    public void SetBlockField(BlockField field)
+    {
+    }
+    public void PushBack()
+    {
     }
 }
