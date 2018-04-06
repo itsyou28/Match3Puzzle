@@ -5,7 +5,7 @@ public class StageManager : MonoBehaviour
 {
     BlockFieldManager fieldMng;
 
-    private void Start()
+    void Start()
     {
         InitFieldManager();
     }
@@ -14,5 +14,13 @@ public class StageManager : MonoBehaviour
     {
         fieldMng = new BlockFieldManager("TestField2");
         fieldMng.BlockInitialize();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            fieldMng.ExcuteMatch();
+        }
     }
 }

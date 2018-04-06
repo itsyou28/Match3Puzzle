@@ -20,6 +20,7 @@ public class FieldTest
     public void CreateField2()
     {
         BlockFieldMaker.Inst.CreateField(9, 9, "TestField2");
+        Assert.IsTrue(BlockFieldMaker.Inst.ValidateField());
         BlockFieldMaker.Inst.SaveField();
     }
 

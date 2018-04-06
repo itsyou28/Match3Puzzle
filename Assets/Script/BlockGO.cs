@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 public interface iBlockGO
@@ -6,6 +7,8 @@ public interface iBlockGO
     void SetBlock(Block block, float x, float y);
     void Match();
     void PushBack();
+    void Move(float x, float y, Action callback);
+    void Stop();
 }
 
 public class BlockGO : MonoBehaviour, iBlockGO
@@ -52,9 +55,64 @@ public class BlockGO : MonoBehaviour, iBlockGO
         gameObject.SetActive(false);
     }
 
+    Action callbackMove;
+
+    public void Move(float x, float y, Action callback)
+    {
+        startPos = transform.localPosition;
+        EndPos = new Vector3(x, y);
+        elapseTime = 0;
+        isMoving = true;
+        callbackMove = callback;
+    }
+
+    public void Stop()
+    {
+        isStoping = true;
+        elapseTime = 0;
+    }
+
     public void PushBack()
     {
         gameObject.SetActive(false);
+    }
+
+    void Update()
+    {
+        if (isMoving)
+            Moving();
+
+        if (isStoping)
+            Stoping();
+    }
+
+    bool isStoping = false;
+    bool isMoving = false;
+    float speed = 0;
+    float elapseTime = 0;
+    Vector3 startPos, EndPos;
+
+    void Moving()
+    {
+        elapseTime += Time.deltaTime;
+        if (elapseTime >= 1)
+        {
+            isMoving = false;
+            transform.localPosition = EndPos;
+
+            if (callbackMove != null)
+            {
+                callbackMove();
+                callbackMove = null; 
+            }
+        }
+        else
+            transform.localPosition = Vector3.Lerp(startPos, EndPos, elapseTime);
+    }
+
+    void Stoping()
+    {
+        isStoping = false;
     }
 }
 
@@ -69,6 +127,14 @@ public class BlockGODummy : iBlockGO
     }
 
     public void PushBack()
+    {
+    }
+
+    public void Move(float x, float y, Action callback)
+    {
+    }
+
+    public void Stop()
     {
     }
 }

@@ -87,6 +87,8 @@ public class BlockFieldManager
                     else
                         field.block.DeployScreen();
                 }
+                else if (field.IsCreateField)
+                    field.CreateBlock();
             }
         }
 
@@ -134,7 +136,7 @@ public class BlockFieldManager
             cur = last;
 
             //해당 라인의 시작필드에 도달할 때까지 한 칸씩 역행하며 빈블럭을 채운다. 
-            while (!cur.IsFirst)
+            while (cur.IsPlayable)
             {
                 Block block = cur.FindBlockInMyLine();
 
@@ -176,6 +178,8 @@ public class BlockFieldManager
         {
             matchedField[i].Match();
         }
+
+        MoveAllBlock();
     }
 
 
@@ -369,13 +373,13 @@ public class BlockFieldManager
         {
             default:
             case 0://down
-                return GetBlockField(centerField.row, centerField.col, 8);
-            case 1://left
-                return GetBlockField(centerField.row, centerField.col, 4);
-            case 2://up
                 return GetBlockField(centerField.row, centerField.col, 2);
-            case 3://right
+            case 1://left
                 return GetBlockField(centerField.row, centerField.col, 6);
+            case 2://up
+                return GetBlockField(centerField.row, centerField.col, 8);
+            case 3://right
+                return GetBlockField(centerField.row, centerField.col, 4);
         }
     }
 

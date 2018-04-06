@@ -35,19 +35,43 @@ public class BlockFieldMaker
             {
                 fields[row, col] = new BlockField(row, col);
 
-                if (row == 0 || row == maxRow - 1 || col == 0 || col == maxCol - 1)
+                if (row == 0)
+                {
+                    fields[row, col].SetCreateField();
+                    fields[row, col].SetNonPlayable();
+                }
+                if (row == maxRow - 1 || col == 0 || col == maxCol - 1)
                     fields[row, col].SetNonPlayable();
             }
         }
 
         fieldMng = new BlockFieldManager(fields);
 
-        foreach (var field in fieldMng.GetField())
+        for (int row = 0; row < maxRow; row++)
         {
-            field.Initialize(0);
+            for (int col = 0; col < maxCol; col++)
+            {
+                fields[row, col].Initialize(0);
+            }
         }
 
         return fields;
+    }
+
+    public bool ValidateField()
+    {
+        int rowMax = curEditFields.GetLength(0);
+        int colMax = curEditFields.GetLength(1);
+        bool result = true;
+        for (int row = 0; row < rowMax; row++)
+        {
+            for (int col = 0; col < colMax; col++)
+            {
+                result &= curEditFields[row, col].ValidateField();
+            }
+        }
+
+        return result;
     }
 
     public void CreateField(int maxRow, int maxCol, string fieldName)

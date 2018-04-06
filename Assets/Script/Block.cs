@@ -88,8 +88,7 @@ public class Block
 
     public void MoveToNextField()
     {
-        //preField에서 curField로의 이동애니메이션을 실행한다. 
-        //병합구간에서상호 간섭 없이 애니를 하려면?
+        blockGO.Move(curField.X, curField.Y, null);
     }
 
     public void DeployScreen()
@@ -101,10 +100,13 @@ public class Block
 
     public void Match()
     {
-        //화면에서 제거되고 pool로 돌아간다. 
-        blockGO.Match();
-        BlockGOPool.pool.Push(blockGO);
-        blockGO = null;
+        if (blockGO != null)
+        {
+            //화면에서 제거되고 pool로 돌아간다. 
+            blockGO.Match();
+            BlockGOPool.pool.Push(blockGO);
+            blockGO = null; 
+        }
     }
 
     public void CleanUp()

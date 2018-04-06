@@ -57,26 +57,34 @@ public class BlockField
         direction = dir;
 
         next = fieldMng.GetNextByDir(this);
-        prev = fieldMng.GetPrevByDir(this);
+        if (next != null)
+            next.prev = this;
 
         X = col;
         Y = fieldMng.RowLength - row;
-    }
 
-    bool ValidateField()
+        string log = "Initialize // " + row + " " + col;
+        if (next != null)
+            log += " next : " + next.row + " " + next.col;
+        if (prev != null)
+            log += " prev : " + prev.row + " " + prev.col;
+        Debug.Log(log);
+    }
+    
+    public bool ValidateField()
     {
         if (isPlayable && prev == null)
         {
-            Debug.LogError(row + " " + col + " // playable field 는 반드시 prev / next field가 존재해야 합니다. ");
+            Debug.LogError(row + " " + col + " " + isPlayable + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
             return false;
         }
         if (isPlayable && next == null)
         {
-            Debug.LogError(row + " " + col + " // playable field 는 반드시 prev / next field가 존재해야 합니다. ");
+            Debug.LogError(row + " " + col + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
             return false;
         }
 
-        if (prev == next)
+        if (prev != null && next != null && prev == next)
         {
             Debug.LogError(row + " " + col + " // 방향이 충돌합니다. ");
             return false;
@@ -111,6 +119,11 @@ public class BlockField
         SetMoveable();
     }
 
+    public void SetCreateField()
+    {
+        isCreateField = true;
+    }
+
     #endregion
 
     public void DeployScreen()
@@ -139,8 +152,8 @@ public class BlockField
     {
         if (!isPlayable)
             isMoveable = false;
-
-        isMoveable = true;
+        else
+            isMoveable = true;
 
         //필드가 동적으로 이동불가 상태가 됐을 때 next 필드를 prev관리 필드로 지정한다. 
         if (!isMoveable)
@@ -286,19 +299,18 @@ public class BlockField
         {
             block.Match();
             BlockPool.Pool.Push(block);
+            SetBlock(null);
         }
     }
 
+    //필드가 속한 라인의 역진행방향에 존재하는 블럭을 찾는다. 
     public Block FindBlockInMyLine()
     {
-        if (!isPlayable || !isEmpty)
-            throw new Exception();
-
-        BlockField field = prev;
+        BlockField field = this;
 
         //현재 필드가 시작 필드가 아니고 빈 필드일경우 이전 필드 탐색 반복
-        while (field.IsEmpty && !field.IsFirst)
-        {
+        while (!field.IsFirst && field.IsEmpty)
+        {            
             field = field.prev;
         }
 
