@@ -15,7 +15,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
 {
     [SerializeField]
     SpriteRenderer sprite;
-
+    
     public void SetBlock(Block block, float x, float y)
     {
         switch(block.BlockType)
@@ -88,14 +88,16 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     bool isStoping = false;
     bool isMoving = false;
-    float speed = 0;
+    const float aniTime = 0.2f;
+    const float reverseTime = 1 / aniTime;
     float elapseTime = 0;
+    
     Vector3 startPos, EndPos;
 
     void Moving()
     {
         elapseTime += Time.deltaTime;
-        if (elapseTime >= 1)
+        if (elapseTime >= aniTime)
         {
             isMoving = false;
             transform.localPosition = EndPos;
@@ -103,11 +105,10 @@ public class BlockGO : MonoBehaviour, iBlockGO
             if (callbackMove != null)
             {
                 callbackMove();
-                callbackMove = null; 
             }
         }
         else
-            transform.localPosition = Vector3.Lerp(startPos, EndPos, elapseTime);
+            transform.localPosition = Vector3.Lerp(startPos, EndPos, elapseTime*reverseTime);
     }
 
     void Stoping()

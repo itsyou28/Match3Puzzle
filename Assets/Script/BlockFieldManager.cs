@@ -95,7 +95,7 @@ public class BlockFieldManager
         //매칭 블럭이 있거나 매칭 가능 패턴이 없을 경우 문제가 안생길 때까지(??) 셔플
     }
 
-    event Action BlockMove;
+    //event Action BlockMove;
 
     List<BlockField> movedLineList = new List<BlockField>();
 
@@ -119,41 +119,41 @@ public class BlockFieldManager
         return field;
     }
 
-    void MoveAllBlock()
-    {
-        BlockMove = null;
+    //void MoveAllBlock()
+    //{
+    //    BlockMove = null;
 
-        BlockField last, cur;
+    //    BlockField last, cur;
 
-        for (int i = 0; i < matchedField.Count; i++)
-        {
-            //이미 필드에 블럭이 있을 경우 건너뛴다
-            if (!matchedField[i].IsEmpty)
-                continue;
+    //    for (int i = 0; i < matchedField.Count; i++)
+    //    {
+    //        //이미 필드에 블럭이 있을 경우 건너뛴다
+    //        if (!matchedField[i].IsEmpty)
+    //            continue;
 
-            last = GetLineLast(matchedField[i]);
+    //        last = GetLineLast(matchedField[i]);
 
-            cur = last;
+    //        cur = last;
 
-            //해당 라인의 시작필드에 도달할 때까지 한 칸씩 역행하며 빈블럭을 채운다. 
-            while (cur.IsPlayable)
-            {
-                Block block = cur.FindBlockInMyLine();
+    //        //해당 라인의 시작필드에 도달할 때까지 한 칸씩 역행하며 빈블럭을 채운다. 
+    //        while (cur.IsPlayable)
+    //        {
+    //            Block block = cur.FindBlockInMyLine();
 
-                if (block == null)//현재 라인에 이동 가능한 블럭이 없으므로 루프를 중단한다. 
-                    break;
+    //            if (block == null)//현재 라인에 이동 가능한 블럭이 없으므로 루프를 중단한다. 
+    //                break;
 
-                block.SetNextField();
-                BlockMove += block.MoveToNextField;
-                cur = cur.prev;
-            }
-        }
+    //            block.SetNextField();
+    //            BlockMove += block.MoveToNextField;
+    //            cur = cur.prev;
+    //        }
+    //    }
 
-        //이동된 블럭의 화면상의 이동 애니메이션을 실행한다. 
-        if (BlockMove != null)
-            BlockMove();
-    }
-
+    //    //이동된 블럭의 화면상의 이동 애니메이션을 실행한다. 
+    //    if (BlockMove != null)
+    //        BlockMove();
+    //}
+    
     public void FindMatchAble()
     {
         ableField.Clear();
@@ -178,8 +178,6 @@ public class BlockFieldManager
         {
             matchedField[i].Match();
         }
-
-        MoveAllBlock();
     }
 
 

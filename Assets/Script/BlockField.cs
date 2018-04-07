@@ -70,7 +70,7 @@ public class BlockField
             log += " prev : " + prev.row + " " + prev.col;
         Debug.Log(log);
     }
-    
+
     public bool ValidateField()
     {
         if (isPlayable && prev == null)
@@ -143,7 +143,19 @@ public class BlockField
         if (blockFieldGO != null)
         {
             blockFieldGO.PushBack();
-            BlockFieldGOPool.pool.Push(blockFieldGO); 
+            BlockFieldGOPool.pool.Push(blockFieldGO);
+        }
+    }
+
+
+    public void Update()
+    {
+        if (isEmpty)
+        {
+            if (!prev.isEmpty && prev.block != null)
+            {
+                prev.block.MoveToNextField();
+            }
         }
     }
 
@@ -283,7 +295,9 @@ public class BlockField
             block.ResetRand(this, 5);
         }
         else if (block == null)
+        {
             isEmpty = true;
+        }
         else
             isEmpty = false;
 
@@ -310,7 +324,7 @@ public class BlockField
 
         //현재 필드가 시작 필드가 아니고 빈 필드일경우 이전 필드 탐색 반복
         while (!field.IsFirst && field.IsEmpty)
-        {            
+        {
             field = field.prev;
         }
 

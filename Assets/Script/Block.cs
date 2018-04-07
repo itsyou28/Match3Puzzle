@@ -71,24 +71,43 @@ public class Block
         this.blockType = blockType;
     }
 
-    public void SetNextField()
-    {
-        BlockField field = curField;
-
-        while (field.next.IsEmpty && field.next.IsPlayable)
-        {
-            field = field.next;
-        }
-
-        preField = curField;
-        curField.SetBlock(null);
-        curField = field;
-        curField.SetBlock(this);
-    }
+    bool isMoving = false;
 
     public void MoveToNextField()
     {
-        blockGO.Move(curField.X, curField.Y, null);
+        //이동중에 호출 받았을 때 next필드가 변경되거나 하지 않도록 블럭해야 한다. 
+        if (isMoving)
+            return;
+
+        if (curField.next.IsPlayable && curField.next.IsEmpty)
+        {
+            curField.SetBlock(null);
+            curField = curField.next;
+            curField.SetBlock(this);
+
+            blockGO.Move(curField.X, curField.Y, Move);
+
+            isMoving = true;
+        }
+    }
+
+    void Move()
+    {
+        if (curField.next.IsPlayable && curField.next.IsEmpty)
+        {
+            curField.SetBlock(null);
+            curField = curField.next;
+            curField.SetBlock(this);
+
+            Debug.Log(this.GetHashCode() + " Move1  " + curField.X + "  " + curField.Y);
+            blockGO.Move(curField.X, curField.Y, Move);
+        }
+        else
+        {
+            Debug.Log(this.GetHashCode() + " Move2  " + curField.X + "  " + curField.Y);
+            isMoving = false;
+            blockGO.Stop();
+        }
     }
 
     public void DeployScreen()
