@@ -57,6 +57,7 @@ public class Block
     {
         curField = field;
         this.blockType = blockType;
+        isMoving = false;
 
         DeployScreen();
     }
@@ -65,6 +66,7 @@ public class Block
     {
         curField = field;
         blockType = UnityEngine.Random.Range(1, randMax);
+        isMoving = false;
 
         DeployScreen();
     }
@@ -81,7 +83,7 @@ public class Block
 
     public void MoveToNextField()
     {
-        //이동중에 호출 받았을 때 next필드가 변경되거나 하지 않도록 블럭해야 한다. 
+        //이동중에 호출 받았을 때 next필드가 변경되서 블럭위치가 튀거나 이상한 움직임을 보이지 않도록 블럭해야 한다. 
         if (isMoving)
             return;
 
@@ -97,12 +99,13 @@ public class Block
         }
     }
 
-    public void Move(BlockField target, Action callback)
+    public void SwapMove(BlockField target, Action callback)
     {
         isMoving = true;
         blockGO.Move(target.X, target.Y, () =>
         {
             isMoving = false;
+            blockGO.SwapStop();
             if (callback != null)
                 callback();
         });

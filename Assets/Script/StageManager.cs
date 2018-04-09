@@ -65,9 +65,11 @@ public class StageManager : MonoBehaviour, iStage
 
         if (isMatching && fieldMng.IsNotEmpty())
         {
-            Debug.Log("AllStop");
-            isMatching = false;
-            StartCoroutine(DelayMatch());
+            if (fieldMng.IsNotMoving())
+            {
+                isMatching = false;
+                StartCoroutine(DelayMatch()); 
+            }
         }
     }
 
@@ -75,7 +77,8 @@ public class StageManager : MonoBehaviour, iStage
     {
         if (fieldMng.FindMatch())
         {
-            yield return new WaitForSeconds(0.2f);
+            //매칭 이펙트, 매치 조건 확인을 위한 시야 제공 등의 이유로 시간차 매칭처리
+            yield return new WaitForSeconds(0.1f);
             isMatching = true;
             fieldMng.ExcuteMatch();
         }

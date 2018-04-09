@@ -126,8 +126,8 @@ public class BlockFieldManager
         swaping1 = false;
         swaping2 = false;
         swapCallback = callback;
-        selected.block.Move(target, () => { swaping1 = true; SwapResult(); });
-        target.block.Move(selected, () => { swaping2 = true; SwapResult(); });
+        selected.block.SwapMove(target, () => { swaping1 = true; SwapResult(); });
+        target.block.SwapMove(selected, () => { swaping2 = true; SwapResult(); });
 
         Block buffer = selected.block;
 
@@ -141,7 +141,6 @@ public class BlockFieldManager
     Action swapCallback;
     void SwapResult()
     {
-        Debug.Log(swaping1 + " " + swaping2);
         if (swaping1 && swaping2)
             swapCallback();
     }
@@ -207,6 +206,7 @@ public class BlockFieldManager
         }
     }
 
+    //필드가 비어있는지 체크한다. 
     public bool IsNotEmpty()
     {
         bool result = true;
@@ -214,6 +214,23 @@ public class BlockFieldManager
         foreach (var field in GetField())
         {
             result &= !field.IsEmpty;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///블럭이 이동중인지 체크한다. 
+    /// -블럭이 이동중일 때 매치가 발생할 경우 블럭 재사용에서 문제가 발생한다. 
+    /// -유저에게 불완전한 피드백을 줄 수 있기 때문에 블럭이 이동중일 때 이동의 완료를 보장해야 한다.)
+    /// </summary>
+    public bool IsNotMoving()
+    {
+        bool result = true;
+
+        foreach (var field in GetField())
+        {
+            result &= !field.block.IsMoving;
         }
 
         return result;

@@ -147,7 +147,7 @@ public class BlockField
         }
     }
 
-
+    // call by blockFieldGO.FixedUpdate()
     public void Update()
     {
         if (isEmpty)

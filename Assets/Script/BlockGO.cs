@@ -9,10 +9,14 @@ public interface iBlockGO
     void PushBack();
     void Move(float x, float y, Action callback);
     void Stop();
+    void SwapStop();
 }
 
 public class BlockGO : MonoBehaviour, iBlockGO
 {
+    [SerializeField]
+    bool isDebug;
+
     [SerializeField]
     SpriteRenderer sprite;
     
@@ -47,12 +51,28 @@ public class BlockGO : MonoBehaviour, iBlockGO
         }
 
         transform.localPosition = new Vector3(x, y);
+        if (isDebug)
+            Debug.Log("SetBlock " + transform.localPosition);
         gameObject.SetActive(true);
+    }
+
+    void OnEnable()
+    {
+        if (isDebug)
+            Debug.Log("Enable " + transform.localPosition);
+    }
+
+    void OnDisable()
+    {
+        if (isDebug)
+            Debug.Log("OnDisable " + transform.localPosition);
     }
     
     public void Match()
     {
-        gameObject.SetActive(false);
+        if (isDebug)
+            Debug.Log("Match " + transform.localPosition);
+        PushBack();
     }
 
     Action callbackMove;
@@ -61,6 +81,10 @@ public class BlockGO : MonoBehaviour, iBlockGO
     {
         startPos = transform.localPosition;
         EndPos = new Vector3(x, y);
+
+        if (isDebug && Vector3.Distance(startPos, EndPos) > 1)
+            Debug.LogWarning("long move  "+startPos + " " + EndPos);
+
         elapseTime = 0;
         isMoving = true;
         callbackMove = callback;
@@ -70,11 +94,23 @@ public class BlockGO : MonoBehaviour, iBlockGO
     {
         isStoping = true;
         elapseTime = 0;
+        accumeTime = 0;
+    }
+
+    public void SwapStop()
+    {
+        isStoping = true;
+        elapseTime = 0;
+        accumeTime = 0;
     }
 
     public void PushBack()
     {
+        isMoving = false;
+        isStoping = false;
         gameObject.SetActive(false);
+        if (isDebug)
+            Debug.Log("PushBack " + transform.localPosition);
     }
 
     void Update()
@@ -88,15 +124,32 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     bool isStoping = false;
     bool isMoving = false;
-    const float aniTime = 0.2f;
-    const float reverseTime = 1 / aniTime;
+    const float MinSpeed = 0.5f;
+    const float MaxSpeed = 0.05f;
+    float speed = MinSpeed;
+    float aniTime = 0;
+    float reverseTime = 1;
     float elapseTime = 0;
+    float accumeTime = 0;
     
     Vector3 startPos, EndPos;
 
     void Moving()
     {
         elapseTime += Time.deltaTime;
+        accumeTime += Time.deltaTime;
+
+        if (accumeTime < 1)
+        {
+            aniTime = BK_Function.ConvertRangeValue(MaxSpeed, MinSpeed, 1-Ease.InOutQuad(accumeTime));
+            reverseTime = 1 / aniTime;
+        }
+        else
+        {
+            aniTime = MaxSpeed;
+            reverseTime = 1 / aniTime;
+        }
+
         if (elapseTime >= aniTime)
         {
             isMoving = false;
@@ -136,6 +189,10 @@ public class BlockGODummy : iBlockGO
     }
 
     public void Stop()
+    {
+    }
+
+    public void SwapStop()
     {
     }
 }
