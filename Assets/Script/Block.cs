@@ -35,7 +35,6 @@ public class BlockPool
 [Serializable]
 public class Block
 {
-    BlockField preField;
     BlockField curField;
 
     [NonSerialized]
@@ -43,6 +42,10 @@ public class Block
 
     public int BlockType { get { return blockType; } }
     int blockType;
+
+    public bool IsMoving { get { return isMoving; } }
+    [NonSerialized]
+    bool isMoving = false;
 
     public void InitByEditor(BlockField field, int blockType)
     {
@@ -66,12 +69,15 @@ public class Block
         DeployScreen();
     }
 
+    public void SetField(BlockField field)
+    {
+        curField = field;
+    }
+
     public void SetBlockType(int blockType)
     {
         this.blockType = blockType;
     }
-
-    bool isMoving = false;
 
     public void MoveToNextField()
     {
@@ -91,6 +97,17 @@ public class Block
         }
     }
 
+    public void Move(BlockField target, Action callback)
+    {
+        isMoving = true;
+        blockGO.Move(target.X, target.Y, () =>
+        {
+            isMoving = false;
+            if (callback != null)
+                callback();
+        });
+    }
+
     void Move()
     {
         if (curField.next.IsPlayable && curField.next.IsEmpty)
@@ -99,12 +116,10 @@ public class Block
             curField = curField.next;
             curField.SetBlock(this);
 
-            Debug.Log(this.GetHashCode() + " Move1  " + curField.X + "  " + curField.Y);
             blockGO.Move(curField.X, curField.Y, Move);
         }
         else
         {
-            Debug.Log(this.GetHashCode() + " Move2  " + curField.X + "  " + curField.Y);
             isMoving = false;
             blockGO.Stop();
         }
@@ -112,7 +127,7 @@ public class Block
 
     public void DeployScreen()
     {
-        if(blockGO == null)
+        if (blockGO == null)
             blockGO = BlockGOPool.pool.Pop();
         blockGO.SetBlock(this, curField.X, curField.Y);
     }
@@ -124,7 +139,7 @@ public class Block
             //화면에서 제거되고 pool로 돌아간다. 
             blockGO.Match();
             BlockGOPool.pool.Push(blockGO);
-            blockGO = null; 
+            blockGO = null;
         }
     }
 
@@ -183,6 +198,6 @@ public class Block
     public static bool operator !=(Block lValue, Block rValue)
     {
         return !(lValue == rValue);
-    } 
+    }
     #endregion
 }

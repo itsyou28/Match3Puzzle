@@ -15,14 +15,14 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
     [SerializeField]
     GameObject dirImg;
 
-    BlockField field;
+    public BlockField Field { get; private set; }
     //BlockField와 연동하여 필드에서 속성 정보를 표시한다. 
-
+    
     public void SetBlockField(BlockField field)
     {
-        this.field = field;
+        this.Field = field;
 
-        switch(field.Direction)
+        switch (field.Direction)
         {
             case 0://down
                 dirImg.transform.localRotation = Quaternion.Euler(0, 0, 0);
@@ -49,8 +49,8 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 
     void FixedUpdate()
     {
-        if(field != null && field.IsPlayable)
-            field.Update();
+        if (Field != null && Field.IsPlayable)
+            Field.Update();
     }
 }
 

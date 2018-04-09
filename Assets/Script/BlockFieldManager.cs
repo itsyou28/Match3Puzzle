@@ -119,6 +119,33 @@ public class BlockFieldManager
         return field;
     }
 
+    bool swaping1 = false;
+    bool swaping2 = false;
+    public void SwapBlock(BlockField selected, BlockField target, Action callback)
+    {
+        swaping1 = false;
+        swaping2 = false;
+        swapCallback = callback;
+        selected.block.Move(target, () => { swaping1 = true; SwapResult(); });
+        target.block.Move(selected, () => { swaping2 = true; SwapResult(); });
+
+        Block buffer = selected.block;
+
+        selected.SetBlock(target.block);
+        target.SetBlock(buffer);
+
+        selected.block.SetField(selected);
+        target.block.SetField(target);
+    }
+
+    Action swapCallback;
+    void SwapResult()
+    {
+        Debug.Log(swaping1 + " " + swaping2);
+        if (swaping1 && swaping2)
+            swapCallback();
+    }
+
     //void MoveAllBlock()
     //{
     //    BlockMove = null;
@@ -153,7 +180,7 @@ public class BlockFieldManager
     //    if (BlockMove != null)
     //        BlockMove();
     //}
-    
+
     public void FindMatchAble()
     {
         ableField.Clear();
@@ -162,22 +189,34 @@ public class BlockFieldManager
         ChkColAble();
     }
 
-    public void FindMatch()
+    public bool FindMatch()
     {
         matchedField.Clear();
 
         ChkMatchRow(1, lastRow, 1, lastCol);
         ChkMatchCol(1, lastRow, 1, lastCol);
+
+        return matchedField.Count > 0 ? true : false;
     }
 
     public void ExcuteMatch()
     {
-        FindMatch();
-
         for (int i = 0; i < matchedField.Count; i++)
         {
             matchedField[i].Match();
         }
+    }
+
+    public bool IsNotEmpty()
+    {
+        bool result = true;
+
+        foreach (var field in GetField())
+        {
+            result &= !field.IsEmpty;
+        }
+
+        return result;
     }
 
 
@@ -340,9 +379,9 @@ public class BlockFieldManager
     #region GetFields
     public IEnumerable<BlockField> Arounds(BlockField centerField)
     {
-        for (int i = centerField.row - 1; i < 3; i++)
+        for (int i = centerField.Row - 1; i < 3; i++)
         {
-            for (int j = centerField.col - 1; j < 3; j++)
+            for (int j = centerField.Col - 1; j < 3; j++)
             {
                 yield return fields[i, j];
             }
@@ -355,13 +394,13 @@ public class BlockFieldManager
         {
             default:
             case 0://down
-                return GetBlockField(centerField.row, centerField.col, 8);
+                return GetBlockField(centerField.Row, centerField.Col, 8);
             case 1://left
-                return GetBlockField(centerField.row, centerField.col, 4);
+                return GetBlockField(centerField.Row, centerField.Col, 4);
             case 2://up
-                return GetBlockField(centerField.row, centerField.col, 2);
+                return GetBlockField(centerField.Row, centerField.Col, 2);
             case 3://right
-                return GetBlockField(centerField.row, centerField.col, 6);
+                return GetBlockField(centerField.Row, centerField.Col, 6);
         }
     }
 
@@ -371,13 +410,13 @@ public class BlockFieldManager
         {
             default:
             case 0://down
-                return GetBlockField(centerField.row, centerField.col, 2);
+                return GetBlockField(centerField.Row, centerField.Col, 2);
             case 1://left
-                return GetBlockField(centerField.row, centerField.col, 6);
+                return GetBlockField(centerField.Row, centerField.Col, 6);
             case 2://up
-                return GetBlockField(centerField.row, centerField.col, 8);
+                return GetBlockField(centerField.Row, centerField.Col, 8);
             case 3://right
-                return GetBlockField(centerField.row, centerField.col, 4);
+                return GetBlockField(centerField.Row, centerField.Col, 4);
         }
     }
 
@@ -387,13 +426,13 @@ public class BlockFieldManager
         {
             default:
             case 0://down
-                return GetBlockField(centerField.row, centerField.col, 6);
+                return GetBlockField(centerField.Row, centerField.Col, 6);
             case 1://left
-                return GetBlockField(centerField.row, centerField.col, 8);
+                return GetBlockField(centerField.Row, centerField.Col, 8);
             case 2://up
-                return GetBlockField(centerField.row, centerField.col, 4);
+                return GetBlockField(centerField.Row, centerField.Col, 4);
             case 3://right
-                return GetBlockField(centerField.row, centerField.col, 2);
+                return GetBlockField(centerField.Row, centerField.Col, 2);
         }
     }
 
@@ -403,13 +442,13 @@ public class BlockFieldManager
         {
             default:
             case 0://down
-                return GetBlockField(centerField.row, centerField.col, 4);
+                return GetBlockField(centerField.Row, centerField.Col, 4);
             case 1://left
-                return GetBlockField(centerField.row, centerField.col, 2);
+                return GetBlockField(centerField.Row, centerField.Col, 2);
             case 2://up
-                return GetBlockField(centerField.row, centerField.col, 6);
+                return GetBlockField(centerField.Row, centerField.Col, 6);
             case 3://right
-                return GetBlockField(centerField.row, centerField.col, 8);
+                return GetBlockField(centerField.Row, centerField.Col, 8);
         }
     }
 
@@ -419,13 +458,13 @@ public class BlockFieldManager
         {
             default:
             case 0://down
-                return GetBlockField(centerField.row, centerField.col, 3);
+                return GetBlockField(centerField.Row, centerField.Col, 3);
             case 1://left
-                return GetBlockField(centerField.row, centerField.col, 9);
+                return GetBlockField(centerField.Row, centerField.Col, 9);
             case 2://up
-                return GetBlockField(centerField.row, centerField.col, 7);
+                return GetBlockField(centerField.Row, centerField.Col, 7);
             case 3://right
-                return GetBlockField(centerField.row, centerField.col, 1);
+                return GetBlockField(centerField.Row, centerField.Col, 1);
         }
     }
 
@@ -435,13 +474,13 @@ public class BlockFieldManager
         {
             default:
             case 0://down
-                return GetBlockField(centerField.row, centerField.col, 1);
+                return GetBlockField(centerField.Row, centerField.Col, 1);
             case 1://left
-                return GetBlockField(centerField.row, centerField.col, 3);
+                return GetBlockField(centerField.Row, centerField.Col, 3);
             case 2://up
-                return GetBlockField(centerField.row, centerField.col, 9);
+                return GetBlockField(centerField.Row, centerField.Col, 9);
             case 3://right
-                return GetBlockField(centerField.row, centerField.col, 7);
+                return GetBlockField(centerField.Row, centerField.Col, 7);
         }
     }
 

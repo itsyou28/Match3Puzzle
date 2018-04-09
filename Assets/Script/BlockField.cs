@@ -18,8 +18,8 @@ public class BlockField
     public BlockField prev { get; private set; }
     public BlockField next { get; private set; }
 
-    public int row { get; private set; }
-    public int col { get; private set; }
+    public int Row { get; private set; }
+    public int Col { get; private set; }
     public bool IsPlayable { get { return isPlayable; } }
     public bool IsEmpty { get { return isEmpty; } }
     public bool IsCreateField { get { return isCreateField; } }
@@ -47,8 +47,8 @@ public class BlockField
     #region Call By Editor
     public BlockField(int row, int col)
     {
-        this.row = row;
-        this.col = col;
+        this.Row = row;
+        this.Col = col;
     }
 
     /// <param name="dir">//0:down 1:left 2:up 3:right</param>
@@ -60,14 +60,14 @@ public class BlockField
         if (next != null)
             next.prev = this;
 
-        X = col;
-        Y = fieldMng.RowLength - row;
+        X = Col;
+        Y = fieldMng.RowLength - Row;
 
-        string log = "Initialize // " + row + " " + col;
+        string log = "Initialize // " + Row + " " + Col;
         if (next != null)
-            log += " next : " + next.row + " " + next.col;
+            log += " next : " + next.Row + " " + next.Col;
         if (prev != null)
-            log += " prev : " + prev.row + " " + prev.col;
+            log += " prev : " + prev.Row + " " + prev.Col;
         Debug.Log(log);
     }
 
@@ -75,30 +75,30 @@ public class BlockField
     {
         if (isPlayable && prev == null)
         {
-            Debug.LogError(row + " " + col + " " + isPlayable + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
+            Debug.LogError(Row + " " + Col + " " + isPlayable + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
             return false;
         }
         if (isPlayable && next == null)
         {
-            Debug.LogError(row + " " + col + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
+            Debug.LogError(Row + " " + Col + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
             return false;
         }
 
         if (prev != null && next != null && prev == next)
         {
-            Debug.LogError(row + " " + col + " // 방향이 충돌합니다. ");
+            Debug.LogError(Row + " " + Col + " // 방향이 충돌합니다. ");
             return false;
         }
 
         if (next != fieldMng.GetNextByDir(this))
         {
-            Debug.LogError(row + " " + col + " // 방향과 지정된 next 필드가 일치하지 않습니다. ");
+            Debug.LogError(Row + " " + Col + " // 방향과 지정된 next 필드가 일치하지 않습니다. ");
             return false;
         }
 
         if (prev != fieldMng.GetPrevByDir(this))
         {
-            Debug.LogError(row + " " + col + " // 방향과 지정된 prev 필드가 일치하지 않습니다. ");
+            Debug.LogError(Row + " " + Col + " // 방향과 지정된 prev 필드가 일치하지 않습니다. ");
             return false;
         }
 
@@ -343,7 +343,7 @@ public class BlockField
     #region override Equals
     public override int GetHashCode()
     {
-        return row ^ col;
+        return Row ^ Col;
     }
 
     public override bool Equals(object obj)
@@ -362,10 +362,10 @@ public class BlockField
         if (other == null)
             return false;
 
-        if (row != other.row)
+        if (Row != other.Row)
             return false;
 
-        return col == other.col;
+        return Col == other.Col;
     }
     public static bool operator ==(BlockField lValue, BlockField rValue)
     {
