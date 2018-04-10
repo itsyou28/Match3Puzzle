@@ -87,19 +87,25 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
         elapseTime = 0;
         isMoving = true;
+        isStoping = false;
         callbackMove = callback;
     }
 
     public void Stop()
     {
         isStoping = true;
+        bouncePower = BK_Function.ConvertRange(MaxSpeed, MinSpeed, minPower, maxPower, MinSpeed-aniTime);
+        bounceNum = BK_Function.ConvertRange(minPower, maxPower, minBounce, maxBounce, bouncePower);
+        //stopAniTme = BK_Function.ConvertRange(minPower, maxPower, minStopTime, maxStopTime, bouncePower);
+        //bounceNum = BK_Function.ConvertRange(minStopTime, maxStopTime, minBounce, maxBounce, stopAniTme);
+        if (isDebug)
+            Debug.Log((MinSpeed - aniTime).ToString() + " power " + bouncePower + " time " + stopAniTme + " bounce " + bounceNum);
         elapseTime = 0;
         accumeTime = 0;
     }
 
     public void SwapStop()
     {
-        isStoping = true;
         elapseTime = 0;
         accumeTime = 0;
     }
@@ -124,22 +130,22 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     bool isStoping = false;
     bool isMoving = false;
+    const float accelerationTime = 1;
     const float MinSpeed = 0.5f;
     const float MaxSpeed = 0.05f;
-    float speed = MinSpeed;
-    float aniTime = 0;
+    float aniTime = 0;//=speed. 작을수록 빠르게 움직인다. 
     float reverseTime = 1;
-    float elapseTime = 0;
-    float accumeTime = 0;
+    float elapseTime = 0;//필드 한 칸 이동 구간내의 경과시간
+    float accumeTime = 0;//이동중인 시간 누적
     
-    Vector3 startPos, EndPos;
+    Vector3 startPos, EndPos, vBuffer;
 
     void Moving()
     {
         elapseTime += Time.deltaTime;
         accumeTime += Time.deltaTime;
 
-        if (accumeTime < 1)
+        if (accumeTime < accelerationTime)
         {
             aniTime = BK_Function.ConvertRangeValue(MaxSpeed, MinSpeed, 1-Ease.InOutQuad(accumeTime));
             reverseTime = 1 / aniTime;
@@ -164,9 +170,31 @@ public class BlockGO : MonoBehaviour, iBlockGO
             transform.localPosition = Vector3.Lerp(startPos, EndPos, elapseTime*reverseTime);
     }
 
+    const float minPower = 0.01f;
+    const float maxPower = 0.1f;
+    const float minStopTime = 0.1f;
+    const float maxStopTime = 0.8f;
+    const float minBounce = 1.0f;
+    const float maxBounce = 4.0f;
+    float stopAniTme = 1;
+    float stopReverseTime = 1;
+    float bouncePower = 0.3f;
+    float bounceNum = 6.75f;
+
     void Stoping()
     {
-        isStoping = false;
+        elapseTime += Time.deltaTime;
+
+        if (elapseTime < stopAniTme)
+        {
+            vBuffer.y = Ease.Bounce(elapseTime* stopReverseTime, bounceNum) * bouncePower;
+            transform.localPosition = EndPos + vBuffer;
+        }
+        else
+        {
+            transform.localPosition = EndPos;
+            isStoping = false;
+        }
     }
 }
 

@@ -128,11 +128,8 @@ public class BlockField
 
     public void DeployScreen()
     {
-        if (isPlayable)
-        {
-            blockFieldGO = BlockFieldGOPool.pool.Pop();
-            blockFieldGO.SetBlockField(this);
-        }
+        blockFieldGO = BlockFieldGOPool.pool.Pop();
+        blockFieldGO.SetBlockField(this);
     }
 
     public void CleanUp()

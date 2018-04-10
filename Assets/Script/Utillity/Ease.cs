@@ -295,5 +295,22 @@ public static class Ease
         else
             return 0.5f + OutBounce(v * 2.0f - 1.0f) * 0.5f;
     }
-    
+
+
+    //Bounce
+    public static float Bounce(float x, float bounceNum =3)
+    {
+        return Mathf.Abs(Mathf.Sin(bounceNum * (x + 1f) * (x + 1f)) * (1f - x));
+    }
+
+    public static Vector2 Bounce(Vector2 vec)
+    {
+        return new Vector2(Bounce(vec.x), Bounce(vec.y));
+    }
+
+    public static Vector3 Bounce(Vector3 vec)
+    {
+        return new Vector3(Bounce(vec.x), Bounce(vec.y), Bounce(vec.z));
+    }
+
 }

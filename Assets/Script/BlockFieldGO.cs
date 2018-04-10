@@ -14,6 +14,8 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
     //기타 등등?
     [SerializeField]
     GameObject dirImg;
+    [SerializeField]
+    GameObject mask;
 
     public BlockField Field { get; private set; }
     //BlockField와 연동하여 필드에서 속성 정보를 표시한다. 
@@ -21,6 +23,9 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
     public void SetBlockField(BlockField field)
     {
         this.Field = field;
+
+        if (!field.IsPlayable)
+            mask.SetActive(true);
 
         switch (field.Direction)
         {
