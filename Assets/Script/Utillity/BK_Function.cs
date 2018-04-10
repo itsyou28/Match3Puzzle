@@ -127,6 +127,13 @@ public  class BK_Function
         return result;
     }
 
+    public static int Random(int start, int end, int avoidResult)
+    {
+        int result = UnityEngine.Random.Range(start, end);
+
+        return result == avoidResult ? Random(start, end, avoidResult) : result;
+    }
+
     /// <summary>
     /// 총 시간 대비 경과시간 비율로 주어진 범위내 값을 반환한다. 
     /// </summary>

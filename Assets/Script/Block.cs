@@ -34,6 +34,7 @@ public interface iBlock
 
     void Reset(BlockField field, int blockType);
     void ResetRand(BlockField field, int randMax);
+    void ResetAnotherBlockType(BlockField field, int randMax);
     void CleanUp();
     void MoveToNextField();
     void Match();
@@ -81,6 +82,15 @@ public class Block : iBlock
     {
         curField = field;
         blockType = UnityEngine.Random.Range(1, randMax);
+        isMoving = false;
+
+        DeployScreen();
+    }
+
+    public void ResetAnotherBlockType(BlockField field, int randMax)
+    {
+        curField = field;
+        blockType = BK_Function.Random(1, randMax, blockType);
         isMoving = false;
 
         DeployScreen();

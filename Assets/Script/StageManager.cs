@@ -63,6 +63,9 @@ public class StageManager : MonoBehaviour, iStage
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.Return))
+            fieldMng.Shuffle();
+
         if (isMatching && fieldMng.IsNotEmpty())
         {
             if (fieldMng.IsNotMoving())
@@ -81,6 +84,11 @@ public class StageManager : MonoBehaviour, iStage
             yield return new WaitForSeconds(0.1f);
             isMatching = true;
             fieldMng.ExcuteMatch();
+        }
+        else if(!fieldMng.FindMatchAble())
+        {
+            yield return new WaitForSeconds(0.1f);
+            //셔플 -> 매칭 -> 체크able -> 반복
         }
     }
 

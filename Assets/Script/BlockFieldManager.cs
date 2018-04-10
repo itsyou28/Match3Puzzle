@@ -92,7 +92,33 @@ public class BlockFieldManager
             }
         }
 
-        //매칭 블럭이 있거나 매칭 가능 패턴이 없을 경우 문제가 안생길 때까지(??) 셔플
+        //시작과 동시에 매칭 블럭이 없도록 조정
+        while(FindMatch())
+        {
+            for (int i = 0; i < matchedField.Count; i+=2)
+            {
+                matchedField[i].block.ResetRand(matchedField[i], 5);
+            }
+
+            if(!FindMatchAble())
+            {
+                //임의의 able 패턴을 생성(그냥 셔플->매치가 반복되면 유저가 게임 시작도 안했는데 게임이 진행되는 셈)
+            }
+        }
+    }
+
+    public void Shuffle()
+    {
+        int row, col;
+
+        //모든 블럭을 한 번씩 랜덤한 위치의 블럭과 교환한다. 
+        foreach (var field in GetField())
+        {
+            row = UnityEngine.Random.Range(1, lastRow);
+            col = UnityEngine.Random.Range(1, lastCol);
+
+            SwapBlock(field, fields[row, col], null);
+        }
     }
 
     //event Action BlockMove;
@@ -141,7 +167,7 @@ public class BlockFieldManager
     Action swapCallback;
     void SwapResult()
     {
-        if (swaping1 && swaping2)
+        if (swaping1 && swaping2 && swapCallback != null)
             swapCallback();
     }
 
@@ -180,12 +206,14 @@ public class BlockFieldManager
     //        BlockMove();
     //}
 
-    public void FindMatchAble()
+    public bool FindMatchAble()
     {
         ableField.Clear();
 
         ChkRowAble();
         ChkColAble();
+
+        return ableField.Count > 0 ? true : false;
     }
 
     public bool FindMatch()
