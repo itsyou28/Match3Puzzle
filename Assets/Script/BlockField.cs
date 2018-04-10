@@ -3,16 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using NUnit.Framework;
 
+public interface iBlockField
+{
+    BlockField prev { get; }
+    BlockField next { get; }
+    float X { get; }
+    float Y { get; }
+    bool IsMoveable { get; }
+    void SetBlock(iBlock block);
+}
+
 /// <summary>
 /// 블럭의 이동 경로 관리
 /// 블럭의 생성
 /// </summary>
 [Serializable]
-public class BlockField
+public class BlockField : iBlockField
 {
     public static BlockFieldManager fieldMng;
 
-    public Block block;
+    public iBlock block;
     public int BlockType { get { return block == null ? -1 : block.BlockType; } }
 
     public BlockField prev { get; private set; }
@@ -171,8 +181,8 @@ public class BlockField
         }
     }
 
-    BlockField[] arrPrev;
-    List<BlockField> diagnalList;
+    iBlockField[] arrPrev;
+    List<iBlockField> diagnalList;
 
     void SetDiagnalField(BlockField orderField)
     {
@@ -181,7 +191,7 @@ public class BlockField
         {
             for (int i = 0; i < arrPrev.Length; i++)
             {
-                if (arrPrev[i].isMoveable)
+                if (arrPrev[i].IsMoveable)
                     return;
             }
         }
@@ -190,7 +200,7 @@ public class BlockField
         if (diagnalField.CanDiagnal(this))
         {
             if (diagnalList == null)
-                diagnalList = new List<BlockField>();
+                diagnalList = new List<iBlockField>();
 
             diagnalList.Add(diagnalField);
         }
@@ -199,7 +209,7 @@ public class BlockField
         if (diagnalField.CanDiagnal(this))
         {
             if (diagnalList == null)
-                diagnalList = new List<BlockField>();
+                diagnalList = new List<iBlockField>();
 
             diagnalList.Add(diagnalField);
         }
@@ -279,12 +289,12 @@ public class BlockField
 
     public void CreateBlock()
     {
-        Block block = BlockPool.Pool.Pop();
+        iBlock block = BlockPool.Pool.Pop();
         block.ResetRand(this, 5);
         SetBlock(block);
     }
 
-    public void SetBlock(Block block)
+    public void SetBlock(iBlock block)
     {
         if (isCreateField && block == null)
         {
@@ -315,7 +325,7 @@ public class BlockField
     }
 
     //필드가 속한 라인의 역진행방향에 존재하는 블럭을 찾는다. 
-    public Block FindBlockInMyLine()
+    public iBlock FindBlockInMyLine()
     {
         BlockField field = this;
 

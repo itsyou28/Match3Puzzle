@@ -4,8 +4,8 @@ using UnityEngine;
 public class BlockPool
 {
     private static BlockPool instance = null;
-    private static ObjectPool<Block> pool;
-    public static ObjectPool<Block> Pool
+    private static ObjectPool<iBlock> pool;
+    public static ObjectPool<iBlock> Pool
     {
         get
         {
@@ -17,15 +17,30 @@ public class BlockPool
 
     private BlockPool()
     {
-        pool = new ObjectPool<Block>(100, 20, CreateBlock);
+        pool = new ObjectPool<iBlock>(100, 20, CreateBlock);
     }
 
-    Block CreateBlock()
+    iBlock CreateBlock()
     {
         return new Block();
     }
 }
 
+
+public interface iBlock
+{
+    int BlockType { get; }
+    bool IsMoving { get; }
+
+    void Reset(BlockField field, int blockType);
+    void ResetRand(BlockField field, int randMax);
+    void CleanUp();
+    void MoveToNextField();
+    void Match();
+    void DeployScreen();
+    void SwapMove(BlockField target, Action callback);
+    void SetField(BlockField target);
+}
 
 /// <summary>
 /// 게임 시간동안 빈번하게 생성/해제가 발생하므로 pool로 관리한다. 
@@ -33,9 +48,9 @@ public class BlockPool
 /// 블럭이 위치하고 있는 필드, 이동할 필드 등을 관리한다. 
 /// </summary>
 [Serializable]
-public class Block
+public class Block : iBlock
 {
-    BlockField curField;
+    iBlockField curField;
 
     [NonSerialized]
     iBlockGO blockGO;

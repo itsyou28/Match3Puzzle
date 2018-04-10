@@ -129,7 +129,7 @@ public class BlockFieldManager
         selected.block.SwapMove(target, () => { swaping1 = true; SwapResult(); });
         target.block.SwapMove(selected, () => { swaping2 = true; SwapResult(); });
 
-        Block buffer = selected.block;
+        iBlock buffer = selected.block;
 
         selected.SetBlock(target.block);
         target.SetBlock(buffer);
