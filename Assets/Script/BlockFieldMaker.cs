@@ -37,7 +37,7 @@ public class BlockFieldMaker
 
                 if (row == 0)
                 {
-                    fields[row, col].SetCreateField();
+                    fields[row, col].SetCreateField(true);
                     fields[row, col].SetNonPlayable();
                 }
                 if (row == maxRow - 1 || col == 0 || col == maxCol - 1)
@@ -51,7 +51,7 @@ public class BlockFieldMaker
         {
             for (int col = 0; col < maxCol; col++)
             {
-                fields[row, col].Initialize(0);
+                fields[row, col].Initialize();
             }
         }
 

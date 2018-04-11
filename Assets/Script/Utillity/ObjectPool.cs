@@ -66,3 +66,15 @@ public class ObjectPool<T> : iPool<T>
 
     public int Count { get { return m_stackObjectPool.Count; } }
 }
+
+public class DummyPool<T> where T : class, iPool<T>, new()
+{
+    public T Pop()
+    {
+        return new T();
+    }
+
+    public void Push()
+    {
+    }
+}

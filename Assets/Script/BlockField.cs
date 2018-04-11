@@ -62,10 +62,8 @@ public class BlockField : iBlockField
     }
 
     /// <param name="dir">//0:down 1:left 2:up 3:right</param>
-    public void Initialize(int dir)
+    public void Initialize()
     {
-        direction = dir;
-
         next = fieldMng.GetNextByDir(this);
         if (next != null)
             next.prev = this;
@@ -129,11 +127,15 @@ public class BlockField : iBlockField
         SetMoveable();
     }
 
-    public void SetCreateField()
+    public void SetCreateField(bool bValue)
     {
-        isCreateField = true;
+        isCreateField = bValue;
     }
 
+    public void SetDirection(int dir)
+    {
+        direction = dir;
+    }
     #endregion
 
     public void DeployScreen()

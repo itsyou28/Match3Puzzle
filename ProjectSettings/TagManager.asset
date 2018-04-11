@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - SelectMarker
   layers:
   - Default
   - TransparentFX
@@ -49,4 +50,7 @@ TagManager:
     locked: 0
   - name: overBlock
     uniqueID: 1419169235
+    locked: 0
+  - name: UI
+    uniqueID: 3261341957
     locked: 0

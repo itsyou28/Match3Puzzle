@@ -533,13 +533,15 @@ public class BlockFieldManager
     /// 1 2 3
     /// 4   6
     /// 7 8 9
-    /// 숫자에 해당하는 상대위치의 필드 반환
+    /// 5 위치를 기준으로 숫자에 해당하는 상대위치의 필드 반환
     /// </summary>
-    public BlockField GetBlockField(int row, int col, int dir)
+    public BlockField GetBlockField(int row, int col, int dir=5)
     {
         switch (dir)
         {
             default:
+            case 5:
+                return fields[row, col];
             case 1:
                 if (row <= 0 || col <= 0)
                     return null;
