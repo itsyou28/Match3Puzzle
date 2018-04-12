@@ -111,8 +111,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0f50ca80ab652f4c8e576cd0643126c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldDraw: {fileID: 114481519459855646}
-  blockDraw: {fileID: 114582406748548046}
 --- !u!114 &114481519459855646
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -121,7 +119,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1038625234708450}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4c737a0be9fbbf4e8f5ad41f2fb18e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 8de5e059d9ef3634a9a0d810af8ddd75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &114582406748548046
@@ -132,6 +130,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1294486306678346}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 155115459e91fa149a125f5768d5d120, type: 3}
+  m_Script: {fileID: 11500000, guid: 2589be6b0e25f1b448965e177c035797, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
