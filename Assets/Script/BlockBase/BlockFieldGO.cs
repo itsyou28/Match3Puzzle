@@ -4,47 +4,56 @@ using System.Collections;
 public interface iBlockFieldGO
 {
     void SetBlockField(BlockField field);
+    void ChangeFieldProperty();
     void PushBack();
 }
 
 public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 {
-    //배경 이미지
-    //진행방향
-    //기타 등등?
     [SerializeField]
     GameObject dirImg;
     [SerializeField]
     GameObject mask;
 
     public BlockField Field { get; private set; }
-    //BlockField와 연동하여 필드에서 속성 정보를 표시한다. 
-    
+
+    System.Action curUpdate = null;
+
+    void Awake()
+    {
+        curUpdate = UpdateEditorMode;
+    }
+
+    //BlockField와 연동하여 필드에서 속성 정보를 표시한다.     
     public void SetBlockField(BlockField field)
     {
-        this.Field = field;
+        Field = field;
 
-        if (!field.IsPlayable)
-            mask.SetActive(true);
+        ChangeFieldProperty();
+        
+        transform.localPosition = new Vector3(field.X, field.Y);
+        gameObject.SetActive(true);
+    }
 
-        switch (field.Direction)
+    public void ChangeFieldProperty()
+    {
+        mask.SetActive(!Field.IsPlayable);
+
+        switch (Field.Direction)
         {
             case 0://down
                 dirImg.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 break;
             case 1://left
-                dirImg.transform.localRotation = Quaternion.Euler(0, 0, 90);
+                dirImg.transform.localRotation = Quaternion.Euler(0, 0, -90);
                 break;
             case 2://up
                 dirImg.transform.localRotation = Quaternion.Euler(0, 0, 180);
                 break;
             case 3://right
-                dirImg.transform.localRotation = Quaternion.Euler(0, 0, -90);
+                dirImg.transform.localRotation = Quaternion.Euler(0, 0, 90);
                 break;
         }
-
-        transform.localPosition = new Vector3(field.X, field.Y);
-        gameObject.SetActive(true);
     }
 
     public void PushBack()
@@ -54,6 +63,15 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 
     void FixedUpdate()
     {
+        curUpdate();
+    }
+
+    void UpdateEditorMode()
+    {
+    }
+
+    void UpdatePlayMode()
+    {
         if (Field != null && Field.IsPlayable)
             Field.Update();
     }
@@ -62,6 +80,9 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 public class BlockFieldGODummy : iBlockFieldGO
 {
     public void SetBlockField(BlockField field)
+    {
+    }
+    public void ChangeFieldProperty()
     {
     }
     public void PushBack()

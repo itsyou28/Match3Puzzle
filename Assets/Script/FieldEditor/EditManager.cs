@@ -74,14 +74,14 @@ public class EditManager : MonoBehaviour, iEditManager
     {
         markerList.AddLast(col);
         selectedList.AddLast(fieldMng.GetBlockField(
-            (int)col.transform.localPosition.x, (int)col.transform.localPosition.y));
+            fieldMng.RowLength - (int)col.transform.localPosition.y, (int)col.transform.localPosition.x));
 
     }
     public void RemoveMarker(Collider col)
     {
         markerList.Remove(col);
         selectedList.Remove(fieldMng.GetBlockField(
-            (int)col.transform.localPosition.x, (int)col.transform.localPosition.y));
+            fieldMng.RowLength - (int)col.transform.localPosition.y, (int)col.transform.localPosition.x));
     }
     public void OffSelect()
     {
@@ -91,6 +91,7 @@ public class EditManager : MonoBehaviour, iEditManager
         }
 
         markerList.Clear();
+        selectedList.Clear();
     }
 
     public void SetPlayable()
@@ -107,6 +108,7 @@ public class EditManager : MonoBehaviour, iEditManager
             field.SetNonPlayable();
         }
     }
+
     public void SetDirection(int dir)
     {
         foreach (var field in selectedList)

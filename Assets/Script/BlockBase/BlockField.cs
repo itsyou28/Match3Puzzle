@@ -118,6 +118,7 @@ public class BlockField : iBlockField
         isPlayable = true;
 
         SetMoveable();
+        UpdateGO();
     }
 
     public void SetNonPlayable()
@@ -125,16 +126,24 @@ public class BlockField : iBlockField
         isPlayable = false;
 
         SetMoveable();
+        UpdateGO();
     }
 
     public void SetCreateField(bool bValue)
     {
         isCreateField = bValue;
+        UpdateGO();
     }
 
     public void SetDirection(int dir)
     {
         direction = dir;
+        UpdateGO();
+    }
+
+    void UpdateGO()
+    {
+        blockFieldGO.ChangeFieldProperty();
     }
     #endregion
 
