@@ -62,6 +62,14 @@ namespace InputKeyProcessor
             FSM_Layer.Inst.SetBool(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.BOOL_FLAG1, 
                 !FSM_Layer.Inst.GetBool(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.BOOL_FLAG1));
         }
+        public sealed override void JDown()
+        {
+            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_TOEDITOR);
+        }
+        public sealed override void LDown()
+        {
+            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_TOSTAGE);
+        }
 
     }
 }

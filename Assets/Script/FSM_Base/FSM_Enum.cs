@@ -19,12 +19,8 @@ namespace FiniteStateMachine
     {
         NONE = 0,
         Main,
-        USMain,
-        UIMain,
-        PopupUI,
-        USTime,
-        USBtn,
-        USScroll,
+        Editor,
+        Stage,
     }
 
     //Inspector 화면 State 드롭다운메뉴는 선택한 FSM_ID에 따라 목록이 변경된다. 
@@ -37,54 +33,34 @@ namespace FiniteStateMachine
         AnyState,
         HistoryBack,
 
-        USMain_Loading = 100,
-        USMain_WaitTouch,
-        USMain_Mainmenu,
-        USMain_TimeSample,
-        USMain_BtnSample,
-        USMain_ScrollSample,
-        USMain_AnimationSample,
-        USMain_UserStoryDepth2,
-        USMain_UserSotryDepth3,
-        USMain_OutroToMainMenu,
-        USMain_ReflectionEditor,
-        USMain_ExitConfirm,
+        Main_Start = 100,
+        Main_Loading,
+        Main_Entrance,
+        Main_Editor,
+        Main_Stage,
+        Main_ExitConfirm,
 
+        Stage_Start = 1000,
+        Stage_Select,
+        Stage_Intro,
+        Stage_Play,
+        Stage_ToEditor,
+        Stage_Clear,
+        Stage_GameOver,
+        Stage_SelectOrReplay,
+        Stage_BackToMain,
+        Stage_FromEditor,
 
-        USTime_TimeDiaplay = 200,
-        USTime_Cooltime,
-        USTime_End,
-        USTime_Countdown,
-        USTime_Stopwatch,
-
-
-        USBtn_DynamicLayoutBtn = 300,
-        USBtn_Toggle,
-        USBtn_End,
-
-        USScroll_DynamicList = 400,
-        USScroll_HorizonScroll,
-        USScroll_End,
-
-
-        UIMain_Standby = 1000,
-        UIMain_ProgressSampleIntro,
-        UIMain_ProgressSampleOutro,
-        UImain_BtnSampleIntro,
-        UIMain_BtnSampleOutro,
-        UIMain_ScrollSampleIntro,
-        UIMain_ScrollSampleOutro,
-        UIMain_AnimationSampleIntro,
-        UIMain_AnimationSampleOutro,
-        UIMain_UserStoryDepth2_Intro,
-        UIMain_UserStoryDepth2_Outro,
-        UIMain_UserStoryDepth3_Intro,
-        UIMain_UserStoryDepth3_Outro,
-
-        PopupUI_Sleep = 10000,
-        PopupUI_Exit,
-        PopupUI_Menu,
-
+        Editor_Start = 2000,
+        Editor_SelectStage,
+        Editor_CreateStage,
+        Editor_Idle,
+        Editor_EditField,
+        Editor_EditBlock,
+        Editor_ToStage,
+        Editor_SaveStage___noUse,
+        Editor_BackToMain,
+        Editor_FromStage,
     }
 
 
@@ -93,24 +69,34 @@ namespace FiniteStateMachine
         TRIGGER_NONE = 1000,
         TRIGGER_RESET,
         TRIGGER_ESCAPE,
-        TRIGGER_BACKBTN,
-        TRIGGER_NEXT,
-        TRIGGER_SUCCESS,
-        TRIGGER_FAIL,
+        TRIGGER_BACK,
         TRIGGER_OPTION,
-        TRIGGER_CHECK_OK,
-        TRIGGER_CHECK_FAIL,
-        TRIGGER_YES,
-        TRIGGER_NO,
         TRIGGER_SKIP,
         TRIGGER_COMPLETE,
         TRIGGER_CHECK_CONDITION,
         TRIGGER_CHECK_ANY_CONDITION,
-        TRIGGER_UP,
+
+        TRIGGER_PREV = 1100,
+        TRIGGER_NEXT,
+        TRIGGER_SUCCESS,
+        TRIGGER_FAIL,
+        TRIGGER_OK,
+        TRIGGER_CANCEL,
+        TRIGGER_YES,
+        TRIGGER_NO,
+
+        TRIGGER_UP = 1200,
         TRIGGER_DOWN,
         TRIGGER_LEFT,
         TRIGGER_RIGHT,
 
+        TRIGGER_SELECT_1 = 1300,
+        TRIGGER_SELECT_2,
+        TRIGGER_SELECT_3,
+        TRIGGER_SELECT_4,
+
+        TRIGGER_TOSTAGE = 1400,
+        TRIGGER_TOEDITOR,
 
         INT_NONE = 2000,
         INT_USERSTORY_STATE,
@@ -121,6 +107,7 @@ namespace FiniteStateMachine
         FLOAT_NONE = 3000,
 
         BOOL_NONE = 4000,
+        BOOL_FLAG1,
     }
 
 

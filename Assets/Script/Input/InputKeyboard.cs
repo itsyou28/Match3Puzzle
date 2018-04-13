@@ -51,6 +51,9 @@ public class InputKeyboard : MonoBehaviour
             curProcess.KDown();
         if (Input.GetKeyDown(KeyCode.B))
             curProcess.BDown();
-
+        if (Input.GetKeyDown(KeyCode.J))
+            curProcess.JDown();
+        if (Input.GetKeyDown(KeyCode.L))
+            curProcess.LDown();
     }
 }

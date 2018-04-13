@@ -53,7 +53,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4430198192905678}
-  - component: {fileID: 114994685428605258}
   m_Layer: 0
   m_Name: DefaultCamera
   m_TagString: Untagged
@@ -181,17 +180,6 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!114 &114994685428605258
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1258059442600676}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5ad80273cd8d8a4586e6d5d26f7f0d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!124 &124255169817825012
 Behaviour:
   m_ObjectHideFlags: 1
