@@ -9,8 +9,11 @@ public class SceneChecker
     {
         get
         {
-            if (SceneManager.GetActiveScene().name == "SampleScene") return true;
-
+            if (SceneManager.GetActiveScene().name == "Main")
+            {
+                Debug.LogWarning("using fsm scene");
+                return true;
+            }
             return false;
         }
     }
@@ -19,7 +22,11 @@ public class SceneChecker
     {
         get
         {
-            if (SceneManager.GetActiveScene().name != "SampleScene") return true;
+            if (SceneManager.GetActiveScene().name != "Main")
+            {
+                Debug.LogWarning("Not using fsm scene");
+                return true;
+            }
 
             return false;
         }

@@ -79,7 +79,7 @@ public class FSM_Manager : MonoBehaviour
             case STATE_ID.Stage_ToEditor:
                 FSM_Layer.Inst.ChangeFSM(FSM_LAYER_ID.UserStory, FSM_ID.Main);
                 FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);//Main_Stage->Main_Editor
-                FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_TOSTAGE);//->Editor_FromStage
+                FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_TOEDITOR);//->Editor_FromStage
                 break;
             case STATE_ID.Editor_BackToMain:
             case STATE_ID.Stage_BackToMain:
