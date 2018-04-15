@@ -63,7 +63,6 @@ public class PopupWindow : MonoBehaviour
                 return;
             }
 
-            SetBtnType(btnType);
 
             if (args.Length > 3)
             {
@@ -76,6 +75,8 @@ public class PopupWindow : MonoBehaviour
                 callback = (Action<bool>)args[3];
             }
         }
+
+        SetBtnType(btnType);
 
         gameObject.SetActive(true);
     }

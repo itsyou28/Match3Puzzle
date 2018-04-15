@@ -186,6 +186,23 @@ public class FileManager
         return false;
     }
 
+    public bool DeleteFile(string filePath, string fileName)
+    {
+        if (filePath == null)
+            filePath = GetFileStorePath(fileName);
+        else
+            filePath = GetFileStorePath(Path.Combine(filePath, fileName));
+
+        if (CheckFileExists(filePath))
+        {
+            File.Delete(GetFileStorePath(filePath));
+
+            return true;
+        }
+
+        return false;
+    }
+
     public object FileLoad(string filePath, string fileName)
     {
         if (filePath == null)

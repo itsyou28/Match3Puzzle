@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class GlovalVar
+public static class GlobalVal
 {
     public const string FieldDataPath = "FieldData";
 }

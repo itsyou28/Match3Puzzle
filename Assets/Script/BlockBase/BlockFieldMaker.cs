@@ -91,7 +91,7 @@ public class BlockFieldMaker
 
     public void SaveField()
     {
-        FileManager.Inst.EditFileSave(GlovalVar.FieldDataPath, curFieldsName, curEditFields);
+        FileManager.Inst.EditFileSave(GlobalVal.FieldDataPath, curFieldsName, curEditFields);
         Debug.Log("Save Field " + curFieldsName + " " + curEditFields.GetLength(0) + " " + curEditFields.GetLength(1));
     }
 
@@ -99,7 +99,7 @@ public class BlockFieldMaker
     {
         if (dicEditFields.ContainsKey(fieldName))
         {
-            FileManager.Inst.EditFileSave(GlovalVar.FieldDataPath, fieldName, dicEditFields[fieldName]);
+            FileManager.Inst.EditFileSave(GlobalVal.FieldDataPath, fieldName, dicEditFields[fieldName]);
             Debug.Log("Save Field " + curFieldsName + " " + dicEditFields[fieldName].GetLength(0) + " " + dicEditFields[fieldName].GetLength(1));
         }
     }
@@ -112,7 +112,7 @@ public class BlockFieldMaker
             curEditFields = dicEditFields[fieldName];
         else
         {
-            curEditFields = FileManager.Inst.EditFileLoad(GlovalVar.FieldDataPath, fieldName) as BlockField[,];
+            curEditFields = FileManager.Inst.EditFileLoad(GlobalVal.FieldDataPath, fieldName) as BlockField[,];
             dicEditFields.Add(fieldName, curEditFields);
         }
 

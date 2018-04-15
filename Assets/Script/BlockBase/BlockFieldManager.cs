@@ -42,7 +42,7 @@ public class BlockFieldManager
     public BlockFieldManager(string fieldFileName)
     {
         //필드로드
-        fields = FileManager.Inst.EditFileLoad(GlovalVar.FieldDataPath, fieldFileName) as BlockField[,];
+        fields = FileManager.Inst.EditFileLoad(GlobalVal.FieldDataPath, fieldFileName) as BlockField[,];
 
         Initialize();
 
