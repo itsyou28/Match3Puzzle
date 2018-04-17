@@ -4,6 +4,7 @@ using System.Collections;
 public interface iStage
 {
     void SwapBlock(BlockField selectField, BlockField targetField);
+    void ChangeStage(string stageName);
 }
 
 public class DummyStageManager : iStage
@@ -11,6 +12,10 @@ public class DummyStageManager : iStage
     public void SwapBlock(BlockField select, BlockField target)
     {
         Debug.LogWarning("Dummy Swap Block");
+    }
+    public void ChangeStage(string stageName)
+    {
+        Debug.LogWarning("Dummy ChangeStage");
     }
 }
 
@@ -38,16 +43,23 @@ public class StageManager : MonoBehaviour, iStage
     void Awake()
     {
         instance = this;
+
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
     }
 
-    void Start()
+    void OnSelectStage(params object[] args)
     {
-        InitFieldManager();
-    }
+        string stageName = (string)args[0];
 
-    void InitFieldManager()
+        ChangeStage(stageName);
+    }
+    
+    public void ChangeStage(string stageName)
     {
-        fieldMng = new BlockFieldManager("TestField2");
+        if (fieldMng != null)
+            fieldMng.CleanUp();
+
+        fieldMng = new BlockFieldManager(stageName);
         fieldMng.BlockInitialize();
     }
 

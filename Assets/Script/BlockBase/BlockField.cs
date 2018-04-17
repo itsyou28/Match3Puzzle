@@ -143,7 +143,8 @@ public class BlockField : iBlockField
 
     void UpdateGO()
     {
-        blockFieldGO.ChangeFieldProperty();
+        if (blockFieldGO != null)
+            blockFieldGO.ChangeFieldProperty();
     }
     #endregion
 

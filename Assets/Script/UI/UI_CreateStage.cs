@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using FiniteStateMachine;
 
 public class UI_CreateStage : MonoBehaviour
 {
@@ -24,7 +25,9 @@ public class UI_CreateStage : MonoBehaviour
             EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.POPUP, "스테이지 생성 실패", "동일한 스테이지 이름이 존재합니다", 0);
         else
         {
-            DataFileManager.Inst.stageDataFile.AddStage(newStageName.text, new BlockField[3, 3]);
+            DataFileManager.Inst.stageDataFile.AddStage(newStageName.text, 
+                BlockFieldMaker.CreateField(10, 10));
+            EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.CREATE_STAGE, newStageName.text);
         }
     }
 

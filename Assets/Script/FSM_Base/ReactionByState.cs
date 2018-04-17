@@ -169,7 +169,7 @@ public class ReactionByState : MonoBehaviour, iStateReaction
             
             if (pState == null)
             {
-                UDL.LogError(gameObject.name + " // " + arrSwitch[idx].state, nLogOption);
+                UDL.LogError(gameObject.name + " // No State" + arrSwitch[idx].state, nLogOption);
                 return;
             }
 

@@ -24,12 +24,18 @@ public class UI_ModeTabBtn : MonoBehaviour
     {
         if (!toStageBtn.isOn)
             toStageBtn.isOn = true;
+
+        if (toEditorBtn.isOn)
+            toEditorBtn.isOn = false;
     }
 
     private void OnStartEditor(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
         if (!toEditorBtn.isOn)
             toEditorBtn.isOn = true;
+
+        if (toStageBtn.isOn)
+            toStageBtn.isOn = false;
     }
 
     public void OnChangeToStageToggle(bool bToggle)

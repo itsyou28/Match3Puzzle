@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
+using FiniteStateMachine;
 
 public class InputPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -11,8 +12,22 @@ public class InputPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     void Awake()
     {
         current = editorInput;
+
+        FSM_Layer.Inst.RegisterEventChangeLayerState(FSM_LAYER_ID.UserStory, OnChangeUS);
     }
 
+    void OnChangeUS(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        switch(stateID)
+        {
+            case STATE_ID.Main_Editor:
+                current = editorInput;
+                break;
+            case STATE_ID.Main_Stage:
+                current = stageInput;
+                break;
+        }
+    }
 
     public void OnPointerDown(PointerEventData data)
     {

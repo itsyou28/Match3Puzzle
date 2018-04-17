@@ -54,6 +54,8 @@ GameObject:
   m_Component:
   - component: {fileID: 224661905165710360}
   - component: {fileID: 114378455060407894}
+  - component: {fileID: 114560320978842092}
+  - component: {fileID: 114602402545956108}
   m_Layer: 5
   m_Name: StageMode Btn
   m_TagString: Untagged
@@ -211,6 +213,8 @@ GameObject:
   m_Component:
   - component: {fileID: 224993913367280944}
   - component: {fileID: 114445535414147014}
+  - component: {fileID: 114488792462415502}
+  - component: {fileID: 114088274071290338}
   m_Layer: 5
   m_Name: EditorMode Btn
   m_TagString: Untagged
@@ -295,6 +299,18 @@ MonoBehaviour:
     onResumeExcuteId: 0
   isDebug: 0
   hideFirstFrame: 0
+--- !u!114 &114088274071290338
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1889318200335588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c87f441bc3c28d4cb427bf0d7dfc87a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  control: {fileID: 114445535414147014}
 --- !u!114 &114182738850579634
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -639,6 +655,104 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &114488792462415502
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1889318200335588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d316fd69f6468754a8c4f7e6af0e0555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrSwitch:
+  - layer: 1
+    fsm: 2
+    state: 2001
+    onStartBefore: 0
+    onStart: 3
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 3
+    onEndAfter: 0
+    onPause: 0
+    onResume: 0
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  - layer: 1
+    fsm: 3
+    state: 1001
+    onStartBefore: 0
+    onStart: 3
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 3
+    onEndAfter: 0
+    onPause: 0
+    onResume: 0
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  - layer: 1
+    fsm: 2
+    state: 2000
+    onStartBefore: 0
+    onStart: 1
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 0
+    onEndAfter: 0
+    onPause: 0
+    onResume: 1
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  - layer: 1
+    fsm: 3
+    state: 1000
+    onStartBefore: 0
+    onStart: 1
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 0
+    onEndAfter: 0
+    onPause: 0
+    onResume: 1
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  isDebug: 0
+  hideFirstFrame: 0
 --- !u!114 &114502813963810274
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -679,6 +793,116 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   toEditorBtn: {fileID: 114445535414147014}
   toStageBtn: {fileID: 114378455060407894}
+--- !u!114 &114560320978842092
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1326094486775758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d316fd69f6468754a8c4f7e6af0e0555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrSwitch:
+  - layer: 1
+    fsm: 2
+    state: 2001
+    onStartBefore: 0
+    onStart: 3
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 3
+    onEndAfter: 0
+    onPause: 0
+    onResume: 0
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  - layer: 1
+    fsm: 3
+    state: 1001
+    onStartBefore: 0
+    onStart: 3
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 3
+    onEndAfter: 0
+    onPause: 0
+    onResume: 0
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  - layer: 1
+    fsm: 2
+    state: 2000
+    onStartBefore: 0
+    onStart: 1
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 0
+    onEndAfter: 0
+    onPause: 0
+    onResume: 1
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  - layer: 1
+    fsm: 3
+    state: 1000
+    onStartBefore: 0
+    onStart: 1
+    onStartAfter1: 0
+    onStartAfter2: 0
+    onEndBefore: 0
+    onEnd: 0
+    onEndAfter: 0
+    onPause: 0
+    onResume: 1
+    onStartBeforeExcuteId: 0
+    onStartExcuteId: 2
+    onStartAfter1ExcuteId: 0
+    onStartAfter2ExcuteId: 0
+    onEndBeforeExcuteId: 0
+    onEndExcuteId: 1
+    onEndAfterExcuteId: 0
+    onPauseExcuteId: 0
+    onResumeExcuteId: 0
+  isDebug: 0
+  hideFirstFrame: 0
+--- !u!114 &114602402545956108
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1326094486775758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c87f441bc3c28d4cb427bf0d7dfc87a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  control: {fileID: 114378455060407894}
 --- !u!114 &114687670749096668
 MonoBehaviour:
   m_ObjectHideFlags: 1

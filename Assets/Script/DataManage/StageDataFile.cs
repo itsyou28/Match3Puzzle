@@ -24,20 +24,33 @@ class StageDataFile : iDataFile
         return false;
     }
 
+    Dictionary<string, BlockField[,]> dicCachFields = new Dictionary<string, BlockField[,]>();
+
     public void AddStage(string stageName, BlockField[,] stageData)
     {
         stageFileList.AddFirst(stageName);
         FileManager.Inst.EditFileSave(GlobalVal.FieldDataPath, stageName, stageData);
+
+        if (!dicCachFields.ContainsKey(stageName))
+            dicCachFields.Add(stageName, stageData);
     }
     public void RemoveStage(string stageName)
     {
         stageFileList.Remove(stageName);
-        FileManager.Inst.DeleteFile(GlobalVal.FieldDataPath, stageName);
+        FileManager.Inst.EditFileDelete(GlobalVal.FieldDataPath, stageName);
+
+        if (dicCachFields.ContainsKey(stageName))
+            dicCachFields.Remove(stageName);
     }
 
     public BlockField[,] LoadStage(string stageName)
     {
-        return FileManager.Inst.EditFileLoad(GlobalVal.FieldDataPath, stageName) as BlockField[,];
+        BlockField[,] result;
+        
+        if(!dicCachFields.TryGetValue(stageName, out result))
+            result = FileManager.Inst.EditFileLoad(GlobalVal.FieldDataPath, stageName) as BlockField[,];
+
+        return result;
     }
 
     public void Load()

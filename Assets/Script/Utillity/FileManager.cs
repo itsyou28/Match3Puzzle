@@ -349,4 +349,15 @@ public class FileManager
 
         return result;
     }
+
+    public void EditFileDelete(string path, string filename)
+    {
+#if UNITY_EDITOR
+        if (CheckFileExists("Resources/" + path + "/" + filename + ".bytes"))
+            DeleteFile("Resources/" + path, filename+".bytes");
+#else
+        if (CheckFileExists(path, filename))
+            DeleteFile(path, filename+".bytes"); 
+#endif
+    }
 }
