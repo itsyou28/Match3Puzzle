@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using FiniteStateMachine;
 
 public interface iStage
 {
@@ -49,16 +50,19 @@ public class StageManager : MonoBehaviour, iStage
 
     void OnSelectStage(params object[] args)
     {
-        string stageName = (string)args[0];
+        if (fieldMng != null)
+            fieldMng.CleanUp();
 
-        ChangeStage(stageName);
+        if (FSM_Layer.Inst.GetCurFSM(FSM_LAYER_ID.UserStory).fsmID == FSM_ID.Stage)
+        {
+            string stageName = (string)args[0];
+
+            ChangeStage(stageName);
+        }
     }
     
     public void ChangeStage(string stageName)
     {
-        if (fieldMng != null)
-            fieldMng.CleanUp();
-
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.BlockInitialize();
     }
@@ -66,17 +70,17 @@ public class StageManager : MonoBehaviour, iStage
     bool isMatching = false;
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (fieldMng.FindMatch())
-            {
-                isMatching = true;
-                fieldMng.ExcuteMatch();
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    if (fieldMng.FindMatch())
+        //    {
+        //        isMatching = true;
+        //        fieldMng.ExcuteMatch();
+        //    }
+        //}
 
-        if (Input.GetKeyDown(KeyCode.Return))
-            fieldMng.Shuffle();
+        //if (Input.GetKeyDown(KeyCode.Return))
+        //    fieldMng.Shuffle();
 
         if (isMatching && fieldMng.IsNotEmpty())
         {

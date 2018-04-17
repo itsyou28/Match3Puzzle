@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
+using FiniteStateMachine;
 
 public class EditorMode : iInput
 {
@@ -27,6 +28,7 @@ public class EditorMode : iInput
 
     public void OnPointerUp(PointerEventData data)
     {
+        EditManager.i.CircleMenuTurnOn();
     }
 
     public void OnBeginDrag(PointerEventData data)

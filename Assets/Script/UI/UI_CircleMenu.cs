@@ -25,7 +25,7 @@ public class UI_CircleMenu : MonoBehaviour
             x = Mathf.Sin(angle * i) * r;
             y = Mathf.Cos(angle * i) * r;
 
-            GameObject obj = Instantiate(Resources.Load("Prefab/UI/CircleBtn") as GameObject);
+            GameObject obj = Instantiate(Resources.Load("UIPrefab/CircleBtn") as GameObject);
             obj.transform.SetParent(transform);
             obj.transform.localPosition = new Vector3(x, y);
         }

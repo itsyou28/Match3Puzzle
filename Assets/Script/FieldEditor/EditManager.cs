@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using FiniteStateMachine;
 
 public interface iEditManager
 {
@@ -10,6 +11,8 @@ public interface iEditManager
     void SetNonplayable();
     void SetDirection(int dir);
     void SetCreate(bool bValue);
+    void OffSelect();
+    void CircleMenuTurnOn();
 }
 
 public class DummyEditManager : iEditManager
@@ -20,6 +23,8 @@ public class DummyEditManager : iEditManager
     public void SetNonplayable() { }
     public void SetDirection(int dir) { }
     public void SetCreate(bool bValue) { }
+    public void OffSelect() { }
+    public void CircleMenuTurnOn() { }
 }
 
 public class EditManager : MonoBehaviour, iEditManager
@@ -46,30 +51,44 @@ public class EditManager : MonoBehaviour, iEditManager
     LinkedList<BlockField> selectedList = new LinkedList<BlockField>();
     LinkedList<Collider> markerList = new LinkedList<Collider>();
 
+
     void Awake()
     {
         instance = this;
+
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
     }
 
-    void Start()
+    void OnSelectStage(params object[] args)
     {
-        InitFieldManager();
-    }
+        if (fieldMng != null)
+            fieldMng.CleanUp();
 
-    void InitFieldManager()
-    {
-        fieldMng = new BlockFieldManager("TestField2");
-        fieldMng.BlockInitialize();
-    }
-
-    public void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (FSM_Layer.Inst.GetCurFSM(FSM_LAYER_ID.UserStory).fsmID == FSM_ID.Editor)
         {
-            OffSelect();
+            string stageName = (string)args[0];
+
+            ChangeStage(stageName);
         }
     }
 
+    public void CircleMenuTurnOn()
+    {
+        if (selectedList.Count > 0)
+            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
+    }
+
+    public void CircleMenuTurnOff()
+    {
+        FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
+    }
+
+    public void ChangeStage(string stageName)
+    {
+        fieldMng = new BlockFieldManager(stageName);
+        fieldMng.BlockInitialize();
+    }
+    
     public void AddMarker(Collider col)
     {
         markerList.AddLast(col);

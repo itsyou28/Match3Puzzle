@@ -1,14 +1,33 @@
 ﻿using UnityEngine;
 using System.Collections;
 using InputKeyProcessor;
+using FiniteStateMachine;
 
 public class InputKeyboard : MonoBehaviour
 {
     KeyProcessor curProcess;
 
+    EditorKey editorMode = new EditorKey();
+    StageKey stageMode = new StageKey();
+
     private void Awake()
     {
         curProcess = new FSM_Tester();
+
+        FSM_Layer.Inst.GetFSM(FSM_LAYER_ID.UserStory, FSM_ID.Main).EventStateChange += OnChangeMainUS;
+    }
+
+    private void OnChangeMainUS(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        switch(stateID)
+        {
+            case STATE_ID.Main_Editor:
+                curProcess = editorMode;
+                break;
+            case STATE_ID.Main_Stage:
+                curProcess = stageMode;
+                break;
+        }
     }
 
     void Update()

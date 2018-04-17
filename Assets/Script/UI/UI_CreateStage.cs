@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using FiniteStateMachine;
 
 public class UI_CreateStage : MonoBehaviour
 {

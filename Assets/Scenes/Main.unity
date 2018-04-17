@@ -235,7 +235,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 470630155}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 5, y: 5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -445,6 +445,10 @@ Prefab:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 1585401964434046, guid: cba5cfd638084714db86883e0c419022, type: 2}
+      propertyPath: m_Name
+      value: Game Object Root
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: cba5cfd638084714db86883e0c419022, type: 2}
   m_IsPrefabParent: 0
@@ -458,6 +462,7 @@ GameObject:
   - component: {fileID: 2132704407}
   - component: {fileID: 2132704406}
   - component: {fileID: 2132704405}
+  - component: {fileID: 2132704408}
   m_Layer: 0
   m_Name: ScriptContainer
   m_TagString: Untagged
@@ -511,3 +516,14 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2132704408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2132704404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f703bbbeb92e1c944bce93c3d27c44b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
