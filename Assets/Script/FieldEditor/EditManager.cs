@@ -12,7 +12,6 @@ public interface iEditManager
     void SetDirection(int dir);
     void SetCreate(bool bValue);
     void OffSelect();
-    void CircleMenuTurnOn();
 }
 
 public class DummyEditManager : iEditManager
@@ -24,7 +23,6 @@ public class DummyEditManager : iEditManager
     public void SetDirection(int dir) { }
     public void SetCreate(bool bValue) { }
     public void OffSelect() { }
-    public void CircleMenuTurnOn() { }
 }
 
 public class EditManager : MonoBehaviour, iEditManager
@@ -57,6 +55,8 @@ public class EditManager : MonoBehaviour, iEditManager
         instance = this;
 
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_DOWN, OnPointerDown);
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_UP, OnPointerUp);
     }
 
     void OnSelectStage(params object[] args)
@@ -72,15 +72,18 @@ public class EditManager : MonoBehaviour, iEditManager
         }
     }
 
-    public void CircleMenuTurnOn()
+    void OnPointerUp(params object[] args)
     {
+        //CircleMenu Turn On
         if (selectedList.Count > 0)
             FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
     }
 
-    public void CircleMenuTurnOff()
+    void OnPointerDown(params object[] args)
     {
-        FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
+        //CircleMenu Turn Off
+        if (FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory) != STATE_ID.Editor_Idle)
+            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
     }
 
     public void ChangeStage(string stageName)
@@ -88,7 +91,7 @@ public class EditManager : MonoBehaviour, iEditManager
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.BlockInitialize();
     }
-    
+
     public void AddMarker(Collider col)
     {
         markerList.AddLast(col);

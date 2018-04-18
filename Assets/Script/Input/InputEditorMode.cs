@@ -24,11 +24,12 @@ public class EditorMode : iInput
                 ActiveMarker();
             }
         }
+        EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.EDITORMODE_POINTER_DOWN, data);
     }
 
     public void OnPointerUp(PointerEventData data)
     {
-        EditManager.i.CircleMenuTurnOn();
+        EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.EDITORMODE_POINTER_UP, data);
     }
 
     public void OnBeginDrag(PointerEventData data)

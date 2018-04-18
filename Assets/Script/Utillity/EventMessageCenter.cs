@@ -108,6 +108,8 @@ public enum EMC_CODE
     DISP_MSG,
     SELECT_STAGE, //string stageName
     CREATE_STAGE, //string stageName
+    EDITORMODE_POINTER_DOWN, //Vector3 pos
+    EDITORMODE_POINTER_UP, //Vector3 pos
 }
 
 public class EMC_MAIN : EMC<EMC_CODE>

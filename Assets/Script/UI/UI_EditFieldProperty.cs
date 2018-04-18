@@ -1,9 +1,32 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class UI_EditFieldProperty : UI_CircleMenu
 {
+    [SerializeField]
+    RectTransform panel;
+    
+    private void Start()
+    {
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_DOWN, OnPointerDown, 1);
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_UP, OnPointerUp, 1);
+    }
+
+    void OnPointerUp(params object[] args)
+    {
+        PointerEventData data = (PointerEventData)args[0];
+        Vector2 result;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            panel, data.position, data.pressEventCamera, out result);
+        //화면 경계 부분 위치 보정 
+        transform.localPosition = result;
+    }
+
+    void OnPointerDown(params object[] args)
+    {
+    }
 
     protected override void SetBtnEvent()
     {

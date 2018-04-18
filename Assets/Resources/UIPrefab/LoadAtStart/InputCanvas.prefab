@@ -188,6 +188,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   r: 200
   maxNumber: 6
+  panel: {fileID: 224249359131679322}
 --- !u!222 &222555975472643818
 CanvasRenderer:
   m_ObjectHideFlags: 1
