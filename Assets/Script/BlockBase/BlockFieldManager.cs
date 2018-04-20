@@ -75,7 +75,7 @@ public class BlockFieldManager
         BlockField.fieldMng = this;
     }
 
-    public void BlockInitialize()
+    public void DeployBlock()
     {
         BlockField field;
 
@@ -114,6 +114,27 @@ public class BlockFieldManager
             if (!FindMatchAble())
             {
                 //임의의 able 패턴을 생성(그냥 셔플->매치가 반복되면 유저가 게임 시작도 안했는데 게임이 진행되는 셈)
+            }
+        }
+    }
+
+    public void EditorInitialize()
+    {
+        BlockField field;
+
+        //Playable Field 위치에 랜덤 블럭 생성
+        for (int i = 0; i <= rowArrLastIdx; i++)
+        {
+            for (int j = 0; j <= colArrLastIdx; j++)
+            {
+                field = fields[i, j];
+
+                field.DeployScreen();
+                if (field.block != null)
+                {
+                    field.block.CheckField(field);
+                    field.block.DeployScreen();
+                }
             }
         }
     }
@@ -352,14 +373,14 @@ public class BlockFieldManager
             l = minCol;
             r = minCol + 1;
             cnt = 0;
-            if(!fields[line, l].IsPlayable)
+            if (!fields[line, l].IsPlayable)
             {
                 l++;
                 r = l + 1;
             }
             while (r < rLimit)
             {
-                if (fields[line, r].IsPlayable && fields[line,r].BlockType > 0 &&
+                if (fields[line, r].IsPlayable && fields[line, r].BlockType > 0 &&
                     fields[line, l].BlockType == fields[line, r].BlockType)
                 {
                     cnt++;
@@ -410,7 +431,7 @@ public class BlockFieldManager
             }
             while (r < rLimit)
             {
-                if (fields[r, line].IsPlayable && fields[r,line].BlockType > 0 &&
+                if (fields[r, line].IsPlayable && fields[r, line].BlockType > 0 &&
                     fields[l, line].BlockType == fields[r, line].BlockType)
                 {
                     cnt++;

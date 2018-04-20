@@ -62,12 +62,9 @@ public class BlockField : iBlockField
         this.Col = col;
     }
 
-    /// <param name="dir">//0:down 1:left 2:up 3:right</param>
     public void Initialize()
     {
-        next = fieldMng.GetNextByDir(this);
-        if (next != null)
-            next.prev = this;
+        SetDirection(0);
 
         X = Col;
         Y = fieldMng.RowLength - Row;
@@ -151,6 +148,11 @@ public class BlockField : iBlockField
     public void SetDirection(int dir)
     {
         direction = dir;
+
+        next = fieldMng.GetNextByDir(this);
+        if (next != null)
+            next.prev = this;
+
         UpdateGO();
     }
 
@@ -158,6 +160,19 @@ public class BlockField : iBlockField
     {
         if (blockFieldGO != null)
             blockFieldGO.ChangeFieldProperty();
+    }
+
+    public void SetBlockRandom()
+    {
+        CleanUpBlock();
+    }
+
+    public void SetBlockType(int blockType)
+    {
+        if (block == null)
+            CreateBlock(blockType);
+        else
+            block.Reset(this, blockType);
     }
     #endregion
 
@@ -172,14 +187,7 @@ public class BlockField : iBlockField
 
     public void CleanUp()
     {
-        if (block != null)
-        {
-            block.CleanUp();
-
-            BlockPool.Pool.Push(block);
-
-            block = null;
-        }
+        CleanUpBlock();
 
         if (blockFieldGO != null)
         {
@@ -326,6 +334,23 @@ public class BlockField : iBlockField
         iBlock block = BlockPool.Pool.Pop();
         block.ResetRand(this, 5);
         SetBlock(block);
+    }
+
+    public void CreateBlock(int blockType)
+    {
+        iBlock block = BlockPool.Pool.Pop();
+        block.Reset(this, blockType);
+        SetBlock(block);
+    }
+
+    private void CleanUpBlock()
+    {
+        if (block != null)
+        {
+            block.CleanUp();
+            BlockPool.Pool.Push(block);
+            block = null;
+        }
     }
 
     public void SetBlock(iBlock block)

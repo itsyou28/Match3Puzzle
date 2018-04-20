@@ -93,7 +93,7 @@ public class StageManager : MonoBehaviour, iStage
     void InitStage(string stageName)
     {
         fieldMng = new BlockFieldManager(stageName);
-        fieldMng.BlockInitialize();
+        fieldMng.DeployBlock();
         BroadcastMessage("ActiveField", false, SendMessageOptions.DontRequireReceiver);
         this.enabled = true;
     }

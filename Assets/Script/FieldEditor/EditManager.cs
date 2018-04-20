@@ -12,6 +12,8 @@ public interface iEditManager
     void SetDirection(int dir);
     void SetCreate(bool bValue);
     void OffSelect();
+    void SetBlockRandom();
+    void SetBlockType(int blockType);
 }
 
 public class DummyEditManager : iEditManager
@@ -23,6 +25,8 @@ public class DummyEditManager : iEditManager
     public void SetDirection(int dir) { }
     public void SetCreate(bool bValue) { }
     public void OffSelect() { }
+    public void SetBlockRandom() { }
+    public void SetBlockType(int blockType) { }
 }
 
 public class EditManager : MonoBehaviour, iEditManager
@@ -86,7 +90,7 @@ public class EditManager : MonoBehaviour, iEditManager
 
     void OnSelectStage(params object[] args)
     {
-        if(args == null || args.Length == 0)
+        if (args == null || args.Length == 0)
         {
             UDL.LogError("need stagename in args[0]");
             return;
@@ -125,7 +129,7 @@ public class EditManager : MonoBehaviour, iEditManager
     public void InitFields(string stageName)
     {
         fieldMng = new BlockFieldManager(stageName);
-        fieldMng.BlockInitialize();
+        fieldMng.EditorInitialize();
         BroadcastMessage("ActiveField", true, SendMessageOptions.DontRequireReceiver);
     }
 
@@ -183,6 +187,22 @@ public class EditManager : MonoBehaviour, iEditManager
         foreach (var field in selectedList)
         {
             field.SetCreateField(bValue);
+        }
+    }
+
+    public void SetBlockRandom()
+    {
+        foreach (var field in selectedList)
+        {
+            field.SetBlockRandom();
+        }
+    }
+
+    public void SetBlockType(int blockType)
+    {
+        foreach (var field in selectedList)
+        {
+            field.SetBlockType(blockType);
         }
     }
 }

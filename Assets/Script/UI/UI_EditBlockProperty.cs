@@ -16,14 +16,21 @@ public class UI_EditBlockProperty : UI_CircleMenu
 
         t = transform.GetChild(0);
         t.GetComponentInChildren<Button>().onClick.AddListener(
-            () => {  });
+            () => 
+            {
+                EditManager.i.SetBlockRandom();
+            });
         t.GetComponentInChildren<Text>().text = "SetRandom";
 
         for (int i = 1; i < 9; i++)
         {
+            int blockType = i;
             t = transform.GetChild(i);
             t.GetComponentInChildren<Button>().onClick.AddListener(
-                () => { });
+                () => 
+                {
+                    EditManager.i.SetBlockType(blockType);
+                });
             t.GetComponentInChildren<Text>().text = i.ToString();
         }
     }

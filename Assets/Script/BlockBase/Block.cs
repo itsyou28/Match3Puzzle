@@ -85,7 +85,7 @@ public class Block : iBlock
         }
         else
         {
-            if (movingNumber == accumeMoving)
+            if (movingNumber >= accumeMoving)
             {
                 accumeMoving = 0;
                 IsMoving = false;
