@@ -40,6 +40,8 @@ public class InputKeyboard : MonoBehaviour
             curProcess.SpaceDown();
         if (Input.GetKeyDown(KeyCode.Backspace))
             curProcess.BackspaceDown();
+        if (Input.GetKeyDown(KeyCode.Tab))
+            curProcess.TabDown();
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
             curProcess.Num1Down();

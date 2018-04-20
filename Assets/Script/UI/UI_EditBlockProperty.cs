@@ -1,0 +1,30 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+
+public class UI_EditBlockProperty : UI_CircleMenu
+{
+    protected override void ChildAwake()
+    {
+        radius = 200;
+        maxNumber = 9;
+    }
+
+
+    protected override void SetBtnEvent()
+    {
+        Transform t;
+
+        t = transform.GetChild(0);
+        t.GetComponentInChildren<Button>().onClick.AddListener(
+            () => {  });
+        t.GetComponentInChildren<Text>().text = "SetRandom";
+
+        for (int i = 1; i < 9; i++)
+        {
+            t = transform.GetChild(i);
+            t.GetComponentInChildren<Button>().onClick.AddListener(
+                () => { });
+            t.GetComponentInChildren<Text>().text = i.ToString();
+        }
+    }
+}

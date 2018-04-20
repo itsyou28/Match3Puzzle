@@ -8,6 +8,7 @@ namespace InputKeyProcessor
         public virtual void ReturnDown() { }
         public virtual void SpaceDown() { }
         public virtual void BackspaceDown() { }
+        public virtual void TabDown() { }
 
         public virtual void Num1Down() { }
         public virtual void Num2Down() { }
