@@ -115,7 +115,7 @@ public class StageManager : MonoBehaviour, iStage
 
         if (isMatching)
         {
-            if (!Block.IsMoving)
+            if (BlockMng.Inst.IsStop)
             {
                 isMatching = false;
                 StartCoroutine(DelayMatch());

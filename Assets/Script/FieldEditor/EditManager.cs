@@ -69,6 +69,14 @@ public class EditManager : MonoBehaviour, iEditManager
 
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Editor, STATE_ID.Editor_FromStage);
         tstate.EventStart += OnStart_FromStage;
+
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Editor, STATE_ID.Editor_BackToMain);
+        tstate.EventStart += OnStart_BackToMain;
+    }
+
+    private void OnStart_BackToMain(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        CleanUp();
     }
 
     private void OnStart_FromStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
@@ -80,6 +88,11 @@ public class EditManager : MonoBehaviour, iEditManager
     }
 
     private void OnStart_ToStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        CleanUp();
+    }
+
+    private void CleanUp()
     {
         OffSelect();
 

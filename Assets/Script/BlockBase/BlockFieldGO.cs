@@ -43,7 +43,7 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
     //BlockField와 연동하여 필드에서 속성 정보를 표시한다.     
     public void SetBlockField(BlockField field)
     {
-        Field = field;        
+        Field = field;
         transform.localPosition = new Vector3(field.X, field.Y);
         ChangeFieldProperty();
         gameObject.SetActive(true);
@@ -75,6 +75,9 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 
     public void PushBack()
     {
+        PushbackCreateMarker();
+        PushbackEmptyMarker();
+
         curUpdate = UpdateEmpty;
         gameObject.SetActive(false);
     }
@@ -101,12 +104,20 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
                 emptyMarker.transform.localPosition = transform.localPosition;
                 emptyMarker.SetActive(true);
             }
-            else if (!Field.IsEmpty && emptyMarker != null)
+            else if (!Field.IsEmpty)
             {
-                emptyMarker.SetActive(false);
-                EmptyFieldMarkerPool.pool.Push(emptyMarker);
-                emptyMarker = null;
+                PushbackEmptyMarker();
             }
+        }
+    }
+
+    private void PushbackEmptyMarker()
+    {
+        if (emptyMarker != null)
+        {
+            emptyMarker.SetActive(false);
+            EmptyFieldMarkerPool.pool.Push(emptyMarker);
+            emptyMarker = null; 
         }
     }
 
@@ -120,14 +131,22 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
                 createMarker.transform.localPosition = transform.localPosition;
                 createMarker.SetActive(true);
             }
-            else if (!Field.IsCreateField && createMarker != null)
+            else if (!Field.IsCreateField)
             {
-                createMarker.SetActive(false);
-                CreateFieldMarkerPool.pool.Push(createMarker);
-                createMarker = null;
+                PushbackCreateMarker();
             }
         }
 
+    }
+
+    private void PushbackCreateMarker()
+    {
+        if (createMarker != null)
+        {
+            createMarker.SetActive(false);
+            CreateFieldMarkerPool.pool.Push(createMarker);
+            createMarker = null;
+        }
     }
 
     void UpdateEditorMode()

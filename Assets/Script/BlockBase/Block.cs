@@ -1,36 +1,11 @@
 ﻿using System;
 using UnityEngine;
 
-public class BlockPool
-{
-    private static BlockPool instance = null;
-    private static ObjectPool<iBlock> pool;
-    public static ObjectPool<iBlock> Pool
-    {
-        get
-        {
-            if (instance == null)
-                instance = new BlockPool();
-            return pool;
-        }
-    }
-
-    private BlockPool()
-    {
-        pool = new ObjectPool<iBlock>(100, 20, CreateBlock);
-    }
-
-    iBlock CreateBlock()
-    {
-        return new Block();
-    }
-}
-
 
 public interface iBlock
 {
     int BlockType { get; }
-
+    bool IsStop { get; }
     void Reset(BlockField field, int blockType);
     void ResetRand(BlockField field, int randMax);
     void ResetAnotherBlockType(BlockField field, int randMax);
@@ -56,41 +31,19 @@ public class Block : iBlock
     [NonSerialized]
     iBlockGO blockGO;
 
-    public int BlockType { get { return blockType; } }
     int blockType;
-
-    //블럭이 이동중인지 체크한다. 
-    // -블럭이 이동중일 때 매치가 발생할 경우 블럭 재사용에서 문제가 발생한다. 
-    // -유저에게 불완전한 피드백을 줄 수 있기 때문에 블럭이 이동중일 때 이동의 완료를 보장해야 한다.
-    // -이동을 시작한 순서대로 번호를 가져간다 마지막 번호가 멈추면 멈춘걸로 판단한다. 
-    public static bool IsMoving { get; private set; }
-    static int accumeMoving = 0;
-
-    [NonSerialized]
-    int movingNumber;
+    public int BlockType { get { return blockType; } }
 
     [NonSerialized]
     bool isMoving = false;
 
+    public bool IsStop { get { return !isMoving; } }
+
     void SetMovingFlag(bool bValue)
     {
-        //먼저 이동을 시작했지만 이동거리가 더 길어서 나중에 끝나는 경우를 처리하지 못한다. 
         isMoving = bValue;
 
-        if (bValue)
-        {
-            accumeMoving++;
-            movingNumber = accumeMoving;
-            IsMoving = true;
-        }
-        else
-        {
-            if (movingNumber >= accumeMoving)
-            {
-                accumeMoving = 0;
-                IsMoving = false;
-            }
-        }
+        BlockMng.Inst.UpdateStopFlag();
     }
 
     public void InitByEditor(BlockField field, int blockType)
@@ -151,6 +104,7 @@ public class Block : iBlock
     public void MoveToNextField()
     {
         //이동중에 호출 받았을 때 next필드가 변경되서 블럭위치가 튀거나 이상한 움직임을 보이지 않도록 블럭해야 한다. 
+        //Debug.Log("MoveToNextField");
         if (isMoving)
             return;
 

@@ -331,14 +331,14 @@ public class BlockField : iBlockField
 
     public void CreateBlock()
     {
-        iBlock block = BlockPool.Pool.Pop();
+        iBlock block = BlockMng.Pool.Pop();
         block.ResetRand(this, 5);
         SetBlock(block);
     }
 
     public void CreateBlock(int blockType)
     {
-        iBlock block = BlockPool.Pool.Pop();
+        iBlock block = BlockMng.Pool.Pop();
         block.Reset(this, blockType);
         SetBlock(block);
     }
@@ -348,7 +348,7 @@ public class BlockField : iBlockField
         if (block != null)
         {
             block.CleanUp();
-            BlockPool.Pool.Push(block);
+            BlockMng.Pool.Push(block);
             block = null;
         }
     }
@@ -357,7 +357,7 @@ public class BlockField : iBlockField
     {
         if (isCreateField && block == null)
         {
-            block = BlockPool.Pool.Pop();
+            block = BlockMng.Pool.Pop();
             if (block == null)
                 Debug.LogError("block is null");
             block.ResetRand(this, 5);
@@ -380,7 +380,7 @@ public class BlockField : iBlockField
         if (block != null)
         {
             block.Match();
-            BlockPool.Pool.Push(block);
+            BlockMng.Pool.Push(block);
             SetBlock(null);
         }
     }
