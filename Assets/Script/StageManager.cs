@@ -5,7 +5,7 @@ using FiniteStateMachine;
 public interface iStage
 {
     void SwapBlock(BlockField selectField, BlockField targetField);
-    void ChangeStage(string stageName);
+    void CheckMatch();
 }
 
 public class DummyStageManager : iStage
@@ -14,9 +14,10 @@ public class DummyStageManager : iStage
     {
         Debug.LogWarning("Dummy Swap Block");
     }
-    public void ChangeStage(string stageName)
+
+    public void CheckMatch()
     {
-        Debug.LogWarning("Dummy ChangeStage");
+        Debug.LogWarning("Dummy CheckMatch");
     }
 }
 
@@ -41,30 +42,60 @@ public class StageManager : MonoBehaviour, iStage
 
     BlockFieldManager fieldMng;
 
+    string curStageName;
+
     void Awake()
     {
         instance = this;
 
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
+
+        State tstate;
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_FromEditor);
+        tstate.EventStart += OnStart_FromEditor;
+
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_ToEditor);
+        tstate.EventStart += OnStart_ToEditor;
+    }
+
+    private void OnStart_ToEditor(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        StopAllCoroutines();
+        this.enabled = false;
+        fieldMng.CleanUp();
+        fieldMng = null;
+    }
+
+    private void OnStart_FromEditor(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        InitStage(curStageName);
+
+        //fromEditor->Intro
+        FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
     }
 
     void OnSelectStage(params object[] args)
     {
-        if (fieldMng != null)
-            fieldMng.CleanUp();
+        if (args == null || args.Length == 0)
+        {
+            UDL.LogError("need stagename in args[0]");
+            return;
+        }
+
+        curStageName = (string)args[0];
 
         if (FSM_Layer.Inst.GetCurFSM(FSM_LAYER_ID.UserStory).fsmID == FSM_ID.Stage)
         {
-            string stageName = (string)args[0];
-
-            ChangeStage(stageName);
+            InitStage(curStageName);
         }
     }
     
-    public void ChangeStage(string stageName)
+    void InitStage(string stageName)
     {
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.BlockInitialize();
+        BroadcastMessage("ActiveField", false, SendMessageOptions.DontRequireReceiver);
+        this.enabled = true;
     }
 
     bool isMatching = false;
@@ -82,12 +113,12 @@ public class StageManager : MonoBehaviour, iStage
         //if (Input.GetKeyDown(KeyCode.Return))
         //    fieldMng.Shuffle();
 
-        if (isMatching && fieldMng.IsNotEmpty())
+        if (isMatching)
         {
-            if (fieldMng.IsNotMoving())
+            if (!Block.IsMoving)
             {
                 isMatching = false;
-                StartCoroutine(DelayMatch()); 
+                StartCoroutine(DelayMatch());
             }
         }
     }
@@ -119,5 +150,11 @@ public class StageManager : MonoBehaviour, iStage
                     fieldMng.ExcuteMatch();
                 }
             });
+    }
+
+    public void CheckMatch()
+    {
+        if (fieldMng.FindMatch())
+            fieldMng.ExcuteMatch();
     }
 }

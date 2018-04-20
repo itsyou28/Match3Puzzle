@@ -7,30 +7,30 @@ public interface iDataFile
     void Save();
 }
 
-class DataFileManager
+class DataManager
 {
-    private static DataFileManager instance = null;
-    public static DataFileManager Inst
+    private static DataManager instance = null;
+    public static DataManager Inst
     {
         get
         {
             if (instance == null)
-                instance = new DataFileManager();
+                instance = new DataManager();
 
             return instance;
         }
     }
     
-    public StageDataFile stageDataFile;
+    public StageData stageData;
 
     iDataFile[] arriData;
 
-    private DataFileManager()
+    private DataManager()
     {
-        stageDataFile = new StageDataFile();
+        stageData = new StageData();
 
         arriData = new iDataFile[1];
-        arriData[0] = stageDataFile;
+        arriData[0] = stageData;
 
         Load();
     }

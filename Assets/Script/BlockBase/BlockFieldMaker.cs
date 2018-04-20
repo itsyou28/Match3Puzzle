@@ -17,13 +17,14 @@ public class BlockFieldMaker
             {
                 fields[row, col] = new BlockField(row, col);
 
-                if (row == 0)
+                if (row == 0 || row == maxRow - 1 || col == 0 || col == maxCol - 1)
+                    fields[row, col].SetBorderLine();
+
+                if (row == 1 && col >= 1 && col <maxCol-1)
                 {
                     fields[row, col].SetCreateField(true);
                     fields[row, col].SetNonPlayable();
                 }
-                if (row == maxRow - 1 || col == 0 || col == maxCol - 1)
-                    fields[row, col].SetNonPlayable();
             }
         }
 

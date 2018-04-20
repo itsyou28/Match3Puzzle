@@ -29,7 +29,7 @@ public class UI_StageList : MonoBehaviour
 
     void InitList()
     {
-        IEnumerator<string> itor = DataFileManager.Inst.stageDataFile.fileListItor;
+        IEnumerator<string> itor = DataManager.Inst.stageData.fileListItor;
 
         itor.Reset();
 

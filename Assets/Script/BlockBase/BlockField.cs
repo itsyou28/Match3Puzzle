@@ -45,6 +45,7 @@ public class BlockField : iBlockField
 
     public event Action<BlockField> blockChange;
 
+    bool isBorderLine = false;
     bool isPlayable = true;
     bool isEmpty = true;
     bool isCreateField = false;
@@ -113,6 +114,12 @@ public class BlockField : iBlockField
         return true;
     }
 
+    public void SetBorderLine()
+    {
+        isBorderLine = true;
+        SetNonPlayable();
+    }
+
     public void SetPlayable()
     {
         isPlayable = true;
@@ -124,6 +131,12 @@ public class BlockField : iBlockField
     public void SetNonPlayable()
     {
         isPlayable = false;
+
+        if (block != null)
+        {
+            block.CleanUp();
+            block = null;
+        }
 
         SetMoveable();
         UpdateGO();
@@ -150,14 +163,23 @@ public class BlockField : iBlockField
 
     public void DeployScreen()
     {
-        blockFieldGO = BlockFieldGOPool.pool.Pop();
-        blockFieldGO.SetBlockField(this);
+        if (!isBorderLine)
+        {
+            blockFieldGO = BlockFieldGOPool.pool.Pop();
+            blockFieldGO.SetBlockField(this);
+        }
     }
 
     public void CleanUp()
     {
-        block.CleanUp();
-        BlockPool.Pool.Push(block);
+        if (block != null)
+        {
+            block.CleanUp();
+
+            BlockPool.Pool.Push(block);
+
+            block = null;
+        }
 
         if (blockFieldGO != null)
         {
@@ -311,6 +333,8 @@ public class BlockField : iBlockField
         if (isCreateField && block == null)
         {
             block = BlockPool.Pool.Pop();
+            if (block == null)
+                Debug.LogError("block is null");
             block.ResetRand(this, 5);
         }
         else if (block == null)

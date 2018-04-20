@@ -3,13 +3,10 @@ using System.Collections;
 
 public class UI_CircleMenu : MonoBehaviour
 {
+    protected float r = 200;
+    protected int maxNumber = 6;
 
-    [SerializeField]
-    float r = 200;
-    [SerializeField]
-    int maxNumber = 6;
-
-    private void Awake()
+    private void Start()
     {
         MakeBtn();
         SetBtnEvent();

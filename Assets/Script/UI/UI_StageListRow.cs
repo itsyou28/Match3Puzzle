@@ -34,7 +34,7 @@ public class UI_StageListRow : MonoBehaviour
     {
         if (result)
         {
-            DataFileManager.Inst.stageDataFile.RemoveStage(data.stageName);
+            DataManager.Inst.stageData.RemoveStage(data.stageName);
             Destroy(gameObject);
         }
     }

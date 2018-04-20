@@ -49,6 +49,7 @@ public class EditManager : MonoBehaviour, iEditManager
     LinkedList<BlockField> selectedList = new LinkedList<BlockField>();
     LinkedList<Collider> markerList = new LinkedList<Collider>();
 
+    string curStageName;
 
     void Awake()
     {
@@ -57,39 +58,75 @@ public class EditManager : MonoBehaviour, iEditManager
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_DOWN, OnPointerDown);
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_UP, OnPointerUp);
+
+        State tstate;
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Editor, STATE_ID.Editor_ToStage);
+        tstate.EventStart += OnStart_ToStage;
+
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Editor, STATE_ID.Editor_FromStage);
+        tstate.EventStart += OnStart_FromStage;
+    }
+
+    private void OnStart_FromStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        InitFields(curStageName);
+
+        //fromStage -> Idle
+        FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
+    }
+
+    private void OnStart_ToStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        OffSelect();
+
+        fieldMng.SaveFields();
+        fieldMng.CleanUp();
+        fieldMng = null;
     }
 
     void OnSelectStage(params object[] args)
     {
-        if (fieldMng != null)
-            fieldMng.CleanUp();
+        if(args == null || args.Length == 0)
+        {
+            UDL.LogError("need stagename in args[0]");
+            return;
+        }
+
+        curStageName = (string)args[0];
 
         if (FSM_Layer.Inst.GetCurFSM(FSM_LAYER_ID.UserStory).fsmID == FSM_ID.Editor)
         {
-            string stageName = (string)args[0];
-
-            ChangeStage(stageName);
+            InitFields(curStageName);
         }
     }
 
     void OnPointerUp(params object[] args)
     {
-        //CircleMenu Turn On
+        CircleMenuTurnOn();
+    }
+
+    private void CircleMenuTurnOn()
+    {
         if (selectedList.Count > 0)
             FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
     }
 
-    void OnPointerDown(params object[] args)
+    private static void CircleMenuTurnOff()
     {
-        //CircleMenu Turn Off
         if (FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory) != STATE_ID.Editor_Idle)
             FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
     }
 
-    public void ChangeStage(string stageName)
+    void OnPointerDown(params object[] args)
+    {
+        CircleMenuTurnOff();
+    }
+
+    public void InitFields(string stageName)
     {
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.BlockInitialize();
+        BroadcastMessage("ActiveField", true, SendMessageOptions.DontRequireReceiver);
     }
 
     public void AddMarker(Collider col)
@@ -114,6 +151,8 @@ public class EditManager : MonoBehaviour, iEditManager
 
         markerList.Clear();
         selectedList.Clear();
+
+        CircleMenuTurnOff();
     }
 
     public void SetPlayable()

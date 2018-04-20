@@ -8,8 +8,11 @@ public class UI_EditFieldProperty : UI_CircleMenu
     [SerializeField]
     RectTransform panel;
     
-    private void Start()
+    private void Awake()
     {
+        r = 200;
+        maxNumber = 8;
+
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_DOWN, OnPointerDown, 1);
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_UP, OnPointerUp, 1);
     }
@@ -59,5 +62,13 @@ public class UI_EditFieldProperty : UI_CircleMenu
             () => { EditManager.i.SetDirection(3); });
         t.GetComponentInChildren<Text>().text = "Right";
 
+        t = transform.GetChild(6);
+        t.GetComponentInChildren<Button>().onClick.AddListener(
+            () => { EditManager.i.SetCreate(true); });
+        t.GetComponentInChildren<Text>().text = "Create able";
+        t = transform.GetChild(7);
+        t.GetComponentInChildren<Button>().onClick.AddListener(
+            () => { EditManager.i.SetCreate(false); });
+        t.GetComponentInChildren<Text>().text = "Create disable";
     }
 }

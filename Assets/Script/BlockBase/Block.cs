@@ -30,7 +30,6 @@ public class BlockPool
 public interface iBlock
 {
     int BlockType { get; }
-    bool IsMoving { get; }
 
     void Reset(BlockField field, int blockType);
     void ResetRand(BlockField field, int randMax);
@@ -40,7 +39,8 @@ public interface iBlock
     void Match();
     void DeployScreen();
     void SwapMove(BlockField target, Action callback);
-    void SetField(BlockField target);
+    void SetSwapField(BlockField target);
+    void CheckField(BlockField target);
 }
 
 /// <summary>
@@ -59,46 +59,88 @@ public class Block : iBlock
     public int BlockType { get { return blockType; } }
     int blockType;
 
-    public bool IsMoving { get { return isMoving; } }
+    //블럭이 이동중인지 체크한다. 
+    // -블럭이 이동중일 때 매치가 발생할 경우 블럭 재사용에서 문제가 발생한다. 
+    // -유저에게 불완전한 피드백을 줄 수 있기 때문에 블럭이 이동중일 때 이동의 완료를 보장해야 한다.
+    // -이동을 시작한 순서대로 번호를 가져간다 마지막 번호가 멈추면 멈춘걸로 판단한다. 
+    public static bool IsMoving { get; private set; }
+    static int accumeMoving = 0;
+
+    [NonSerialized]
+    int movingNumber;
+
     [NonSerialized]
     bool isMoving = false;
 
+    void SetMovingFlag(bool bValue)
+    {
+        //먼저 이동을 시작했지만 이동거리가 더 길어서 나중에 끝나는 경우를 처리하지 못한다. 
+        isMoving = bValue;
+
+        if (bValue)
+        {
+            accumeMoving++;
+            movingNumber = accumeMoving;
+            IsMoving = true;
+        }
+        else
+        {
+            if (movingNumber == accumeMoving)
+            {
+                accumeMoving = 0;
+                IsMoving = false;
+            }
+        }
+    }
+
     public void InitByEditor(BlockField field, int blockType)
     {
-        curField = field;
+        SetField(field);
         this.blockType = blockType;
     }
 
     public void Reset(BlockField field, int blockType)
     {
-        curField = field;
+        SetField(field);
         this.blockType = blockType;
-        isMoving = false;
+        SetMovingFlag(false);
 
         DeployScreen();
     }
 
     public void ResetRand(BlockField field, int randMax)
     {
-        curField = field;
+        SetField(field);
         blockType = UnityEngine.Random.Range(1, randMax);
-        isMoving = false;
+        SetMovingFlag(false);
 
         DeployScreen();
     }
 
     public void ResetAnotherBlockType(BlockField field, int randMax)
     {
-        curField = field;
+        SetField(field);
         blockType = BK_Function.Random(1, randMax, blockType);
-        isMoving = false;
+        SetMovingFlag(false);
 
         DeployScreen();
     }
 
-    public void SetField(BlockField field)
+    public void SetSwapField(BlockField field)
     {
-        curField = field;
+        SetField(field);
+    }
+
+    void SetField(iBlockField target)
+    {
+        //Debug.Log("SetField " + target.X + " " + target.Y);
+        curField = target;
+    }
+
+    public void CheckField(BlockField field)
+    {
+        if (curField.X != field.X || curField.Y != field.Y)
+            Debug.LogError(curField.X + " " + curField.Y + " // " + field.X + " " + field.Y);
     }
 
     public void SetBlockType(int blockType)
@@ -115,21 +157,21 @@ public class Block : iBlock
         if (curField.next.IsPlayable && curField.next.IsEmpty)
         {
             curField.SetBlock(null);
-            curField = curField.next;
+            SetField(curField.next);
             curField.SetBlock(this);
 
             blockGO.Move(curField.X, curField.Y, Move);
 
-            isMoving = true;
+            SetMovingFlag(true);
         }
     }
 
     public void SwapMove(BlockField target, Action callback)
     {
-        isMoving = true;
+        SetMovingFlag(true);
         blockGO.Move(target.X, target.Y, () =>
         {
-            isMoving = false;
+            SetMovingFlag(false);
             blockGO.SwapStop();
             if (callback != null)
                 callback();
@@ -141,14 +183,14 @@ public class Block : iBlock
         if (curField.next.IsPlayable && curField.next.IsEmpty)
         {
             curField.SetBlock(null);
-            curField = curField.next;
+            SetField(curField.next);
             curField.SetBlock(this);
 
             blockGO.Move(curField.X, curField.Y, Move);
         }
         else
         {
-            isMoving = false;
+            SetMovingFlag(false);
             blockGO.Stop();
         }
     }
@@ -166,16 +208,18 @@ public class Block : iBlock
         {
             //화면에서 제거되고 pool로 돌아간다. 
             blockGO.Match();
-            BlockGOPool.pool.Push(blockGO);
             blockGO = null;
         }
     }
 
     public void CleanUp()
     {
-        blockGO.PushBack();
-        BlockGOPool.pool.Push(blockGO);
-        blockGO = null;
+        if (blockGO != null)
+        {
+            blockGO.PushBack();
+            BlockGOPool.pool.Push(blockGO);
+            blockGO = null;
+        }
     }
 
     #region override Equals

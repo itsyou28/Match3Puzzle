@@ -15,9 +15,6 @@ public interface iBlockGO
 public class BlockGO : MonoBehaviour, iBlockGO
 {
     [SerializeField]
-    bool isDebug;
-
-    [SerializeField]
     SpriteRenderer sprite;
     
     public void SetBlock(Block block, float x, float y)
@@ -51,27 +48,28 @@ public class BlockGO : MonoBehaviour, iBlockGO
         }
 
         transform.localPosition = new Vector3(x, y);
-        if (isDebug)
-            Debug.Log("SetBlock " + transform.localPosition);
+        transform.localScale = Vector3.one;
         gameObject.SetActive(true);
     }
 
-    void OnEnable()
-    {
-        if (isDebug)
-            Debug.Log("Enable " + transform.localPosition);
-    }
-
-    void OnDisable()
-    {
-        if (isDebug)
-            Debug.Log("OnDisable " + transform.localPosition);
-    }
-    
     public void Match()
     {
-        if (isDebug)
-            Debug.Log("Match " + transform.localPosition);
+        isMoving = false;
+        isStoping = false;
+        StartCoroutine(MatchAni());
+    }
+
+    IEnumerator MatchAni()
+    {
+        float elapse = 0;
+
+        while(elapse < 1)
+        {
+            elapse += Time.deltaTime;
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, elapse);
+            yield return true;
+        }
+        BlockGOPool.pool.Push(this);
         PushBack();
     }
 
@@ -81,9 +79,6 @@ public class BlockGO : MonoBehaviour, iBlockGO
     {
         startPos = transform.localPosition;
         EndPos = new Vector3(x, y);
-
-        if (isDebug && Vector3.Distance(startPos, EndPos) > 1)
-            Debug.LogWarning("long move  "+startPos + " " + EndPos);
 
         elapseTime = 0;
         isMoving = true;
@@ -98,8 +93,6 @@ public class BlockGO : MonoBehaviour, iBlockGO
         bounceNum = BK_Function.ConvertRange(minPower, maxPower, minBounce, maxBounce, bouncePower);
         //stopAniTme = BK_Function.ConvertRange(minPower, maxPower, minStopTime, maxStopTime, bouncePower);
         //bounceNum = BK_Function.ConvertRange(minStopTime, maxStopTime, minBounce, maxBounce, stopAniTme);
-        if (isDebug)
-            Debug.Log((MinSpeed - aniTime).ToString() + " power " + bouncePower + " time " + stopAniTme + " bounce " + bounceNum);
         elapseTime = 0;
         accumeTime = 0;
     }
@@ -115,8 +108,6 @@ public class BlockGO : MonoBehaviour, iBlockGO
         isMoving = false;
         isStoping = false;
         gameObject.SetActive(false);
-        if (isDebug)
-            Debug.Log("PushBack " + transform.localPosition);
     }
 
     void Update()
@@ -161,10 +152,8 @@ public class BlockGO : MonoBehaviour, iBlockGO
             isMoving = false;
             transform.localPosition = EndPos;
 
-            if (callbackMove != null)
-            {
+            if(callbackMove != null)
                 callbackMove();
-            }
         }
         else
             transform.localPosition = Vector3.Lerp(startPos, EndPos, elapseTime*reverseTime);

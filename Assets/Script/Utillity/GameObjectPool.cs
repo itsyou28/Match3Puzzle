@@ -10,17 +10,17 @@ public class GameObjectPool : MonoBehaviour, iPool<GameObject>
 
     ObjectPool<GameObject> goPool;
 
-    GameObject CreateBlock()
+    GameObject CreateObj()
     {
         GameObject obj = Instantiate(Resources.Load(pooledPrefabName) as GameObject);
         obj.transform.SetParent(transform);
-
+        obj.SetActive(false);
         return obj;
     }
 
     protected virtual void Awake()
     {
-        goPool = new ObjectPool<GameObject>(100, 20, CreateBlock);
+        goPool = new ObjectPool<GameObject>(100, 20, CreateObj);
     }
 
     public GameObject Pop()

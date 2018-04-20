@@ -17,11 +17,13 @@ public class BlockFieldManager
     public List<BlockField> ableField = new List<BlockField>();
     public List<BlockField> matchedField = new List<BlockField>();
 
+    public string FieldName { get; private set; }
+
     public void CleanUp()
     {
         for (int row = 0; row <= rowArrLastIdx; row++)
         {
-            for (int col = 0; col < colArrLastIdx; col++)
+            for (int col = 0; col <= colArrLastIdx; col++)
             {
                 fields[row, col].CleanUp();
             }
@@ -41,7 +43,9 @@ public class BlockFieldManager
     /// </summary>
     public BlockFieldManager(string fieldFileName)
     {
-        fields = DataFileManager.Inst.stageDataFile.LoadStage(fieldFileName);
+        FieldName = fieldFileName;
+
+        fields = DataManager.Inst.stageData.LoadStage(fieldFileName);
 
         Initialize();
 
@@ -52,6 +56,11 @@ public class BlockFieldManager
             throw new Exception("small fields size : " + fieldFileName);
 
         Debug.Log("fields load : " + fieldFileName + " " + RowLength + " " + ColLength + " " + lastRow + " " + lastCol);
+    }
+
+    public void SaveFields()
+    {
+        DataManager.Inst.stageData.SaveStage(FieldName, fields);
     }
 
     void Initialize()
@@ -84,7 +93,10 @@ public class BlockFieldManager
                     if (field.block == null)
                         field.CreateBlock();
                     else
+                    {
+                        field.block.CheckField(field);
                         field.block.DeployScreen();
+                    }
                 }
                 else if (field.IsCreateField)
                     field.CreateBlock();
@@ -92,14 +104,14 @@ public class BlockFieldManager
         }
 
         //시작과 동시에 매칭 블럭이 없도록 조정
-        while(FindMatch())
+        while (FindMatch())
         {
-            for (int i = 0; i < matchedField.Count; i+=2)
+            for (int i = 0; i < matchedField.Count; i += 2)
             {
                 matchedField[i].block.ResetRand(matchedField[i], 5);
             }
 
-            if(!FindMatchAble())
+            if (!FindMatchAble())
             {
                 //임의의 able 패턴을 생성(그냥 셔플->매치가 반복되면 유저가 게임 시작도 안했는데 게임이 진행되는 셈)
             }
@@ -159,8 +171,8 @@ public class BlockFieldManager
         selected.SetBlock(target.block);
         target.SetBlock(buffer);
 
-        selected.block.SetField(selected);
-        target.block.SetField(target);
+        selected.block.SetSwapField(selected);
+        target.block.SetSwapField(target);
     }
 
     Action swapCallback;
@@ -251,17 +263,17 @@ public class BlockFieldManager
     /// -블럭이 이동중일 때 매치가 발생할 경우 블럭 재사용에서 문제가 발생한다. 
     /// -유저에게 불완전한 피드백을 줄 수 있기 때문에 블럭이 이동중일 때 이동의 완료를 보장해야 한다.)
     /// </summary>
-    public bool IsNotMoving()
-    {
-        bool result = true;
+    //public bool IsNotMoving()
+    //{
+    //    bool result = true;
 
-        foreach (var field in GetField())
-        {
-            result &= !field.block.IsMoving;
-        }
+    //    foreach (var field in GetField())
+    //    {
+    //        result &= !field.block.IsMoving;
+    //    }
 
-        return result;
-    }
+    //    return result;
+    //}
 
 
     //row와 row+2가 동일한 블럭을 검색해서 일치할 경우 매치가 가능한 패턴인지 확인한다. 
@@ -340,9 +352,15 @@ public class BlockFieldManager
             l = minCol;
             r = minCol + 1;
             cnt = 0;
+            if(!fields[line, l].IsPlayable)
+            {
+                l++;
+                r = l + 1;
+            }
             while (r < rLimit)
             {
-                if (fields[line, r].IsPlayable && fields[line, l].BlockType == fields[line, r].BlockType)
+                if (fields[line, r].IsPlayable && fields[line,r].BlockType > 0 &&
+                    fields[line, l].BlockType == fields[line, r].BlockType)
                 {
                     cnt++;
                 }
@@ -385,9 +403,15 @@ public class BlockFieldManager
             l = minRow;
             r = minRow + 1;
             cnt = 0;
+            if (!fields[l, line].IsPlayable)
+            {
+                l++;
+                r = l + 1;
+            }
             while (r < rLimit)
             {
-                if (fields[r, line].IsPlayable && fields[l, line].BlockType == fields[r, line].BlockType)
+                if (fields[r, line].IsPlayable && fields[r,line].BlockType > 0 &&
+                    fields[l, line].BlockType == fields[r, line].BlockType)
                 {
                     cnt++;
                 }
@@ -534,7 +558,7 @@ public class BlockFieldManager
     /// 7 8 9
     /// 5 위치를 기준으로 숫자에 해당하는 상대위치의 필드 반환
     /// </summary>
-    public BlockField GetBlockField(int row, int col, int dir=5)
+    public BlockField GetBlockField(int row, int col, int dir = 5)
     {
         switch (dir)
         {
