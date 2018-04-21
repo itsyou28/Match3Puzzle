@@ -116,3 +116,20 @@ public class UIBindS : UIBind<string>
         base.Awake();
     }
 }
+
+public class UIBindB : UIBind<bool>
+{
+    [SerializeField]
+    B_Bind_Idx bindTarget;
+
+    protected override void Awake()
+    {
+#if DEBUG_LOG
+        enumType = bindTarget.GetType();
+        UI_IDX = (int)bindTarget;
+#endif
+        bindedData = BindRepo.Inst.GetBindedData(bindTarget);
+
+        base.Awake();
+    }
+}

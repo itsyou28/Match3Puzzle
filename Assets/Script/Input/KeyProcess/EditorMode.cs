@@ -14,10 +14,13 @@ namespace InputKeyProcessor
             EditManager.i.OffSelect();
         }
 
+        Bindable<bool> editMode;
         public sealed override void TabDown()
         {
-            FSM_Layer.Inst.SetBool(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.BOOL_FLAG1,
-                !FSM_Layer.Inst.GetBool(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.BOOL_FLAG1));
+            if (editMode == null)
+                editMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_MODE);
+
+            editMode.Value = !editMode.Value;
         }
     }
 }

@@ -18,6 +18,7 @@ public class BindRepo
     Dictionary<N_Bind_Idx, Bindable<int>> dic_N = new Dictionary<N_Bind_Idx, Bindable<int>>();
     Dictionary<F_Bind_Idx, Bindable<float>> dic_F = new Dictionary<F_Bind_Idx, Bindable<float>>();
     Dictionary<S_Bind_Idx, Bindable<string>> dic_S = new Dictionary<S_Bind_Idx, Bindable<string>>();
+    Dictionary<B_Bind_Idx, Bindable<bool>> dic_B = new Dictionary<B_Bind_Idx, Bindable<bool>>();
 
     public Bindable<int> GetBindedData(N_Bind_Idx idx)
     {
@@ -53,5 +54,17 @@ public class BindRepo
         dic_S.Add(idx, new Bindable<string>());
 
         return dic_S[idx];
+    }
+
+    public Bindable<bool> GetBindedData(B_Bind_Idx idx)
+    {
+        Bindable<bool> result;
+
+        if (dic_B.TryGetValue(idx, out result))
+            return result;
+
+        dic_B.Add(idx, new Bindable<bool>());
+
+        return dic_B[idx];
     }
 }

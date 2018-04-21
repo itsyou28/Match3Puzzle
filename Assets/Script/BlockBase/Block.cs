@@ -39,6 +39,7 @@ public class Block : iBlock
 
     public bool IsStop { get { return !isMoving; } }
 
+    //이벤트 발생으로 매칭 과정이 진행된다. 코드 순서에 따라 참조 변환으로 null 예외가 발생할 수 있다. 
     void SetMovingFlag(bool bValue)
     {
         isMoving = bValue;
@@ -52,11 +53,14 @@ public class Block : iBlock
         this.blockType = blockType;
     }
 
+    #region Block Reset
+    //Reset에서 SetMovingFlag를 사용할 경우 스테이지 시작 단계가 완료 되기 전에 매칭이 발생한다. 
+
     public void Reset(BlockField field, int blockType)
     {
         SetField(field);
         this.blockType = blockType;
-        isMoving=false;
+        isMoving = false;
 
         DeployScreen();
     }
@@ -65,7 +69,7 @@ public class Block : iBlock
     {
         SetField(field);
         blockType = UnityEngine.Random.Range(1, randMax);
-        isMoving=false;
+        isMoving = false;
 
         DeployScreen();
     }
@@ -74,10 +78,11 @@ public class Block : iBlock
     {
         SetField(field);
         blockType = BK_Function.Random(1, randMax, blockType);
-        isMoving=false;
+        isMoving = false;
 
         DeployScreen();
-    }
+    } 
+    #endregion
 
     public void SetSwapField(BlockField field)
     {
