@@ -5,7 +5,7 @@ using FiniteStateMachine;
 public interface iStage
 {
     void SwapBlock(BlockField selectField, BlockField targetField);
-    void CheckMatch();
+    void Match();
 }
 
 public class DummyStageManager : iStage
@@ -15,7 +15,7 @@ public class DummyStageManager : iStage
         Debug.LogWarning("Dummy Swap Block");
     }
 
-    public void CheckMatch()
+    public void Match()
     {
         Debug.LogWarning("Dummy CheckMatch");
     }
@@ -56,6 +56,13 @@ public class StageManager : MonoBehaviour, iStage
 
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_ToEditor);
         tstate.EventStart += OnStart_ToEditor;
+
+        BlockMng.Inst.allStop += OnStopAllBlockMove;
+    }
+
+    private void OnStopAllBlockMove()
+    {
+        Match();
     }
 
     private void OnStart_ToEditor(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
@@ -98,61 +105,17 @@ public class StageManager : MonoBehaviour, iStage
         this.enabled = true;
     }
 
-    bool isMatching = false;
-    void Update()
-    {
-        //if (Input.GetKeyDown(KeyCode.Space))
-        //{
-        //    if (fieldMng.FindMatch())
-        //    {
-        //        isMatching = true;
-        //        fieldMng.ExcuteMatch();
-        //    }
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.Return))
-        //    fieldMng.Shuffle();
-
-        if (isMatching)
-        {
-            if (BlockMng.Inst.IsStop)
-            {
-                isMatching = false;
-                StartCoroutine(DelayMatch());
-            }
-        }
-    }
-
-    IEnumerator DelayMatch()
-    {
-        if (fieldMng.FindMatch())
-        {
-            //매칭 이펙트, 매치 조건 확인을 위한 시야 제공 등의 이유로 시간차 매칭처리
-            yield return new WaitForSeconds(0.1f);
-            isMatching = true;
-            fieldMng.ExcuteMatch();
-        }
-        else if(!fieldMng.FindMatchAble())
-        {
-            yield return new WaitForSeconds(0.1f);
-            //셔플 -> 매칭 -> 체크able -> 반복
-        }
-    }
 
     public void SwapBlock(BlockField select, BlockField target)
     {
         fieldMng.SwapBlock(select, target,
             () =>
             {
-                if (fieldMng.FindMatch())
-                {
-                    isMatching = true;
-                    fieldMng.ExcuteMatch();
-                }
+                Match();
             });
     }
 
-    public void CheckMatch()
+    public void Match()
     {
         if (fieldMng.FindMatch())
             fieldMng.ExcuteMatch();

@@ -54,7 +54,7 @@ public class BlockMng : iPool<iBlock>
         return result;
     }
 
-    public bool IsStop { get; private set; }
+    public event Action allStop;
 
     public void UpdateStopFlag()
     {
@@ -64,6 +64,7 @@ public class BlockMng : iPool<iBlock>
             isStop &= p.IsStop;
         }
 
-        IsStop = isStop;
+        if (isStop)
+            allStop();
     }
 }

@@ -56,7 +56,7 @@ public class Block : iBlock
     {
         SetField(field);
         this.blockType = blockType;
-        SetMovingFlag(false);
+        isMoving=false;
 
         DeployScreen();
     }
@@ -65,7 +65,7 @@ public class Block : iBlock
     {
         SetField(field);
         blockType = UnityEngine.Random.Range(1, randMax);
-        SetMovingFlag(false);
+        isMoving=false;
 
         DeployScreen();
     }
@@ -74,7 +74,7 @@ public class Block : iBlock
     {
         SetField(field);
         blockType = BK_Function.Random(1, randMax, blockType);
-        SetMovingFlag(false);
+        isMoving=false;
 
         DeployScreen();
     }
@@ -125,10 +125,10 @@ public class Block : iBlock
         SetMovingFlag(true);
         blockGO.Move(target.X, target.Y, () =>
         {
-            SetMovingFlag(false);
             blockGO.SwapStop();
             if (callback != null)
                 callback();
+            SetMovingFlag(false);
         });
     }
 
@@ -144,8 +144,8 @@ public class Block : iBlock
         }
         else
         {
-            SetMovingFlag(false);
             blockGO.Stop();
+            SetMovingFlag(false);
         }
     }
 

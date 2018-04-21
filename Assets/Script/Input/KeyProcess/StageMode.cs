@@ -6,7 +6,7 @@ namespace InputKeyProcessor
     {
         public sealed override void SpaceDown()
         {
-            StageManager.i.CheckMatch();
+            StageManager.i.Match();
         }
     }
 }
