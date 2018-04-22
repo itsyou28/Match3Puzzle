@@ -96,6 +96,7 @@ public class EditManager : MonoBehaviour, iEditManager
     {
         OffSelect();
 
+        fieldMng.ValidateField();
         fieldMng.SaveFields();
         fieldMng.CleanUp();
         fieldMng = null;

@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 public interface iBlockField
 {
+    BlockField self { get; }
     BlockField prev { get; }
     BlockField next { get; }
     float X { get; }
@@ -25,6 +26,7 @@ public class BlockField : iBlockField
     public iBlock block;
     public int BlockType { get { return block == null ? -1 : block.BlockType; } }
 
+    public BlockField self { get { return this; } }
     public BlockField prev { get; private set; }
     public BlockField next { get; private set; }
 
@@ -52,8 +54,17 @@ public class BlockField : iBlockField
     bool isMoveable = true;
     int direction = 0; //0:down 1:left 2:up 3:right
 
+    iBlockField[] arrPrev;
+    List<iBlockField> diagnalList;
+
+    [NonSerialized]
+    int prevIdx = 0;
+
     [NonSerialized]
     iBlockFieldGO blockFieldGO;
+
+    [NonSerialized]
+    static List<iBlockField> bufferForSetPrev;
 
     #region Call By Editor
     public BlockField(int row, int col)
@@ -102,12 +113,6 @@ public class BlockField : iBlockField
             return false;
         }
 
-        if (prev != fieldMng.GetPrevByDir(this))
-        {
-            Debug.LogError(Row + " " + Col + " // 방향과 지정된 prev 필드가 일치하지 않습니다. ");
-            return false;
-        }
-
         return true;
     }
 
@@ -151,9 +156,32 @@ public class BlockField : iBlockField
 
         next = fieldMng.GetNextByDir(this);
         if (next != null)
+        {
+            next.SetPrevArray();
             next.prev = this;
+        }
 
         UpdateGO();
+    }
+
+    void SetPrevArray()
+    {
+        if (bufferForSetPrev == null)
+            bufferForSetPrev = new List<iBlockField>();
+        else
+            bufferForSetPrev.Clear();
+
+        foreach(BlockField field in fieldMng.GetAroundsFour(this))
+        {
+            if (field != null && field.IsPlayable && field.next == this)
+                bufferForSetPrev.Add(field);
+        }
+
+        arrPrev = bufferForSetPrev.ToArray() as iBlockField[];
+
+        if (arrPrev.Length > 1)
+            Debug.LogWarning("Multi Prev " + X + " " + Y + " " + arrPrev.Length);
+
     }
 
     void UpdateGO()
@@ -222,9 +250,6 @@ public class BlockField : iBlockField
             //next.SetDiagnalField(this);
         }
     }
-
-    iBlockField[] arrPrev;
-    List<iBlockField> diagnalList;
 
     void SetDiagnalField(BlockField orderField)
     {
@@ -353,6 +378,18 @@ public class BlockField : iBlockField
         }
     }
 
+    void UpdatePrev()
+    {
+        if(arrPrev != null && arrPrev.Length >1)
+        {
+            if (prevIdx == arrPrev.Length)
+                prevIdx = 0;
+
+            prev = arrPrev[prevIdx].self;
+            prevIdx++;
+        }
+    }
+
     public void SetBlock(iBlock block)
     {
         if (isCreateField && block == null)
@@ -367,7 +404,10 @@ public class BlockField : iBlockField
             isEmpty = true;
         }
         else
+        {
+            UpdatePrev();
             isEmpty = false;
+        }
 
         this.block = block;
 
