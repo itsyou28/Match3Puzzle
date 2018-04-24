@@ -57,10 +57,10 @@ public class StageManager : MonoBehaviour, iStage
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_ToEditor);
         tstate.EventStart += OnStart_ToEditor;
 
-        BlockMng.Inst.allStop += OnStopAllBlockMove;
+        BlockMng.Inst.AllReady += OnAllReady;
     }
 
-    private void OnStopAllBlockMove()
+    private void OnAllReady()
     {
         Match();
     }

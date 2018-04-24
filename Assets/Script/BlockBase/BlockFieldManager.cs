@@ -19,6 +19,8 @@ public class BlockFieldManager
 
     public string FieldName { get; private set; }
 
+    public event Action EndFieldProgress;
+
     public void CleanUp()
     {
         for (int row = 0; row <= rowArrLastIdx; row++)
@@ -206,7 +208,7 @@ public class BlockFieldManager
     public bool ValidateField()
     {
         bool result = true;
-        foreach(var field in GetField())
+        foreach (var field in GetField())
         {
             result &= field.ValidateField();
         }
@@ -253,6 +255,29 @@ public class BlockFieldManager
         }
 
         return result;
+    }
+
+    public bool FieldInprogress { get; private set; }
+    public void UpdateInprogress()
+    {
+        bool isInprogress = false;
+
+        foreach (var field in GetField())
+        {
+            if (field.InProgress)
+            {
+                isInprogress = true;
+                break;
+            }
+        }
+
+        FieldInprogress = isInprogress;
+
+        if (!isInprogress)
+        {
+            if(EndFieldProgress != null)
+                EndFieldProgress();
+        }
     }
 
     /// <summary>

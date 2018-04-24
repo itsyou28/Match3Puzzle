@@ -54,17 +54,27 @@ public class BlockMng : iPool<iBlock>
         return result;
     }
 
-    public event Action allStop;
 
-    public void UpdateStopFlag()
+    public event Action AllReady;
+    public bool IsAllReady { get; private set; }
+
+    public void UpdateAllReady()
     {
-        bool isStop = true;
-        foreach (var p in activeBlock)
+        bool isReady = true;
+
+        foreach(var p in activeBlock)
         {
-            isStop &= p.IsStop;
+            if (p.eState != BlockState.Ready)
+            {
+                isReady = false;
+                break;
+            }
         }
 
-        if (isStop)
-            allStop();
+        IsAllReady = isReady;
+
+        if (isReady && AllReady != null)
+            AllReady();
     }
+
 }

@@ -5,21 +5,25 @@ using System.Collections;
 public interface iBlockGO
 {
     void SetBlock(Block block, float x, float y);
-    void Match();
-    void PushBack();
     void Move(float x, float y, Action callback);
+    void CleanUp();
     void Stop();
     void SwapStop();
+
 }
 
 public class BlockGO : MonoBehaviour, iBlockGO
 {
     [SerializeField]
     SpriteRenderer sprite;
-    
+
+    iBlockForGO block;
+
     public void SetBlock(Block block, float x, float y)
     {
-        switch(block.BlockType)
+        this.block = block;
+        this.block.OnTransitionState += OnTransitionBlockState;
+        switch (block.BlockType)
         {
             case 1:
                 sprite.color = Color.red;
@@ -52,25 +56,40 @@ public class BlockGO : MonoBehaviour, iBlockGO
         gameObject.SetActive(true);
     }
 
-    public void Match()
+    private void OnTransitionBlockState()
     {
-        isMoving = false;
-        isStoping = false;
-        StartCoroutine(MatchAni());
+        switch (block.eState)
+        {
+            case BlockState.MatchingGlow:
+                StartCoroutine(MatchingGlow());
+                break;
+            case BlockState.MatchingDissolve:
+                StartCoroutine(Dissolve());
+                break;
+        }
     }
 
-    IEnumerator MatchAni()
+    IEnumerator MatchingGlow()
+    {
+        transform.localScale = Vector3.one * 1.1f;
+
+        yield return new WaitForSeconds(0.2f);
+
+        block.TransitionState(BlockState.MatchingDissolve);
+    }
+
+    IEnumerator Dissolve()
     {
         float elapse = 0;
 
-        while(elapse < 1)
+        while (elapse < 1)
         {
             elapse += Time.deltaTime;
             transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, elapse);
             yield return true;
         }
-        BlockGOPool.pool.Push(this);
-        PushBack();
+
+        block.TransitionState(BlockState.Pushback);
     }
 
     Action callbackMove;
@@ -81,15 +100,13 @@ public class BlockGO : MonoBehaviour, iBlockGO
         EndPos = new Vector3(x, y);
 
         elapseTime = 0;
-        isMoving = true;
-        isStoping = false;
+
         callbackMove = callback;
     }
 
     public void Stop()
     {
-        isStoping = true;
-        bouncePower = BK_Function.ConvertRange(MaxSpeed, MinSpeed, minPower, maxPower, MinSpeed-aniTime);
+        bouncePower = BK_Function.ConvertRange(MaxSpeed, MinSpeed, minPower, maxPower, MinSpeed - aniTime);
         bounceNum = BK_Function.ConvertRange(minPower, maxPower, minBounce, maxBounce, bouncePower);
         //stopAniTme = BK_Function.ConvertRange(minPower, maxPower, minStopTime, maxStopTime, bouncePower);
         //bounceNum = BK_Function.ConvertRange(minStopTime, maxStopTime, minBounce, maxBounce, stopAniTme);
@@ -103,24 +120,19 @@ public class BlockGO : MonoBehaviour, iBlockGO
         accumeTime = 0;
     }
 
-    public void PushBack()
+    public void CleanUp()
     {
-        isMoving = false;
-        isStoping = false;
         gameObject.SetActive(false);
     }
 
     void Update()
     {
-        if (isMoving)
+        if (block.eState == BlockState.Moving)
             Moving();
-
-        if (isStoping)
+        else if (block.eState == BlockState.Stoping)
             Stoping();
     }
 
-    bool isStoping = false;
-    bool isMoving = false;
     const float accelerationTime = 1;
     const float MinSpeed = 0.5f;
     const float MaxSpeed = 0.05f;
@@ -128,7 +140,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
     float reverseTime = 1;
     float elapseTime = 0;//필드 한 칸 이동 구간내의 경과시간
     float accumeTime = 0;//이동중인 시간 누적
-    
+
     Vector3 startPos, EndPos, vBuffer;
 
     void Moving()
@@ -138,7 +150,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
         if (accumeTime < accelerationTime)
         {
-            aniTime = BK_Function.ConvertRangeValue(MaxSpeed, MinSpeed, 1-Ease.InOutQuad(accumeTime));
+            aniTime = BK_Function.ConvertRangeValue(MaxSpeed, MinSpeed, 1 - Ease.InOutQuad(accumeTime));
             reverseTime = 1 / aniTime;
         }
         else
@@ -149,14 +161,13 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
         if (elapseTime >= aniTime)
         {
-            isMoving = false;
             transform.localPosition = EndPos;
 
-            if(callbackMove != null)
+            if (callbackMove != null)
                 callbackMove();
         }
         else
-            transform.localPosition = Vector3.Lerp(startPos, EndPos, elapseTime*reverseTime);
+            transform.localPosition = Vector3.Lerp(startPos, EndPos, elapseTime * reverseTime);
     }
 
     const float minPower = 0.01f;
@@ -176,13 +187,13 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
         if (elapseTime < stopAniTme)
         {
-            vBuffer.y = Ease.Bounce(elapseTime* stopReverseTime, bounceNum) * bouncePower;
+            vBuffer.y = Ease.Bounce(elapseTime * stopReverseTime, bounceNum) * bouncePower;
             transform.localPosition = EndPos + vBuffer;
         }
         else
         {
             transform.localPosition = EndPos;
-            isStoping = false;
+            block.TransitionState(BlockState.Ready);
         }
     }
 }
@@ -197,7 +208,7 @@ public class BlockGODummy : iBlockGO
     {
     }
 
-    public void PushBack()
+    public void CleanUp()
     {
     }
 
