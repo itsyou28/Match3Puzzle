@@ -81,11 +81,13 @@ public class BlockGO : MonoBehaviour, iBlockGO
     IEnumerator Dissolve()
     {
         float elapse = 0;
+        float aniTime = 0.2f;
+        float reverseTime = 1 / aniTime;
 
-        while (elapse < 1)
+        while (elapse < aniTime)
         {
             elapse += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, elapse);
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, elapse*reverseTime);
             yield return true;
         }
 
@@ -102,6 +104,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
         elapseTime = 0;
 
         callbackMove = callback;
+        isStoping = false;
     }
 
     public void Stop()
@@ -112,6 +115,8 @@ public class BlockGO : MonoBehaviour, iBlockGO
         //bounceNum = BK_Function.ConvertRange(minStopTime, maxStopTime, minBounce, maxBounce, stopAniTme);
         elapseTime = 0;
         accumeTime = 0;
+
+        isStoping = true;
     }
 
     public void SwapStop()
@@ -122,6 +127,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     public void CleanUp()
     {
+        isStoping = false;
         gameObject.SetActive(false);
     }
 
@@ -129,11 +135,11 @@ public class BlockGO : MonoBehaviour, iBlockGO
     {
         if (block.eState == BlockState.Moving)
             Moving();
-        else if (block.eState == BlockState.Stoping)
+        else if (isStoping)
             Stoping();
     }
 
-    const float accelerationTime = 1;
+    const float accelerationTime = 0.8f;
     const float MinSpeed = 0.5f;
     const float MaxSpeed = 0.05f;
     float aniTime = 0;//=speed. 작을수록 빠르게 움직인다. 
@@ -180,6 +186,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
     float stopReverseTime = 1;
     float bouncePower = 0.3f;
     float bounceNum = 6.75f;
+    bool isStoping = false;
 
     void Stoping()
     {
@@ -193,7 +200,8 @@ public class BlockGO : MonoBehaviour, iBlockGO
         else
         {
             transform.localPosition = EndPos;
-            block.TransitionState(BlockState.Ready);
+            isStoping = false;
+            //block.TransitionState(BlockState.Ready);
         }
     }
 }

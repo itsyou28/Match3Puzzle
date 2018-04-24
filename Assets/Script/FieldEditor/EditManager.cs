@@ -14,6 +14,7 @@ public interface iEditManager
     void OffSelect();
     void SetBlockRandom();
     void SetBlockType(int blockType);
+    void Validate();
 }
 
 public class DummyEditManager : iEditManager
@@ -27,6 +28,7 @@ public class DummyEditManager : iEditManager
     public void OffSelect() { }
     public void SetBlockRandom() { }
     public void SetBlockType(int blockType) { }
+    public void Validate() { }
 }
 
 public class EditManager : MonoBehaviour, iEditManager
@@ -96,6 +98,7 @@ public class EditManager : MonoBehaviour, iEditManager
     {
         OffSelect();
 
+        fieldMng.SetPrevArray();
         fieldMng.ValidateField();
         fieldMng.SaveFields();
         fieldMng.CleanUp();
@@ -218,5 +221,10 @@ public class EditManager : MonoBehaviour, iEditManager
         {
             field.SetBlockType(blockType);
         }
+    }
+
+    public void Validate()
+    {
+        fieldMng.ValidateField();
     }
 }

@@ -32,7 +32,6 @@ public enum BlockState
     Ready,
     SwapMoving,
     Moving,
-    Stoping,
     MatchingGlow,
     MatchingDissolve,
     Pushback,
@@ -165,6 +164,9 @@ public class Block : iBlock, iBlockForGO
 
             TransitionState(BlockState.Moving);
         }
+        else
+            Debug.Log("Block curField : " + curField.X + " " + curField.Y + 
+                " // curField.next : " + curField.next.X + " " + curField.next.Y + " // " + curField.next.IsEmpty);
     }
 
     public void CallbackMove()
@@ -180,7 +182,7 @@ public class Block : iBlock, iBlockForGO
         else
         {
             blockGO.Stop();
-            TransitionState(BlockState.Stoping);
+            TransitionState(BlockState.Ready);
         }
     }
 

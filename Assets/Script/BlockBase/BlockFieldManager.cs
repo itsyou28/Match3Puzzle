@@ -171,13 +171,13 @@ public class BlockFieldManager
     }
 
     //해당 라인의 마지막 Field를 반환한다. 
-    BlockField GetLineLast(BlockField field)
-    {
-        while (!field.IsLast)
-            field = field.next;
+    //BlockField GetLineLast(BlockField field)
+    //{
+    //    while (!field.IsLast)
+    //        field = field.next;
 
-        return field;
-    }
+    //    return field;
+    //}
 
     bool swaping1 = false;
     bool swaping2 = false;
@@ -214,6 +214,12 @@ public class BlockFieldManager
         }
 
         return result;
+    }
+
+    public void SetPrevArray()
+    {
+        foreach (var field in GetField())
+            field.SetPrevArray();
     }
 
     public bool FindMatchAble()

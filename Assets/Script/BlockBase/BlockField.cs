@@ -73,13 +73,13 @@ public class BlockField : iBlockField
         SetDirection(0);
 
         X = Col;
-        Y = fieldMng.RowLength - Row;
+        Y = fieldMng.RowLength - Row + 1;
 
-        string log = "Initialize // " + Row + " " + Col;
+        string log = "Initialize // " + X + " " + Y;
         if (next != null)
-            log += " next : " + next.Row + " " + next.Col;
+            log += " next : " + next.X + " " + next.Y;
         if (prev != null)
-            log += " prev : " + prev.Row + " " + prev.Col;
+            log += " prev : " + prev.X + " " + prev.Y;
         Debug.Log(log);
     }
 
@@ -87,25 +87,57 @@ public class BlockField : iBlockField
     {
         if (isPlayable && prev == null)
         {
-            Debug.LogError(Row + " " + Col + " " + isPlayable + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
+            Debug.LogError(X + " " + Y + " " + isPlayable + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
             return false;
         }
         if (isPlayable && next == null)
         {
-            Debug.LogError(Row + " " + Col + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
+            Debug.LogError(X + " " + Y + " // playable field 는 반드시 prev field가 존재해야 합니다. ");
             return false;
         }
 
-        if (prev != null && next != null && prev == next)
+
+
+        if (prev == next && next.isPlayable)
         {
-            Debug.LogError(Row + " " + Col + " // 방향이 충돌합니다. ");
+            Debug.LogError(X + " " + Y + " // 방향이 충돌합니다. ");
             return false;
         }
 
         if (next != fieldMng.GetNextByDir(this))
         {
-            Debug.LogError(Row + " " + Col + " // 방향과 지정된 next 필드가 일치하지 않습니다. ");
+            Debug.LogError(X + " " + Y + " // 방향과 지정된 next 필드가 일치하지 않습니다. ");
             return false;
+        }
+
+        if (this == next.next)
+        {
+            Debug.LogError("next가 서로를 가르키고 있음 무한루프 상태임 " + X + " " + Y);
+            return false;
+        }
+
+        if (this == prev.prev)
+        {
+            Debug.LogError("prev가 서로를 가르키고 있음 상태임 " + X + " " + Y);
+            return false;
+        }
+
+        if (this == next)
+        {
+            Debug.LogError("next가 자신임 " + X + " " + Y);
+            return false;
+        }
+
+        if (this == prev)
+        {
+            Debug.LogError("prev가 자신임 " + X + " " + Y);
+            return false;
+        }
+
+        if (isPlayable && next != null && next.prev != null && next.prev != this)
+        {
+            Debug.LogWarning(X + " " + Y + " // next Prev가 this가 아님 // next : " +
+                next.X + " " + next.Y + " // next.prev : " + next.prev.X + " " + next.prev.Y);
         }
 
         return true;
@@ -150,16 +182,26 @@ public class BlockField : iBlockField
         direction = dir;
 
         next = fieldMng.GetNextByDir(this);
+
         if (next != null)
         {
+            if (Mathf.Abs(next.X - X) > 1 || Mathf.Abs(next.Y - Y) > 1)
+                Debug.LogError("next 필드가 인접필드가 아님");
+
             next.SetPrevArray();
             next.prev = this;
+
+            Debug.Log("SetDirection " + X + " " + Y + " // next : " + next.X + " " + next.Y +
+                " // next.prev : " + next.prev.X + " " + next.prev.Y +
+                " // prev : " + prev.X + " " + prev.Y);
         }
+        else
+            Debug.LogWarning("next is null " + X + " " + Y);
 
         UpdateGO();
     }
 
-    void SetPrevArray()
+    public void SetPrevArray()
     {
         if (bufferForSetPrev == null)
             bufferForSetPrev = new List<iBlockField>();
@@ -231,6 +273,7 @@ public class BlockField : iBlockField
             if (!prev.isEmpty)
             {
                 prev.block.MoveToNextField();
+                //Debug.Log(X + " " + Y + " // prev : " + prev.X + " " + prev.Y);
             }
             //else if (!next.isEmpty || !next.IsMoveable)
             //{
@@ -285,9 +328,16 @@ public class BlockField : iBlockField
 
             prev = arrPrev[prevIdx].self;
             prevIdx++;
+
+            //Debug.LogWarning(X + " " + Y + "   UpdatePrev " + prev.X + " " + prev.Y + "   " + arrPrev[0].self.X + " " + arrPrev[0].self.Y);
         }
         else if (arrPrev != null && arrPrev.Length > 0)
+        {
+
             prev = arrPrev[0].self;
+
+            //Debug.LogWarning(X + " " + Y + "   UpdatePrev " + prev.X + " " + prev.Y + "   " + arrPrev[0].self.X + " " + arrPrev[0].self.Y);
+        }
     }
 
     public void SetBlock(iBlock block)
@@ -302,7 +352,7 @@ public class BlockField : iBlockField
         else if (block == null)
         {
             isEmpty = true;
-            if(CheckBlockOrCreateInLine())
+            if (CheckBlockOrCreateInLine())
             {
                 InProgress = true;
                 fieldMng.UpdateInprogress();
@@ -355,9 +405,11 @@ public class BlockField : iBlockField
         rDiagnalReq = requester;
         SetDiagnalNext();
     }
-    
+
     void SetDiagnalNext()
     {
+        Debug.Log("SetDiagnalNext " + X + " " + Y + " // next : " + next.X + " " + next.Y +
+            " // next.prev : " + next.prev.X + " " + next.prev.Y);
         if (lDiagnalReq != null && rDiagnalReq != null)
         {
             if (diagnalLRFrag)
@@ -379,11 +431,11 @@ public class BlockField : iBlockField
     {
         int result = 0;
 
-        while(!prev.isEmpty)
-        {
-            result++;
-            prev = prev.prev;
-        }
+        //while(!prev.isEmpty)
+        //{
+        //    result++;
+        //    prev = prev.prev;
+        //}
 
         return result;
     }
@@ -438,7 +490,8 @@ public class BlockField : iBlockField
     bool CheckBlockOrCreateInLine()
     {
         BlockField field = this;
-
+        string log = "";
+        int count = 0;
         //시작 필드에 도달할 때까지 탐색한다. 
         while (!field.IsFirst)
         {
@@ -446,6 +499,12 @@ public class BlockField : iBlockField
                 return true;
 
             field = field.prev;
+
+            log += "(" + field.X + "," + field.Y + ")";
+
+            count++;
+            if (count > 300)
+                throw new Exception("infinity loop?? " + log);
         }
 
         //시작필드에 도달했을 경우 시작필드와 시작필드의 prev 필드를 검사한다. 

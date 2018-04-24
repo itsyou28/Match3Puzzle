@@ -22,5 +22,10 @@ namespace InputKeyProcessor
 
             editMode.Value = !editMode.Value;
         }
+
+        public sealed override void VDown()
+        {
+            EditManager.i.Validate();
+        }
     }
 }

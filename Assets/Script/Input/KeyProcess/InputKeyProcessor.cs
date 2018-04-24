@@ -41,6 +41,7 @@ namespace InputKeyProcessor
         public virtual void BDown() { }
         public virtual void JDown() { }
         public virtual void LDown() { }
+        public virtual void VDown() { }
     }
 
 }
