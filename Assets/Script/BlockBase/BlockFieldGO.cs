@@ -71,12 +71,14 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 
         DispEmptyMarker();
         DispCreateMarker();
+        DispDeadlinMarker();
     }
 
     public void PushBack()
     {
         PushbackCreateMarker();
         PushbackEmptyMarker();
+        PushbackDeadlineMarker();
 
         curUpdate = UpdateEmpty;
         gameObject.SetActive(false);
@@ -84,6 +86,7 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 
     GameObject emptyMarker;
     GameObject createMarker;
+    GameObject deadlineMarker;
 
     void FixedUpdate()
     {
@@ -148,6 +151,33 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
             createMarker = null;
         }
     }
+
+    void DispDeadlinMarker()
+    {
+        if (Field != null)
+        {
+            if (Field.IsDeadline && deadlineMarker == null)
+            {
+                deadlineMarker = DeadlineMarkerPool.pool.Pop();
+                deadlineMarker.transform.localPosition = transform.localPosition;
+                deadlineMarker.SetActive(true);
+            }
+            else if (!Field.IsDeadline)
+            {
+                PushbackDeadlineMarker();
+            }
+        }
+    }
+    private void PushbackDeadlineMarker()
+    {
+        if (deadlineMarker != null)
+        {
+            deadlineMarker.SetActive(false);
+            DeadlineMarkerPool.pool.Push(deadlineMarker);
+            deadlineMarker = null;
+        }
+    }
+
 
     void UpdateEditorMode()
     {

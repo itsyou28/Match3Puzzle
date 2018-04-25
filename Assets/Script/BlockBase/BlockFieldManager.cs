@@ -75,6 +75,7 @@ public class BlockFieldManager
         lastCol = ColLength;
 
         BlockField.fieldMng = this;
+        Block.fieldMng = this;
     }
 
     public void DeployBlock()
@@ -216,10 +217,21 @@ public class BlockFieldManager
         return result;
     }
 
-    public void SetPrevArray()
+    public void SetFieldRelationInfo()
     {
+        //모든 필드의 상호의존정보를 일괄 업데이트 한다. 
         foreach (var field in GetField())
+        {
+            field.IsDeadline = true;
             field.SetPrevArray();
+        }
+
+        //생성필드만 검색해서 해당 라인의 deadline 속성을 변경한다. 
+        foreach (var field in GetField())
+        {
+            if (field.IsCreateField)
+                field.SetDeadline(false);
+        }
     }
 
     public bool FindMatchAble()
@@ -262,47 +274,9 @@ public class BlockFieldManager
 
         return result;
     }
+    
 
-    public bool FieldInprogress { get; private set; }
-    public void UpdateInprogress()
-    {
-        bool isInprogress = false;
-
-        foreach (var field in GetField())
-        {
-            if (field.InProgress)
-            {
-                isInprogress = true;
-                break;
-            }
-        }
-
-        FieldInprogress = isInprogress;
-
-        if (!isInprogress)
-        {
-            if(EndFieldProgress != null)
-                EndFieldProgress();
-        }
-    }
-
-    /// <summary>
-    ///블럭이 이동중인지 체크한다. 
-    /// -블럭이 이동중일 때 매치가 발생할 경우 블럭 재사용에서 문제가 발생한다. 
-    /// -유저에게 불완전한 피드백을 줄 수 있기 때문에 블럭이 이동중일 때 이동의 완료를 보장해야 한다.)
-    /// </summary>
-    //public bool IsNotMoving()
-    //{
-    //    bool result = true;
-
-    //    foreach (var field in GetField())
-    //    {
-    //        result &= !field.block.IsMoving;
-    //    }
-
-    //    return result;
-    //}
-
+    #region Search Matchable Pattern
 
     //row와 row+2가 동일한 블럭을 검색해서 일치할 경우 매치가 가능한 패턴인지 확인한다. 
     void ChkRowAble()
@@ -328,7 +302,6 @@ public class BlockFieldManager
             }
         }
     }
-
 
 
     /// ◆ : 검색 기준
@@ -367,8 +340,11 @@ public class BlockFieldManager
         {
             ableField.Add(fields[row + 1, col]);
         }
-    }
+    } 
+    #endregion
 
+
+    #region Search Match Pattern
 
     void ChkMatchRow(int minRow, int maxRow, int minCol, int maxCol)
     {
@@ -471,6 +447,7 @@ public class BlockFieldManager
             }
         }
     }
+    #endregion
 
     #region GetFields
     public IEnumerable<BlockField> GetArounds(BlockField centerField)
@@ -556,7 +533,7 @@ public class BlockFieldManager
         }
     }
 
-    public BlockField GetRightDiagnalByDir(BlockField centerField)
+    public BlockField GetRightUpDiagnalByDir(BlockField centerField)
     {
         switch (centerField.Direction)
         {
@@ -572,7 +549,7 @@ public class BlockFieldManager
         }
     }
 
-    public BlockField GetLeftDiagnalByDir(BlockField centerField)
+    public BlockField GetLeftUpDiagnalByDir(BlockField centerField)
     {
         switch (centerField.Direction)
         {
@@ -585,6 +562,38 @@ public class BlockFieldManager
                 return GetBlockField(centerField.Row, centerField.Col, 9);
             case 3://right
                 return GetBlockField(centerField.Row, centerField.Col, 7);
+        }
+    }
+
+    public BlockField GetRightDownDiagnalByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.Row, centerField.Col, 9);
+            case 1://left
+                return GetBlockField(centerField.Row, centerField.Col, 7);
+            case 2://up
+                return GetBlockField(centerField.Row, centerField.Col, 1);
+            case 3://right
+                return GetBlockField(centerField.Row, centerField.Col, 3);
+        }
+    }
+
+    public BlockField GetLeftDownDiagnalByDir(BlockField centerField)
+    {
+        switch (centerField.Direction)
+        {
+            default:
+            case 0://down
+                return GetBlockField(centerField.Row, centerField.Col, 7);
+            case 1://left
+                return GetBlockField(centerField.Row, centerField.Col, 1);
+            case 2://up
+                return GetBlockField(centerField.Row, centerField.Col, 3);
+            case 3://right
+                return GetBlockField(centerField.Row, centerField.Col, 9);
         }
     }
 

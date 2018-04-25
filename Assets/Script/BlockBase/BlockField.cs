@@ -12,6 +12,7 @@ public interface iBlockField
     float Y { get; }
     bool IsMoveable { get; }
     void SetBlock(iBlock block);
+    BlockField GetDiagnalField();
     void OnPushbackBlock();
 }
 
@@ -41,17 +42,21 @@ public class BlockField : iBlockField
     public bool IsMoveable { get { return isMoveable; } }
     public bool IsLast { get { return !next.isMoveable; } }
     public bool IsFirst { get { return !prev.isMoveable; } }
-    public bool InProgress { get; private set; }
+    public bool IsDeadline { get { return isDeadline; } set { isDeadline = value; } }
     /// <summary>
     /// 0:down 1:left 2:up 3:right
     /// </summary>
     public int Direction { get { return direction; } }
+
+    [Obsolete] public bool InProgress { get; set; }
+    [NonSerialized] [Obsolete] bool inProgress;
 
     bool isBorderLine = false;
     bool isPlayable = true;
     bool isEmpty = true;
     bool isCreateField = false;
     bool isMoveable = true;
+    bool isDeadline = false;
     int direction = 0; //0:down 1:left 2:up 3:right
 
     iBlockField[] arrPrev;
@@ -59,7 +64,6 @@ public class BlockField : iBlockField
     [NonSerialized] int prevIdx = 0;
     [NonSerialized] iBlockFieldGO blockFieldGO;
     [NonSerialized] static List<iBlockField> bufferForSetPrev;
-    [NonSerialized] [Obsolete] List<BlockField> diagnalList;
 
     #region Call By Editor
     public BlockField(int row, int col)
@@ -174,7 +178,23 @@ public class BlockField : iBlockField
     public void SetCreateField(bool bValue)
     {
         isCreateField = bValue;
+        SetDeadline(!isCreateField);
+
         UpdateGO();
+    }
+
+    public void SetDeadline(bool isDeadline)
+    {
+        BlockField field = this;
+
+        while (field.isMoveable)
+        {
+            field.isDeadline = isDeadline;
+            field = field.next;
+
+            if (field == this)
+                throw new Exception("Check next");
+        }
     }
 
     public void SetDirection(int dir)
@@ -190,13 +210,7 @@ public class BlockField : iBlockField
 
             next.SetPrevArray();
             next.prev = this;
-
-            Debug.Log("SetDirection " + X + " " + Y + " // next : " + next.X + " " + next.Y +
-                " // next.prev : " + next.prev.X + " " + next.prev.Y +
-                " // prev : " + prev.X + " " + prev.Y);
         }
-        else
-            Debug.LogWarning("next is null " + X + " " + Y);
 
         UpdateGO();
     }
@@ -243,28 +257,12 @@ public class BlockField : iBlockField
 
     public void DeployScreen()
     {
-        InProgress = false;
-        fieldMng.UpdateInprogress();
         if (!isBorderLine)
         {
             blockFieldGO = BlockFieldGOPool.pool.Pop();
             blockFieldGO.SetBlockField(this);
         }
     }
-
-    public void CleanUp()
-    {
-        InProgress = false;
-        fieldMng.UpdateInprogress();
-        CleanUpBlock();
-
-        if (blockFieldGO != null)
-        {
-            blockFieldGO.PushBack();
-            BlockFieldGOPool.pool.Push(blockFieldGO);
-        }
-    }
-
     // call by blockFieldGO.FixedUpdate()
     public void Update()
     {
@@ -275,10 +273,10 @@ public class BlockField : iBlockField
                 prev.block.MoveToNextField();
                 //Debug.Log(X + " " + Y + " // prev : " + prev.X + " " + prev.Y);
             }
-            else if (!next.isEmpty || !next.IsMoveable)
-            {
-                DiagnalProcess();
-            }
+            //else if (!next.isEmpty || !next.IsMoveable)
+            //{
+            //    DiagnalProcess();
+            //}
         }
     }
 
@@ -291,8 +289,8 @@ public class BlockField : iBlockField
         else
             isMoveable = true;
 
+        SetDeadline(!isMoveable);
     }
-
 
     public void CreateBlock()
     {
@@ -306,6 +304,18 @@ public class BlockField : iBlockField
         iBlock block = BlockMng.Pool.Pop();
         block.Reset(this, blockType);
         SetBlock(block);
+    }
+
+
+    public void CleanUp()
+    {
+        CleanUpBlock();
+
+        if (blockFieldGO != null)
+        {
+            blockFieldGO.PushBack();
+            BlockFieldGOPool.pool.Push(blockFieldGO);
+        }
     }
 
     private void CleanUpBlock()
@@ -352,19 +362,11 @@ public class BlockField : iBlockField
         else if (block == null)
         {
             isEmpty = true;
-            if (CheckBlockOrCreateInLine())
-            {
-                InProgress = true;
-                fieldMng.UpdateInprogress();
-            }
         }
         else
         {
             UpdatePrev();
-            RecoverDiagnalField();
             isEmpty = false;
-            InProgress = false;
-            fieldMng.UpdateInprogress();
         }
 
         this.block = block;
@@ -378,6 +380,52 @@ public class BlockField : iBlockField
         }
     }
 
+    bool CheckBlockInLinePrev()
+    {
+        BlockField field = prev;
+
+        while (field.isMoveable)
+        {
+            if (!field.IsEmpty)
+                return true;
+
+            field = field.prev;
+
+            if (field == this)
+                throw new Exception("infinity loop. check prev");
+        }
+
+        return false;
+    }
+
+    public BlockField GetDiagnalField()
+    {
+        BlockField target = null;
+
+        target = fieldMng.GetLeftDownDiagnalByDir(this);
+        if (CheckDiagnalMove(target))
+            return target;
+
+        target = fieldMng.GetRightDownDiagnalByDir(this);
+        if (CheckDiagnalMove(target))
+            return target;
+
+        return null;
+    }
+
+    //좌우필드의 대각이동 필요 여부를 검사한다
+    bool CheckDiagnalMove(BlockField target)
+    {
+        if (!target.isEmpty)
+            return false;
+        if (!target.isDeadline)
+            return false;
+        if (target.CheckBlockInLinePrev())
+            return false;
+
+        return true;
+    }
+
     //블럭이 매칭 이펙트등을 마치고 cleanup을 완료하면 호출한다. 
     public void OnPushbackBlock()
     {
@@ -385,176 +433,173 @@ public class BlockField : iBlockField
         SetBlock(null);
     }
 
-    #region 대각선 블럭이동
+    //#region 대각선 블럭이동
 
-    [NonSerialized] BlockField left, right, leftDiagnal, rightDiagnal;
-    [NonSerialized] BlockField lDiagnalReq, rDiagnalReq;
-    [NonSerialized] bool isMakeDiagnalFieldRef = false;
-    [NonSerialized] bool canUseLeftForDiagnal = false;
-    [NonSerialized] bool canUseRightForDiagnal = false;
-    [NonSerialized] bool isDiagnalMode = false;
-    [NonSerialized] bool diagnalLRFrag = false;
+    //[NonSerialized] BlockField left, right, leftDiagnal, rightDiagnal;
+    //[NonSerialized] BlockField lDiagnalReq, rDiagnalReq;
+    //[NonSerialized] bool isMakeDiagnalFieldRef = false;
+    //[NonSerialized] bool canUseLeftForDiagnal = false;
+    //[NonSerialized] bool canUseRightForDiagnal = false;
+    //[NonSerialized] bool isDiagnalMode = false;
+    //[NonSerialized] bool diagnalLRFrag = false;
 
-    void SetLDiagnalNext(BlockField requester)
-    {
-        lDiagnalReq = requester;
-        SetDiagnalNext();
-    }
+    //void SetLDiagnalNext(BlockField requester)
+    //{
+    //    lDiagnalReq = requester;
+    //    SetDiagnalNext();
+    //}
 
-    void SetRDiagnalNext(BlockField requester)
-    {
-        rDiagnalReq = requester;
-        SetDiagnalNext();
-    }
+    //void SetRDiagnalNext(BlockField requester)
+    //{
+    //    rDiagnalReq = requester;
+    //    SetDiagnalNext();
+    //}
 
-    void SetDiagnalNext()
-    {
-        Debug.Log("SetDiagnalNext " + X + " " + Y + " // next : " + next.X + " " + next.Y +
-            " // next.prev : " + next.prev.X + " " + next.prev.Y);
-        if (lDiagnalReq != null && rDiagnalReq != null)
-        {
-            if (diagnalLRFrag)
-                next = lDiagnalReq;
-            else
-                next = rDiagnalReq;
+    //void SetDiagnalNext()
+    //{
+    //    Debug.Log("SetDiagnalNext " + X + " " + Y + " // next : " + next.X + " " + next.Y +
+    //        " // next.prev : " + next.prev.X + " " + next.prev.Y);
+    //    if (lDiagnalReq != null && rDiagnalReq != null)
+    //    {
+    //        if (diagnalLRFrag)
+    //            next = lDiagnalReq;
+    //        else
+    //            next = rDiagnalReq;
 
-            diagnalLRFrag = !diagnalLRFrag;
-        }
-        else if (lDiagnalReq != null)
-            next = lDiagnalReq;
-        else if (rDiagnalReq != null)
-            next = rDiagnalReq;
-        else
-            next = fieldMng.GetNextByDir(this);
-    }
+    //        diagnalLRFrag = !diagnalLRFrag;
+    //    }
+    //    else if (lDiagnalReq != null)
+    //        next = lDiagnalReq;
+    //    else if (rDiagnalReq != null)
+    //        next = rDiagnalReq;
+    //    else
+    //        next = fieldMng.GetNextByDir(this);
+    //}
 
-    int CountPrevBlockInLine()
-    {
-        int result = 0;
+    //int CountPrevBlockInLine()
+    //{
+    //    int result = 0;
 
-        //while(!prev.isEmpty)
-        //{
-        //    result++;
-        //    prev = prev.prev;
-        //}
+    //    //while(!prev.isEmpty)
+    //    //{
+    //    //    result++;
+    //    //    prev = prev.prev;
+    //    //}
 
-        return result;
-    }
+    //    return result;
+    //}
 
-    //현재 필드가 비어 있고 다음필드가 비어있지 않은 경우 호출된다. 
-    void DiagnalProcess()
-    {
-        if (!isDiagnalMode && !CheckBlockOrCreateInLine())
-        {
-            if (!isMakeDiagnalFieldRef)
-                MakeDiagnalFieldRef();
+    ////현재 필드가 비어 있고 다음필드가 비어있지 않은 경우 호출된다. 
+    //void DiagnalProcess()
+    //{
+    //    if (!isDiagnalMode && !CheckBlockOrCreateInLine())
+    //    {
+    //        if (!isMakeDiagnalFieldRef)
+    //            MakeDiagnalFieldRef();
 
-            //측면의 블럭 여부 등을 참조해 좌우의 대각필드 가능여부를 확인한다. 
-            bool canL, canR;
-            canL = canR = false;
+    //        //측면의 블럭 여부 등을 참조해 좌우의 대각필드 가능여부를 확인한다. 
+    //        bool canL, canR;
+    //        canL = canR = false;
 
-            if (canUseLeftForDiagnal && left != null && !left.IsEmpty)
-                canL = true;
+    //        if (canUseLeftForDiagnal && left != null && !left.IsEmpty)
+    //            canL = true;
 
-            if (canUseRightForDiagnal && right != null && !right.isEmpty)
-                canR = true;
-
-
-            if (canL && canR)
-            {
-                //양쪽이 다 가능할 경우 블럭이 더 많은 쪽을 지정한다. 
-                if (leftDiagnal.CountPrevBlockInLine() > rightDiagnal.CountPrevBlockInLine())
-                    canR = false;
-                else
-                    canL = false;
-            }
-
-            if (canL)
-            {
-                //대각필드 사용!!
-                Debug.Log("Use Left");
-                prev = leftDiagnal;
-                leftDiagnal.SetRDiagnalNext(this);
-                isDiagnalMode = true;
-            }
-            else if (canR)
-            {
-                Debug.Log("Use Right");
-                prev = rightDiagnal;
-                rightDiagnal.SetLDiagnalNext(this);
-                isDiagnalMode = true;
-            }
-        }
-    }
-
-    //연결 라인에 블럭이나 생성필드가 있는지 검사한다. 
-    bool CheckBlockOrCreateInLine()
-    {
-        BlockField field = this;
-        string log = "";
-        int count = 0;
-        //시작 필드에 도달할 때까지 탐색한다. 
-        while (!field.IsFirst)
-        {
-            if (!field.IsEmpty || field.IsCreateField)
-                return true;
-
-            field = field.prev;
-
-            log += "(" + field.X + "," + field.Y + ")";
-
-            count++;
-            if (count > 300)
-                throw new Exception("infinity loop?? " + log);
-        }
-
-        //시작필드에 도달했을 경우 시작필드와 시작필드의 prev 필드를 검사한다. 
-        if (!field.IsEmpty || field.IsCreateField || field.prev.IsCreateField)
-            return true;
-
-        //블럭이나 생성필드가 라인에 존재하지 않는다. 
-        return false;
-    }
-
-    //대각 필드의 참조를 캐싱하고 대각필드의 조건을 만족하는지 확인한다. 
-    void MakeDiagnalFieldRef()
-    {
-        left = fieldMng.GetLeftByDir(this);
-        leftDiagnal = fieldMng.GetLeftDiagnalByDir(this);
-        right = fieldMng.GetRightByDir(this);
-        rightDiagnal = fieldMng.GetRightDiagnalByDir(this);
-
-        //대각 필드와 진행방향이 동일한 경우만 대각이동을 허용한다. 
-
-        if (leftDiagnal != null && leftDiagnal.Direction == Direction)
-            canUseLeftForDiagnal = true;
-
-        if (rightDiagnal != null && rightDiagnal.Direction == Direction)
-            canUseRightForDiagnal = true;
-
-        isMakeDiagnalFieldRef = true;
-        Debug.Log("MakeDiagnalFieldRef");
-    }
-
-    void RecoverDiagnalField()
-    {
-        if (!isDiagnalMode)
-            return;
-
-        Debug.Log("RecoverDiagnal");
-
-        if (leftDiagnal != null)
-            leftDiagnal.SetRDiagnalNext(null);
-
-        if (rightDiagnal != null)
-            rightDiagnal.SetLDiagnalNext(null);
-
-        UpdatePrev();
-        isDiagnalMode = false;
-    }
+    //        if (canUseRightForDiagnal && right != null && !right.isEmpty)
+    //            canR = true;
 
 
-    #endregion
+    //        if (canL && canR)
+    //        {
+    //            //양쪽이 다 가능할 경우 블럭이 더 많은 쪽을 지정한다. 
+    //            if (leftDiagnal.CountPrevBlockInLine() > rightDiagnal.CountPrevBlockInLine())
+    //                canR = false;
+    //            else
+    //                canL = false;
+    //        }
+
+    //        if (canL)
+    //        {
+    //            //대각필드 사용!!
+    //            Debug.Log("Use Left");
+    //            prev = leftDiagnal;
+    //            leftDiagnal.SetRDiagnalNext(this);
+    //            isDiagnalMode = true;
+    //        }
+    //        else if (canR)
+    //        {
+    //            Debug.Log("Use Right");
+    //            prev = rightDiagnal;
+    //            rightDiagnal.SetLDiagnalNext(this);
+    //            isDiagnalMode = true;
+    //        }
+    //    }
+    //}
+
+    ////연결 라인에 블럭이나 생성필드가 있는지 검사한다. 
+    //bool CheckBlockOrCreateInLine()
+    //{
+    //    BlockField field = this;
+    //    string log = "";
+    //    int count = 0;
+
+    //    //시작 필드에 도달할 때까지 탐색한다. 
+    //    while (field.isMoveable)
+    //    {
+    //        if (!field.IsEmpty || field.IsCreateField)
+    //            return true;
+
+    //        field = field.prev;
+
+    //        log += "(" + field.X + "," + field.Y + ")";
+
+    //        count++;
+    //        if (count > 300)
+    //            throw new Exception("infinity loop?? " + log);
+    //    }
+
+    //    //블럭이나 생성필드가 라인에 존재하지 않는다. 
+    //    return false;
+    //}
+
+    ////대각 필드의 참조를 캐싱하고 대각필드의 조건을 만족하는지 확인한다. 
+    //void MakeDiagnalFieldRef()
+    //{
+    //    left = fieldMng.GetLeftByDir(this);
+    //    leftDiagnal = fieldMng.GetLeftDiagnalByDir(this);
+    //    right = fieldMng.GetRightByDir(this);
+    //    rightDiagnal = fieldMng.GetRightDiagnalByDir(this);
+
+    //    //대각 필드와 진행방향이 동일한 경우만 대각이동을 허용한다. 
+
+    //    if (leftDiagnal != null && leftDiagnal.Direction == Direction)
+    //        canUseLeftForDiagnal = true;
+
+    //    if (rightDiagnal != null && rightDiagnal.Direction == Direction)
+    //        canUseRightForDiagnal = true;
+
+    //    isMakeDiagnalFieldRef = true;
+    //    Debug.Log("MakeDiagnalFieldRef");
+    //}
+
+    //void RecoverDiagnalField()
+    //{
+    //    if (!isDiagnalMode)
+    //        return;
+
+    //    Debug.Log("RecoverDiagnal");
+
+    //    if (leftDiagnal != null)
+    //        leftDiagnal.SetRDiagnalNext(null);
+
+    //    if (rightDiagnal != null)
+    //        rightDiagnal.SetLDiagnalNext(null);
+
+    //    UpdatePrev();
+    //    isDiagnalMode = false;
+    //}
+
+
+    //#endregion
 
     #region override Equals
     public override int GetHashCode()

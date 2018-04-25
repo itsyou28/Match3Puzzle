@@ -91,18 +91,22 @@ public class EditManager : MonoBehaviour, iEditManager
 
     private void OnStart_ToStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
+        FieldSave();
         CleanUp();
     }
 
     private void CleanUp()
     {
         OffSelect();
-
-        fieldMng.SetPrevArray();
-        fieldMng.ValidateField();
-        fieldMng.SaveFields();
         fieldMng.CleanUp();
         fieldMng = null;
+    }
+
+    private void FieldSave()
+    {
+        fieldMng.SetFieldRelationInfo();
+        fieldMng.ValidateField();
+        fieldMng.SaveFields();
     }
 
     void OnSelectStage(params object[] args)

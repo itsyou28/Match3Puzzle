@@ -46,6 +46,8 @@ public enum BlockState
 [Serializable]
 public class Block : iBlock, iBlockForGO
 {
+    public static BlockFieldManager fieldMng;
+
     public int ID { get; set; }
     public Block self { get { return this; } }
     public float curX { get { return curField.X; } }
@@ -161,11 +163,7 @@ public class Block : iBlock, iBlockForGO
 
         if (curField.next.IsPlayable && curField.next.IsEmpty)
         {
-            curField.SetBlock(null);
-            SetField(curField.next);
-            curField.SetBlock(this);
-
-            blockGO.Move(curField.X, curField.Y, CallbackMove);
+            MoveToTargetField(curField.next);
 
             TransitionState(BlockState.Moving);
         }
@@ -175,17 +173,30 @@ public class Block : iBlock, iBlockForGO
     {
         if (curField.next.IsPlayable && curField.next.IsEmpty)
         {
-            curField.SetBlock(null);
-            SetField(curField.next);
-            curField.SetBlock(this);
-
-            blockGO.Move(curField.X, curField.Y, CallbackMove);
+            MoveToTargetField(curField.next);
         }
         else
         {
-            blockGO.Stop();
-            TransitionState(BlockState.Ready);
+            BlockField diagnalField = curField.GetDiagnalField();
+            if(diagnalField != null)
+            {
+                MoveToTargetField(diagnalField);
+            }
+            else
+            {
+                blockGO.Stop();
+                TransitionState(BlockState.Ready);
+            }
         }
+    }
+
+    private void MoveToTargetField(BlockField target)
+    {
+        curField.SetBlock(null);
+        SetField(target);
+        curField.SetBlock(this);
+
+        blockGO.Move(curField.X, curField.Y, CallbackMove);
     }
 
     public void Match()
