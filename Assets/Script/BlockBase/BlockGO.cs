@@ -127,6 +127,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     public void CleanUp()
     {
+        callbackMove = null;
         isStoping = false;
         gameObject.SetActive(false);
     }

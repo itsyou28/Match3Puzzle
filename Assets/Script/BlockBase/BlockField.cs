@@ -275,10 +275,10 @@ public class BlockField : iBlockField
                 prev.block.MoveToNextField();
                 //Debug.Log(X + " " + Y + " // prev : " + prev.X + " " + prev.Y);
             }
-            //else if (!next.isEmpty || !next.IsMoveable)
-            //{
-            //    DiagnalProcess();
-            //}
+            else if (!next.isEmpty || !next.IsMoveable)
+            {
+                DiagnalProcess();
+            }
         }
     }
 
@@ -361,7 +361,7 @@ public class BlockField : iBlockField
         else
         {
             UpdatePrev();
-            //RecoverDiagnalField();
+            RecoverDiagnalField();
             isEmpty = false;
             InProgress = false;
             fieldMng.UpdateInprogress();
@@ -378,6 +378,7 @@ public class BlockField : iBlockField
         }
     }
 
+    //블럭이 매칭 이펙트등을 마치고 cleanup을 완료하면 호출한다. 
     public void OnPushbackBlock()
     {
         BlockMng.Pool.Push(block);

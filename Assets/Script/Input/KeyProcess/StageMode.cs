@@ -8,5 +8,10 @@ namespace InputKeyProcessor
         {
             StageManager.i.Match();
         }
+
+        public sealed override void JDown()
+        {
+            BlockMng.Inst.UpdateAllReady();
+        }
     }
 }

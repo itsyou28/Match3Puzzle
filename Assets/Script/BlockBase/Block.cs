@@ -4,6 +4,7 @@ using UnityEngine;
 
 public interface iBlock
 {
+    Block self { get; }
     int BlockType { get; }
     BlockState eState { get; }
     void Reset(BlockField field, int blockType);
@@ -45,6 +46,10 @@ public enum BlockState
 [Serializable]
 public class Block : iBlock, iBlockForGO
 {
+    public int ID { get; set; }
+    public Block self { get { return this; } }
+    public float curX { get { return curField.X; } }
+    public float curY { get { return curField.Y; } }
     iBlockField curField;
 
     [NonSerialized]
@@ -164,9 +169,6 @@ public class Block : iBlock, iBlockForGO
 
             TransitionState(BlockState.Moving);
         }
-        else
-            Debug.Log("Block curField : " + curField.X + " " + curField.Y + 
-                " // curField.next : " + curField.next.X + " " + curField.next.Y + " // " + curField.next.IsEmpty);
     }
 
     public void CallbackMove()
@@ -223,54 +225,4 @@ public class Block : iBlock, iBlockForGO
             OnTransitionState();
     }
 
-    #region override Equals
-    public override int GetHashCode()
-    {
-        return BlockType.GetHashCode();
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj == null)
-            return false;
-
-        if (!(obj is Block))
-            return false;
-
-        return Equals((Block)obj);
-    }
-
-    public bool Equals(Block other)
-    {
-        if (other == null)
-            return false;
-
-        if (BlockType != other.BlockType)
-            return false;
-
-        return true;
-    }
-    public static bool operator ==(Block lValue, Block rValue)
-    {
-        // Check for null on left side.
-        if (ReferenceEquals(lValue, null))
-        {
-            if (ReferenceEquals(rValue, null))
-            {
-                // null == null = true.
-                return true;
-            }
-
-            // Only the left side is null.
-            return false;
-        }
-
-        return lValue.Equals(rValue);
-    }
-
-    public static bool operator !=(Block lValue, Block rValue)
-    {
-        return !(lValue == rValue);
-    }
-    #endregion
 }

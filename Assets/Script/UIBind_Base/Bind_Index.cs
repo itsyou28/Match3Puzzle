@@ -22,4 +22,6 @@ public enum B_Bind_Idx
     NONE = 0,
 
     EDIT_MODE = 100,
+
+    BLOCK_ALL_READY = 10000,
 }

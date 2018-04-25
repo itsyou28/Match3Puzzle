@@ -31,15 +31,19 @@ public class BlockMng : iPool<iBlock>
     ObjectPool<iBlock> pool;
     LinkedList<iBlock> activeBlock = new LinkedList<iBlock>();
 
+    Bindable<bool> bindAllReady;
+
     private BlockMng()
     {
         pool = new ObjectPool<iBlock>(100, 20, CreateBlock);
+        bindAllReady = BindRepo.Inst.GetBindedData(B_Bind_Idx.BLOCK_ALL_READY);
     }
 
     iBlock CreateBlock()
     {
         return new Block();
     }
+    int blockSerialNum = 0;
 
     public void Push(iBlock target)
     {
@@ -50,6 +54,9 @@ public class BlockMng : iPool<iBlock>
     public iBlock Pop()
     {
         iBlock result = pool.Pop();
+        result.self.ID = blockSerialNum;
+        blockSerialNum++;
+
         activeBlock.AddLast(result);
         return result;
     }
@@ -72,6 +79,7 @@ public class BlockMng : iPool<iBlock>
         }
 
         IsAllReady = isReady;
+        bindAllReady.Value = isReady;
 
         if (isReady && AllReady != null)
             AllReady();
