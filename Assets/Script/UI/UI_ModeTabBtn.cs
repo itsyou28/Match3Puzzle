@@ -40,13 +40,13 @@ public class UI_ModeTabBtn : MonoBehaviour
 
     public void OnChangeToStageToggle(bool bToggle)
     {
-        if (bToggle && FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory) != STATE_ID.Main_Stage)
+        if (bToggle)
             FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_TOSTAGE);
     }
 
     public void OnChangeToEditorToggle(bool bToggle)
     {
-        if (bToggle && FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory) != STATE_ID.Main_Editor)
+        if (bToggle)
             FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_TOEDITOR);            
     }
 }

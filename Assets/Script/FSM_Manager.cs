@@ -33,7 +33,6 @@ public class FSM_Manager : MonoBehaviour
 
     private void Awake()
     {
-        FSM_Layer.Inst.RegisterEventChangeLayerState(FSM_LAYER_ID.UserStory, OnChangeUserStory);
 
         editor = RegistFSM(FSM_LAYER_ID.UserStory, FSM_ID.Editor);
         editor.SetTrigger(TRANS_PARAM_ID.TRIGGER_RESET);
@@ -45,6 +44,7 @@ public class FSM_Manager : MonoBehaviour
 
         RegistFSM(FSM_LAYER_ID.UserStory, FSM_ID.Main);
 
+        FSM_Layer.Inst.RegisterEventChangeLayerState(FSM_LAYER_ID.UserStory, OnChangeUserStory);
     }
 
     private void OnResume_US_BackToMain(STATE_ID stateID)
@@ -62,6 +62,9 @@ public class FSM_Manager : MonoBehaviour
     void OnChangeUserStory(TRANS_ID transId, STATE_ID stateId, STATE_ID preStateId)
     {
         Debug.Log("UserStory current State : " + stateId);
+
+        stage.SetInt_NoCondChk(TRANS_PARAM_ID.INT_USERSTORY_STATE, (int)stateId);
+        editor.SetInt_NoCondChk(TRANS_PARAM_ID.INT_USERSTORY_STATE, (int)stateId);
 
         switch (stateId)
         {

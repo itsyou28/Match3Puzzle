@@ -103,6 +103,7 @@ namespace FiniteStateMachine
         INT_SELECT_MENU,
         INT_USERSTORY_PRE_STATE,
         INT_FLAG,
+        INT_US_MAIN_STATE,
 
         FLOAT_NONE = 3000,
 

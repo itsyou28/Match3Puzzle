@@ -98,15 +98,21 @@ public class EditManager : MonoBehaviour, iEditManager
     private void CleanUp()
     {
         OffSelect();
-        fieldMng.CleanUp();
-        fieldMng = null;
+        if (fieldMng != null)
+        {
+            fieldMng.CleanUp();
+            fieldMng = null; 
+        }
     }
 
     private void FieldSave()
     {
-        fieldMng.SetFieldRelationInfo();
-        fieldMng.ValidateField();
-        fieldMng.SaveFields();
+        if (fieldMng != null)
+        {
+            fieldMng.SetFieldRelationInfo();
+            fieldMng.ValidateField();
+            fieldMng.SaveFields(); 
+        }
     }
 
     void OnSelectStage(params object[] args)
