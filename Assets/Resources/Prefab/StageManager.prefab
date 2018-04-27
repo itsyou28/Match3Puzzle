@@ -278,8 +278,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arrBlockSprite:
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: c6eaf1dfcd174f74f926ace35483fd53, type: 3}
+  - {fileID: 21300000, guid: 42daa4688dae03d4891888d4ce0a087e, type: 3}
+  - {fileID: 21300000, guid: 25be334100b4123428c449d042ecb223, type: 3}
+  - {fileID: 21300000, guid: f6681f0e7387c4a4db998f97ef4828d5, type: 3}
+  - {fileID: 21300000, guid: 1b07b36075f3dca4a8412851fc7f554d, type: 3}
+  - {fileID: 21300000, guid: a430e5cc514195d4086f10f257434af7, type: 3}
+  - {fileID: 21300000, guid: 55c7110d96dc17f418c578ee932e1666, type: 3}
+  - {fileID: 21300000, guid: f85e28b64c0ee164cb8c12f243e1f649, type: 3}
+  - {fileID: 21300000, guid: 203f7eafa0711d344980414abc4906b7, type: 3}
+  - {fileID: 21300000, guid: 6d92c6ad557be7c4c9ea7d857af5ad31, type: 3}
+  - {fileID: 21300000, guid: d092a407a3187464e821df817b02d01d, type: 3}
+  - {fileID: 21300000, guid: 19bde6bd562c41d42be22e499688853c, type: 3}
+  - {fileID: 21300000, guid: b5d8a7d2d4f47bd49a3fe384a11b5531, type: 3}
 --- !u!114 &114715050558788070
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -36,38 +36,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     private void SetSprite()
     {
-        if (block.BlockType > 0 && block.BlockType < 8)
-            sprite.sprite = BlockGOPool.Inst.arrBlockSprite[0];
-        else if (block.BlockType >= 8)
-            sprite.sprite = BlockGOPool.Inst.arrBlockSprite[1];
-
-        switch (block.BlockType)
-        {
-            case 1:
-                sprite.color = Color.red;
-                break;
-            case 2:
-                sprite.color = Color.blue;
-                break;
-            case 3:
-                sprite.color = Color.green;
-                break;
-            case 4:
-                sprite.color = Color.yellow;
-                break;
-            case 5:
-                sprite.color = Color.magenta;
-                break;
-            case 6:
-                sprite.color = Color.cyan;
-                break;
-            case 7:
-                sprite.color = Color.gray;
-                break;
-            case 8:
-                sprite.color = Color.black;
-                break;
-        }
+        sprite.sprite = BlockGOPool.Inst.arrBlockSprite[block.BlockType - 1];
     }
 
     private void OnTransitionBlockState()
