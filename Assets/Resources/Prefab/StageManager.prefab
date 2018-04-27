@@ -277,6 +277,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2589be6b0e25f1b448965e177c035797, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  arrBlockSprite:
+  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!114 &114715050558788070
 MonoBehaviour:
   m_ObjectHideFlags: 1

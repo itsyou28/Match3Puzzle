@@ -17,13 +17,17 @@ public interface iBlock
     void SwapMove(BlockField target, Action callback);
     void SetSwapField(BlockField target);
     void CheckField(BlockField target);
+    void MakeOver(int blockType);
+    void MakeOverDissolve(BlockField makeOverField);
 }
 
 public interface iBlockForGO
 {
     BlockState eState { get; }
+    int BlockType { get; }
     event Action OnTransitionState;
     void TransitionState(BlockState state);
+    bool IsCreateField { get; }
 }
 
 public enum BlockState
@@ -35,6 +39,8 @@ public enum BlockState
     Moving,
     MatchingGlow,
     MatchingDissolve,
+    MakeOverDissolve,
+    MakeOver,
     Pushback,
 }
 
@@ -52,6 +58,8 @@ public class Block : iBlock, iBlockForGO
     public Block self { get { return this; } }
     public float curX { get { return curField.X; } }
     public float curY { get { return curField.Y; } }
+    public bool IsCreateField { get { return curField == null ? false : curField.IsCreateField; } }
+
     iBlockField curField;
 
     [NonSerialized]
@@ -143,6 +151,7 @@ public class Block : iBlock, iBlockForGO
 
         TransitionState(BlockState.Moving);
 
+        int blockTypeAtSwapStart = blockType;
         blockGO.Move(target.X, target.Y, () =>
         {
             blockGO.SwapStop();
@@ -151,6 +160,11 @@ public class Block : iBlock, iBlockForGO
                 callback();
 
             TransitionState(BlockState.Ready);
+
+            if (blockTypeAtSwapStart == 8)
+            {
+                StageManager.i.SpecialMatch(curField.self);
+            }
         });
     }
 
@@ -204,6 +218,16 @@ public class Block : iBlock, iBlockForGO
         TransitionState(BlockState.MatchingGlow);
     }
 
+    public void MakeOver(int blockType)
+    {
+        this.blockType = blockType;
+        TransitionState(BlockState.MakeOver);
+    }
+
+    public void MakeOverDissolve(BlockField makeOverField)
+    {
+        blockGO.MakeOverDissolve(makeOverField.X, makeOverField.Y);
+    }
 
     public void CleanUp()
     {

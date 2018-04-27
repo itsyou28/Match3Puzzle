@@ -9,7 +9,7 @@ public interface iBlockGO
     void CleanUp();
     void Stop();
     void SwapStop();
-
+    void MakeOverDissolve(float x, float y);
 }
 
 public class BlockGO : MonoBehaviour, iBlockGO
@@ -23,6 +23,24 @@ public class BlockGO : MonoBehaviour, iBlockGO
     {
         this.block = block;
         this.block.OnTransitionState += OnTransitionBlockState;
+
+        SetSprite();
+
+        if (block.IsCreateField)
+            accumeTime = accelerationTime * 0.5f;
+
+        transform.localPosition = new Vector3(x, y);
+        transform.localScale = Vector3.one;
+        gameObject.SetActive(true);
+    }
+
+    private void SetSprite()
+    {
+        if (block.BlockType > 0 && block.BlockType < 8)
+            sprite.sprite = BlockGOPool.Inst.arrBlockSprite[0];
+        else if (block.BlockType >= 8)
+            sprite.sprite = BlockGOPool.Inst.arrBlockSprite[1];
+
         switch (block.BlockType)
         {
             case 1:
@@ -50,16 +68,15 @@ public class BlockGO : MonoBehaviour, iBlockGO
                 sprite.color = Color.black;
                 break;
         }
-
-        transform.localPosition = new Vector3(x, y);
-        transform.localScale = Vector3.one;
-        gameObject.SetActive(true);
     }
 
     private void OnTransitionBlockState()
     {
         switch (block.eState)
         {
+            case BlockState.MakeOver:
+                StartCoroutine(MakeOver());
+                break;
             case BlockState.MatchingGlow:
                 StartCoroutine(MatchingGlow());
                 break;
@@ -67,6 +84,42 @@ public class BlockGO : MonoBehaviour, iBlockGO
                 StartCoroutine(Dissolve());
                 break;
         }
+    }
+
+    IEnumerator MakeOver()
+    {
+        float elapse = 0;
+        float aniTime = 0.5f;
+        float reverse = 1 / aniTime;
+        float scale = 0;
+        Vector3 vScale;
+        while (elapse < aniTime)
+        {
+            elapse += Time.deltaTime;
+            scale = 1 - Ease.InOutBack(elapse * reverse);
+            vScale.x = vScale.y = vScale.z = scale;
+            transform.localScale = vScale;
+
+            yield return true;
+        }
+
+        SetSprite();
+
+        yield return true;
+
+        elapse = 0;
+
+        while (elapse < aniTime)
+        {
+            elapse += Time.deltaTime;
+            scale = Ease.OutElastic(elapse * reverse);
+            vScale.x = vScale.y = vScale.z = scale;
+            transform.localScale = vScale;
+
+            yield return true;
+        }
+
+        block.TransitionState(BlockState.Ready);
     }
 
     IEnumerator MatchingGlow()
@@ -87,7 +140,34 @@ public class BlockGO : MonoBehaviour, iBlockGO
         while (elapse < aniTime)
         {
             elapse += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, elapse*reverseTime);
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, elapse * reverseTime);
+            yield return true;
+        }
+
+        block.TransitionState(BlockState.Pushback);
+    }
+
+    public void MakeOverDissolve(float x, float y)
+    {
+        startPos = transform.localPosition;
+        EndPos = new Vector3(x, y);
+
+        block.TransitionState(BlockState.MakeOverDissolve);
+
+        StartCoroutine(MakeOverDissolve());
+    }
+
+    IEnumerator MakeOverDissolve()
+    {
+        float elapse = 0;
+        float aniTime = 0.3f;
+        float reverseTime = 1 / aniTime;
+
+        while (elapse < aniTime)
+        {
+            elapse += Time.deltaTime;
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, elapse * reverseTime);
+            transform.localPosition = Vector3.Lerp(startPos, EndPos, elapse * reverseTime);
             yield return true;
         }
 
@@ -230,6 +310,10 @@ public class BlockGODummy : iBlockGO
     }
 
     public void SwapStop()
+    {
+    }
+
+    public void MakeOverDissolve(float x, float y)
     {
     }
 }

@@ -6,6 +6,7 @@ public interface iStage
 {
     void SwapBlock(BlockField selectField, BlockField targetField);
     void Match();
+    void SpecialMatch(BlockField targetField);
 }
 
 public class DummyStageManager : iStage
@@ -18,6 +19,10 @@ public class DummyStageManager : iStage
     public void Match()
     {
         Debug.LogWarning("Dummy CheckMatch");
+    }
+
+    public void SpecialMatch(BlockField targetField)
+    {
     }
 }
 
@@ -119,5 +124,10 @@ public class StageManager : MonoBehaviour, iStage
     {
         if (fieldMng.FindMatch())
             fieldMng.ExcuteMatch();
+    }
+
+    public void SpecialMatch(BlockField field)
+    {
+        StartCoroutine(fieldMng.ColLineMatch(field));
     }
 }

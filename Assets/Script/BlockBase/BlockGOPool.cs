@@ -1,6 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public interface iBlockGOPool
+{
+    Sprite GetBlockSprite(int blockType);
+}
+
 public class BlockGOPool : MonoBehaviour, iPool<iBlockGO>
 {
     private static BlockGOPool instance = null;
@@ -20,7 +25,16 @@ public class BlockGOPool : MonoBehaviour, iPool<iBlockGO>
             return instance;
         }
     }
-    
+    public static BlockGOPool Inst
+    {
+        get
+        {
+            return instance;
+        }
+    }
+
+    public Sprite[] arrBlockSprite;
+
     ObjectPool<iBlockGO> blockPool;
     
     iBlockGO CreateBlock()

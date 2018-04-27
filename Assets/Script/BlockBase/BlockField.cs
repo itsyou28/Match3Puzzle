@@ -14,6 +14,7 @@ public interface iBlockField
     void SetBlock(iBlock block);
     BlockField GetDiagnalField();
     void OnPushbackBlock();
+    bool IsCreateField { get; }
 }
 
 /// <summary>
@@ -192,6 +193,9 @@ public class BlockField : iBlockField
             field.isDeadline = isDeadline;
             field = field.next;
 
+            if (field == null)
+                break;
+
             if (field == this)
                 throw new Exception("Check next");
         }
@@ -243,7 +247,10 @@ public class BlockField : iBlockField
 
     public void SetBlockRandom()
     {
-        CleanUpBlock();
+        if (block != null)
+        {
+            block.CleanUp();
+        }
     }
 
     public void SetBlockType(int blockType)
@@ -309,7 +316,10 @@ public class BlockField : iBlockField
 
     public void CleanUp()
     {
-        CleanUpBlock();
+        if (block != null)
+        {
+            block.CleanUp();
+        }
 
         if (blockFieldGO != null)
         {
@@ -318,14 +328,11 @@ public class BlockField : iBlockField
         }
     }
 
-    private void CleanUpBlock()
+    //블럭이 매칭 이펙트등을 마치고 cleanup을 완료하면 호출한다. 
+    public void OnPushbackBlock()
     {
-        if (block != null)
-        {
-            block.CleanUp();
-            BlockMng.Pool.Push(block);
-            block = null;
-        }
+        BlockMng.Pool.Push(block);
+        SetBlock(null);
     }
 
     //진입방향이 2개이상일 경우 블록이 지날 때마다 진입방향을 변경한다. 
@@ -380,6 +387,18 @@ public class BlockField : iBlockField
         }
     }
 
+    public void MakeOver(int blockType)
+    {
+        if (block != null)
+            block.MakeOver(blockType);
+    }
+
+    public void MakeOverDissolve(BlockField makeOverField)
+    {
+        if (block != null)
+            block.MakeOverDissolve(makeOverField);
+    }
+
     bool CheckBlockInLinePrev()
     {
         BlockField field = prev;
@@ -424,13 +443,6 @@ public class BlockField : iBlockField
             return false;
 
         return true;
-    }
-
-    //블럭이 매칭 이펙트등을 마치고 cleanup을 완료하면 호출한다. 
-    public void OnPushbackBlock()
-    {
-        BlockMng.Pool.Push(block);
-        SetBlock(null);
     }
 
     #region override Equals

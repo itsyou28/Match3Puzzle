@@ -13,5 +13,9 @@ namespace InputKeyProcessor
         {
             BlockMng.Inst.UpdateAllReady();
         }
+
+        public sealed override void LDown()
+        {
+        }
     }
 }

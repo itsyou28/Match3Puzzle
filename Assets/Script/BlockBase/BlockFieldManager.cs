@@ -1,7 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using NUnit.Framework;
+
+
+public struct SpecialMatchSet
+{
+    public BlockField[] fields;
+    public int blockType;
+    public BlockField makeOverField;
+}
 
 public class BlockFieldManager
 {
@@ -16,6 +25,7 @@ public class BlockFieldManager
 
     public List<BlockField> ableField = new List<BlockField>();
     public List<BlockField> matchedField = new List<BlockField>();
+    public List<SpecialMatchSet> specialSet = new List<SpecialMatchSet>();
 
     public string FieldName { get; private set; }
 
@@ -107,18 +117,18 @@ public class BlockFieldManager
         }
 
         //시작과 동시에 매칭 블럭이 없도록 조정
-        while (FindMatch())
-        {
-            for (int i = 0; i < matchedField.Count; i += 2)
-            {
-                matchedField[i].block.ResetRand(matchedField[i], 5);
-            }
+        //while (FindMatch())
+        //{
+        //    for (int i = 0; i < matchedField.Count; i += 2)
+        //    {
+        //        matchedField[i].block.ResetRand(matchedField[i], 5);
+        //    }
 
-            if (!FindMatchAble())
-            {
-                //임의의 able 패턴을 생성(그냥 셔플->매치가 반복되면 유저가 게임 시작도 안했는데 게임이 진행되는 셈)
-            }
-        }
+        //    if (!FindMatchAble())
+        //    {
+        //        //임의의 able 패턴을 생성(그냥 셔플->매치가 반복되면 유저가 게임 시작도 안했는데 게임이 진행되는 셈)
+        //    }
+        //}
     }
 
     public void EditorInitialize()
@@ -197,6 +207,9 @@ public class BlockFieldManager
 
         selected.block.SetSwapField(selected);
         target.block.SetSwapField(target);
+
+        swapField[0] = selected;
+        swapField[1] = target;
     }
 
     Action swapCallback;
@@ -247,11 +260,12 @@ public class BlockFieldManager
     public bool FindMatch()
     {
         matchedField.Clear();
+        specialSet.Clear();
 
         ChkMatchRow(1, lastRow, 1, lastCol);
         ChkMatchCol(1, lastRow, 1, lastCol);
 
-        return matchedField.Count > 0 ? true : false;
+        return matchedField.Count > 0 ? true : specialSet.Count > 0 ? true : false;
     }
 
     public void ExcuteMatch()
@@ -260,6 +274,18 @@ public class BlockFieldManager
         {
             matchedField[i].Match();
         }
+
+        for (int i = 0; i < specialSet.Count; i++)
+        {
+            specialSet[i].makeOverField.MakeOver(specialSet[i].blockType);
+            for (int j = 0; j < specialSet[i].fields.Length; j++)
+            {
+                specialSet[i].fields[j].MakeOverDissolve(specialSet[i].makeOverField);
+            }
+        }
+
+        swapField[0] = null;
+        swapField[1] = null;
     }
 
     //필드가 비어있는지 체크한다. 
@@ -274,7 +300,54 @@ public class BlockFieldManager
 
         return result;
     }
-    
+
+    public IEnumerator RowLineMatch(BlockField center)
+    {
+        //for (int col = 0; col < lastCol; col++)
+        //{
+        //    fields[row, col].Match();
+        //    yield return new WaitForEndOfFrame();
+        //}
+
+        int l = center.Col;
+        int r = l - 1;
+
+        while (l > 0 || r < colArrLastIdx)
+        {
+            l--;
+            r++;
+            if (l > 0)
+                fields[center.Row, l].Match();
+            if (r < colArrLastIdx)
+                fields[center.Row, r].Match();
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
+    public IEnumerator ColLineMatch(BlockField center)
+    {
+        //for (int col = 0; col < lastCol; col++)
+        //{
+        //    fields[row, col].Match();
+        //    yield return new WaitForEndOfFrame();
+        //}
+
+        int l = center.Row;
+        int r = l - 1;
+
+        while (l > 0 || r < rowArrLastIdx)
+        {
+            l--;
+            r++;
+
+            if (l > 0)
+                fields[l, center.Col].Match();
+            if (r < rowArrLastIdx)
+                fields[r, center.Col].Match();
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
 
     #region Search Matchable Pattern
 
@@ -340,11 +413,14 @@ public class BlockFieldManager
         {
             ableField.Add(fields[row + 1, col]);
         }
-    } 
+    }
     #endregion
 
 
     #region Search Match Pattern
+
+    List<BlockField> matchBuffer = new List<BlockField>();
+    BlockField[] swapField = new BlockField[2];
 
     void ChkMatchRow(int minRow, int maxRow, int minCol, int maxCol)
     {
@@ -361,40 +437,95 @@ public class BlockFieldManager
                 l++;
                 r = l + 1;
             }
-            while (r < rLimit)
+            while (r <= rLimit)
             {
-                if (fields[line, r].IsPlayable && fields[line, r].BlockType > 0 &&
+                if (r < rLimit &&
+                    fields[line, r].IsPlayable && fields[line, r].BlockType > 0 &&
                     fields[line, l].BlockType == fields[line, r].BlockType)
                 {
                     cnt++;
                 }
                 else
                 {
-                    if (cnt > 1)
+                    if (cnt == 2)
                     {
                         //cnt+1 match!
-                        for (int i = 0; i <= cnt; i++)
+                        for (int idx = 0; idx <= cnt; idx++)
                         {
-                            matchedField.Add(fields[line, l + i]);
+                            matchedField.Add(fields[line, l + idx]);
                             //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line,l+i].BlockType.type);
                         }
                     }
+                    else if (cnt > 2)
+                        MakeRowSpecialMatchSet(cnt, line, l);
 
                     l = r;
                     cnt = 0;
                 }
                 r++;
             }
-            if (cnt > 1)
+        }
+    }
+
+    void MakeRowSpecialMatchSet(int cnt, int line, int l)
+    {
+        matchBuffer.Clear();
+        SpecialMatchSet set = new SpecialMatchSet();
+
+        switch (cnt)
+        {
+            case 3:
+                set.blockType = 8;
+                break;
+            case 4:
+                set.blockType = 8;
+                break;
+        }
+
+        int makeOverIdx = 0;
+
+        //매치 리스트 중에 swap필드가 있다면 해당 필드를 makeOverField로 지정한다. 
+        for (int idx = 0; idx <= cnt; idx++)
+        {
+            if (CheckMakeOverFieldByUser(fields[line, l + idx], ref set))
             {
-                //cnt+1 match!
-                for (int i = 0; i <= cnt; i++)
-                {
-                    matchedField.Add(fields[line, l + i]);
-                    //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line, l + i].BlockType.type);
-                }
+                makeOverIdx = idx;
+                break;
             }
         }
+
+        //swap필드가 없다면 makeOverField를 랜덤지정한다. 
+        if (set.makeOverField == null)
+        {
+            makeOverIdx = UnityEngine.Random.Range(0, cnt);
+            set.makeOverField = fields[line, l + makeOverIdx];
+        }
+
+        //makeOverField를 제외한 필드를 set에 삽입한다. 
+        for (int idx = 0; idx <= cnt; idx++)
+        {
+            if (idx != makeOverIdx)
+                matchBuffer.Add(fields[line, l + idx]);
+        }
+        set.fields = matchBuffer.ToArray();
+
+        specialSet.Add(set);
+    }
+
+    private bool CheckMakeOverFieldByUser(BlockField target, ref SpecialMatchSet set)
+    {
+        for (int idx = 0; idx < 2; idx++)
+        {
+            if (swapField[idx] != null && swapField[idx] == target)
+            {
+                set.makeOverField = swapField[idx];
+                swapField[idx] = null;
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void ChkMatchCol(int minRow, int maxRow, int minCol, int maxCol)
@@ -424,9 +555,9 @@ public class BlockFieldManager
                     if (cnt > 1)
                     {
                         //cnt+1 match!
-                        for (int i = 0; i <= cnt; i++)
+                        for (int idx = 0; idx <= cnt; idx++)
                         {
-                            matchedField.Add(fields[l + i, line]);
+                            matchedField.Add(fields[l + idx, line]);
                             //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
                         }
                     }
@@ -439,9 +570,9 @@ public class BlockFieldManager
             if (cnt > 1)
             {
                 //cnt+1 match!
-                for (int i = 0; i <= cnt; i++)
+                for (int idx = 0; idx <= cnt; idx++)
                 {
-                    matchedField.Add(fields[l + i, line]);
+                    matchedField.Add(fields[l + idx, line]);
                     //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
                 }
             }
