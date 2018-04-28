@@ -302,7 +302,7 @@ public class BlockField : iBlockField
     public void CreateBlock()
     {
         iBlock block = BlockMng.Pool.Pop();
-        block.ResetRand(this, 5);
+        block.ResetRand(this, 6);
         SetBlock(block);
     }
 
@@ -364,7 +364,7 @@ public class BlockField : iBlockField
             block = BlockMng.Pool.Pop();
             if (block == null)
                 Debug.LogError("block is null");
-            block.ResetRand(this, 5);
+            block.ResetRand(this, 6);
         }
         else if (block == null)
         {

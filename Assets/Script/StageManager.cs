@@ -6,7 +6,8 @@ public interface iStage
 {
     void SwapBlock(BlockField selectField, BlockField targetField);
     void Match();
-    void SpecialMatch(BlockField targetField);
+    void SkillEffect_Sero(BlockField targetField);
+    void SkillEffect_Garo(BlockField targetField);
 }
 
 public class DummyStageManager : iStage
@@ -21,7 +22,10 @@ public class DummyStageManager : iStage
         Debug.LogWarning("Dummy CheckMatch");
     }
 
-    public void SpecialMatch(BlockField targetField)
+    public void SkillEffect_Sero(BlockField targetField)
+    {
+    }
+    public void SkillEffect_Garo(BlockField targetField)
     {
     }
 }
@@ -126,8 +130,13 @@ public class StageManager : MonoBehaviour, iStage
             fieldMng.ExcuteMatch();
     }
 
-    public void SpecialMatch(BlockField field)
+    public void SkillEffect_Sero(BlockField field)
     {
-        StartCoroutine(fieldMng.ColLineMatch(field));
+        StartCoroutine(fieldMng.SkillEffect_Sero(field));
+    }
+
+    public void SkillEffect_Garo(BlockField field)
+    {
+        StartCoroutine(fieldMng.SkillEffect_Garo(field));
     }
 }

@@ -161,9 +161,13 @@ public class Block : iBlock, iBlockForGO
 
             TransitionState(BlockState.Ready);
 
-            if (blockTypeAtSwapStart == 8)
+            if (blockTypeAtSwapStart == 9)
             {
-                StageManager.i.SpecialMatch(curField.self);
+                StageManager.i.SkillEffect_Sero(curField.self);
+            }
+            else if(blockTypeAtSwapStart == 10)
+            {
+                StageManager.i.SkillEffect_Garo(curField.self);
             }
         });
     }

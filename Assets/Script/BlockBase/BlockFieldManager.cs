@@ -5,7 +5,7 @@ using UnityEngine;
 using NUnit.Framework;
 
 
-public struct SpecialMatchSet
+public struct MatchedSet
 {
     public BlockField[] fields;
     public int blockType;
@@ -24,8 +24,8 @@ public class BlockFieldManager
     int lastRow, lastCol; //가장자리 필드를 제외한 마지막 배열 인덱스
 
     public List<BlockField> ableField = new List<BlockField>();
-    public List<BlockField> matchedField = new List<BlockField>();
-    public List<SpecialMatchSet> specialSet = new List<SpecialMatchSet>();
+    public List<MatchedSet> matchedSet = new List<MatchedSet>();
+    public List<MatchedSet> specialSet = new List<MatchedSet>();
 
     public string FieldName { get; private set; }
 
@@ -259,20 +259,23 @@ public class BlockFieldManager
 
     public bool FindMatch()
     {
-        matchedField.Clear();
+        matchedSet.Clear();
         specialSet.Clear();
 
-        ChkMatchRow(1, lastRow, 1, lastCol);
-        ChkMatchCol(1, lastRow, 1, lastCol);
+        ChkMatch(1, lastRow, 1, lastCol, true);
+        ChkMatch(1, lastRow, 1, lastCol, false);
 
-        return matchedField.Count > 0 ? true : specialSet.Count > 0 ? true : false;
+        return matchedSet.Count > 0 ? true : specialSet.Count > 0 ? true : false;
     }
 
     public void ExcuteMatch()
     {
-        for (int i = 0; i < matchedField.Count; i++)
+        for (int i = 0; i < matchedSet.Count; i++)
         {
-            matchedField[i].Match();
+            for (int j = 0; j < matchedSet[i].fields.Length; j++)
+            {
+                matchedSet[i].fields[j].Match();
+            }
         }
 
         for (int i = 0; i < specialSet.Count; i++)
@@ -301,7 +304,7 @@ public class BlockFieldManager
         return result;
     }
 
-    public IEnumerator RowLineMatch(BlockField center)
+    public IEnumerator SkillEffect_Garo(BlockField center)
     {
         //for (int col = 0; col < lastCol; col++)
         //{
@@ -324,7 +327,7 @@ public class BlockFieldManager
             yield return new WaitForEndOfFrame();
         }
     }
-    public IEnumerator ColLineMatch(BlockField center)
+    public IEnumerator SkillEffect_Sero(BlockField center)
     {
         //for (int col = 0; col < lastCol; col++)
         //{
@@ -422,97 +425,9 @@ public class BlockFieldManager
     List<BlockField> matchBuffer = new List<BlockField>();
     BlockField[] swapField = new BlockField[2];
 
-    void ChkMatchRow(int minRow, int maxRow, int minCol, int maxCol)
-    {
-        int l, r, cnt;
-        int rLimit = maxCol + 1;
 
-        for (int line = minRow; line <= maxRow; line++)
-        {
-            l = minCol;
-            r = minCol + 1;
-            cnt = 0;
-            if (!fields[line, l].IsPlayable)
-            {
-                l++;
-                r = l + 1;
-            }
-            while (r <= rLimit)
-            {
-                if (r < rLimit &&
-                    fields[line, r].IsPlayable && fields[line, r].BlockType > 0 &&
-                    fields[line, l].BlockType == fields[line, r].BlockType)
-                {
-                    cnt++;
-                }
-                else
-                {
-                    if (cnt == 2)
-                    {
-                        //cnt+1 match!
-                        for (int idx = 0; idx <= cnt; idx++)
-                        {
-                            matchedField.Add(fields[line, l + idx]);
-                            //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line,l+i].BlockType.type);
-                        }
-                    }
-                    else if (cnt > 2)
-                        MakeRowSpecialMatchSet(cnt, line, l);
-
-                    l = r;
-                    cnt = 0;
-                }
-                r++;
-            }
-        }
-    }
-
-    void MakeRowSpecialMatchSet(int cnt, int line, int l)
-    {
-        matchBuffer.Clear();
-        SpecialMatchSet set = new SpecialMatchSet();
-
-        switch (cnt)
-        {
-            case 3:
-                set.blockType = 8;
-                break;
-            case 4:
-                set.blockType = 8;
-                break;
-        }
-
-        int makeOverIdx = 0;
-
-        //매치 리스트 중에 swap필드가 있다면 해당 필드를 makeOverField로 지정한다. 
-        for (int idx = 0; idx <= cnt; idx++)
-        {
-            if (CheckMakeOverFieldByUser(fields[line, l + idx], ref set))
-            {
-                makeOverIdx = idx;
-                break;
-            }
-        }
-
-        //swap필드가 없다면 makeOverField를 랜덤지정한다. 
-        if (set.makeOverField == null)
-        {
-            makeOverIdx = UnityEngine.Random.Range(0, cnt);
-            set.makeOverField = fields[line, l + makeOverIdx];
-        }
-
-        //makeOverField를 제외한 필드를 set에 삽입한다. 
-        for (int idx = 0; idx <= cnt; idx++)
-        {
-            if (idx != makeOverIdx)
-                matchBuffer.Add(fields[line, l + idx]);
-        }
-        set.fields = matchBuffer.ToArray();
-
-        specialSet.Add(set);
-    }
-
-    private bool CheckMakeOverFieldByUser(BlockField target, ref SpecialMatchSet set)
+    //유저가 Swap한 필드가 있을 경우 해당 필드를 특수블럭이 생성될 필드로 지정한다. 
+    private bool CheckMakeOverFieldByUser(BlockField target, ref MatchedSet set)
     {
         for (int idx = 0; idx < 2; idx++)
         {
@@ -528,55 +443,138 @@ public class BlockFieldManager
         return false;
     }
 
-    void ChkMatchCol(int minRow, int maxRow, int minCol, int maxCol)
+    //범위 내에서 3개 이상의 연속으로 동일한 블럭을 검사한다. 
+    //isRow 플래그에 따라 가로, 세로 패턴을 구분한다. 
+    void ChkMatch(int minRow, int maxRow, int minCol, int maxCol, bool isRow)
     {
-        int l, r, cnt;
-        int rLimit = maxRow + 1;
+        int l, r, cnt, min, max, rLimit;
 
-        for (int line = minCol; line <= maxCol; line++)
+        if (isRow)
         {
-            l = minRow;
-            r = minRow + 1;
+            min = minRow;
+            max = maxRow;
+            rLimit = maxCol + 1;
+        }
+        else
+        {
+            min = minCol;
+            max = maxCol;
+            rLimit = maxRow + 1;
+        }
+
+
+        //라인마다 l과 r을 비교해서 동일한 블럭이 연속으로 있는지 검사한다. 
+        for (int line = min; line <= max; line++)
+        {
+            if (isRow)
+                l = minCol;
+            else
+                l = minRow;
+            r = l + 1;
             cnt = 0;
-            if (!fields[l, line].IsPlayable)
+
+            //라인을 시작할 때 l이 비교대상인지 확인한다. 
+            if (!GetFieldFlip(line, l, isRow).IsPlayable)
             {
                 l++;
                 r = l + 1;
             }
-            while (r < rLimit)
+            while (r <= rLimit)
             {
-                if (fields[r, line].IsPlayable && fields[r, line].BlockType > 0 &&
-                    fields[l, line].BlockType == fields[r, line].BlockType)
+                //l과 r이 동일할 경우 r을 1씩 증가시켜서 동일한 블럭 개수를 카운트한다. 
+                if (r < rLimit &&
+                    GetFieldFlip(line, r, isRow).IsPlayable && GetFieldFlip(line, r, isRow).BlockType > 0 &&
+                    GetFieldFlip(line, l, isRow).BlockType == GetFieldFlip(line, r, isRow).BlockType)
                 {
                     cnt++;
                 }
                 else
                 {
-                    if (cnt > 1)
+                    //동일 블럭이 3개이상일 경우 매치리스트에 포함시키고 l을 r위치로 옮기고 r을 1증가시킨다. 
+                    //l과 r이 동일하지 않을 경우 l을 r위치로 옮기고 r을 1증가시킨다. 
+                    if (cnt == 2)
                     {
                         //cnt+1 match!
+                        MatchedSet set = new MatchedSet();
+                        set.fields = new BlockField[3];
                         for (int idx = 0; idx <= cnt; idx++)
                         {
-                            matchedField.Add(fields[l + idx, line]);
-                            //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
+                            set.fields[idx] = GetFieldFlip(line, l + idx, isRow);
+                            //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line,l+i].BlockType.type);
                         }
+                        matchedSet.Add(set);
                     }
+                    else if (cnt > 2)
+                        MakeSpecialMatchSet(cnt, line, l, isRow);
 
                     l = r;
                     cnt = 0;
                 }
                 r++;
             }
-            if (cnt > 1)
+        }
+    }
+
+    void MakeSpecialMatchSet(int cnt, int line, int l, bool isRow)
+    {
+        matchBuffer.Clear();
+        MatchedSet set = new MatchedSet();
+
+        switch (cnt)
+        {
+            case 3:
+                if (isRow)
+                    set.blockType = 9;
+                else
+                    set.blockType = 10;
+                break;
+            case 4:
+                set.blockType = 11;
+                break;
+        }
+
+        int makeOverIdx = 0;
+
+        //매치 리스트 중에 swap필드가 있다면 해당 필드를 makeOverField로 지정한다. 
+        for (int idx = 0; idx <= cnt; idx++)
+        {
+            if (CheckMakeOverFieldByUser(GetFieldFlip(line, l + idx, isRow), ref set))
             {
-                //cnt+1 match!
-                for (int idx = 0; idx <= cnt; idx++)
-                {
-                    matchedField.Add(fields[l + idx, line]);
-                    //Debug.Log("Col Match (" + (l + i).ToString() + ", " + line + ")" + fields[l + i, line].BlockType.type);
-                }
+                makeOverIdx = idx;
+                break;
             }
         }
+
+        //swap필드가 없다면 makeOverField를 랜덤지정한다. 
+        if (set.makeOverField == null)
+        {
+            makeOverIdx = UnityEngine.Random.Range(0, cnt);
+            set.makeOverField = GetFieldFlip(line, l + makeOverIdx, isRow);
+        }
+
+        //makeOverField를 제외한 필드를 set에 삽입한다. 
+        for (int idx = 0; idx <= cnt; idx++)
+        {
+            if (idx != makeOverIdx)
+                matchBuffer.Add(GetFieldFlip(line, l + idx, isRow));
+        }
+        set.fields = matchBuffer.ToArray();
+
+        specialSet.Add(set);
+    }
+
+    BlockField GetFieldFlip(int line, int curIdx, bool isRow)
+    {
+        return isRow ? fields[line, curIdx] : fields[curIdx, line];
+    }
+
+
+    void MakeCrossSpecialMatchSet()
+    {
+        //특수매칭 리스트 전체 순회를 돌며 세트간에 교차필드가 있는지 검사한다. 
+        //교차필드가 있을 경우 두 세트를 하나로 병합한다. 
+        //병합할때 교차 필드 중복을 제거하고 블럭타입을 변경한다. 
+
     }
     #endregion
 
