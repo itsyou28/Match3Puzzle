@@ -24,12 +24,14 @@ public class BlockFieldManager
     int lastRow, lastCol; //가장자리 필드를 제외한 마지막 배열 인덱스
 
     public List<BlockField> ableField = new List<BlockField>();
-    public List<MatchedSet> matchedSet = new List<MatchedSet>();
-    public List<MatchedSet> specialSet = new List<MatchedSet>();
+
+    public List<MatchedSet> rowMatchedSet = new List<MatchedSet>();
+    public List<MatchedSet> colMatchedSet = new List<MatchedSet>();
+    public List<MatchedSet> rowSpecialSet = new List<MatchedSet>();
+    public List<MatchedSet> colSpecialSet = new List<MatchedSet>();
+    public List<MatchedSet> crossSpecialSet = new List<MatchedSet>();
 
     public string FieldName { get; private set; }
-
-    public event Action EndFieldProgress;
 
     public void CleanUp()
     {
@@ -259,31 +261,65 @@ public class BlockFieldManager
 
     public bool FindMatch()
     {
-        matchedSet.Clear();
-        specialSet.Clear();
+        rowMatchedSet.Clear();
+        colMatchedSet.Clear();
+        rowSpecialSet.Clear();
+        colSpecialSet.Clear();
+        crossSpecialSet.Clear();
 
         ChkMatch(1, lastRow, 1, lastCol, true);
         ChkMatch(1, lastRow, 1, lastCol, false);
 
-        return matchedSet.Count > 0 ? true : specialSet.Count > 0 ? true : false;
+        CheckCrossMatchSet();
+
+        if (rowMatchedSet.Count + colMatchedSet.Count + rowSpecialSet.Count + colSpecialSet.Count + crossSpecialSet.Count> 0)
+            return true;
+
+        return false;
     }
 
     public void ExcuteMatch()
     {
-        for (int i = 0; i < matchedSet.Count; i++)
+        for (int i = 0; i < rowMatchedSet.Count; i++)
         {
-            for (int j = 0; j < matchedSet[i].fields.Length; j++)
+            for (int j = 0; j < rowMatchedSet[i].fields.Length; j++)
             {
-                matchedSet[i].fields[j].Match();
+                rowMatchedSet[i].fields[j].Match();
             }
         }
 
-        for (int i = 0; i < specialSet.Count; i++)
+        for (int i = 0; i < colMatchedSet.Count; i++)
         {
-            specialSet[i].makeOverField.MakeOver(specialSet[i].blockType);
-            for (int j = 0; j < specialSet[i].fields.Length; j++)
+            for (int j = 0; j < colMatchedSet[i].fields.Length; j++)
             {
-                specialSet[i].fields[j].MakeOverDissolve(specialSet[i].makeOverField);
+                colMatchedSet[i].fields[j].Match();
+            }
+        }
+
+        for (int i = 0; i < rowSpecialSet.Count; i++)
+        {
+            rowSpecialSet[i].makeOverField.MakeOver(rowSpecialSet[i].blockType);
+            for (int j = 0; j < rowSpecialSet[i].fields.Length; j++)
+            {
+                rowSpecialSet[i].fields[j].MakeOverDissolve(rowSpecialSet[i].makeOverField);
+            }
+        }
+
+        for (int i = 0; i < colSpecialSet.Count; i++)
+        {
+            colSpecialSet[i].makeOverField.MakeOver(colSpecialSet[i].blockType);
+            for (int j = 0; j < colSpecialSet[i].fields.Length; j++)
+            {
+                colSpecialSet[i].fields[j].MakeOverDissolve(colSpecialSet[i].makeOverField);
+            }
+        }
+
+        for (int i = 0; i < crossSpecialSet.Count; i++)
+        {
+            crossSpecialSet[i].makeOverField.MakeOver(crossSpecialSet[i].blockType);
+            for (int j = 0; j < crossSpecialSet[i].fields.Length; j++)
+            {
+                crossSpecialSet[i].fields[j].MakeOverDissolve(crossSpecialSet[i].makeOverField);
             }
         }
 
@@ -502,7 +538,11 @@ public class BlockFieldManager
                             set.fields[idx] = GetFieldFlip(line, l + idx, isRow);
                             //Debug.Log("Row Match (" + line + ", " + (l + i).ToString() + ") " + fields[line,l+i].BlockType.type);
                         }
-                        matchedSet.Add(set);
+
+                        if (isRow)
+                            rowMatchedSet.Add(set);
+                        else
+                            colMatchedSet.Add(set);
                     }
                     else if (cnt > 2)
                         MakeSpecialMatchSet(cnt, line, l, isRow);
@@ -560,7 +600,10 @@ public class BlockFieldManager
         }
         set.fields = matchBuffer.ToArray();
 
-        specialSet.Add(set);
+        if (isRow)
+            rowSpecialSet.Add(set);
+        else
+            colSpecialSet.Add(set);
     }
 
     BlockField GetFieldFlip(int line, int curIdx, bool isRow)
@@ -569,12 +612,101 @@ public class BlockFieldManager
     }
 
 
-    void MakeCrossSpecialMatchSet()
+    void CheckCrossMatchSet()
     {
         //특수매칭 리스트 전체 순회를 돌며 세트간에 교차필드가 있는지 검사한다. 
         //교차필드가 있을 경우 두 세트를 하나로 병합한다. 
-        //병합할때 교차 필드 중복을 제거하고 블럭타입을 변경한다. 
+        //병합 세트를 크로스 세트 리스트에 삽입하고 기존 세트를 기존 리스트에서 제거한다. 
+        
+        CompareList(ref rowMatchedSet, ref colMatchedSet);
+        CompareList(ref rowMatchedSet, ref colSpecialSet);
+        CompareList(ref rowSpecialSet, ref colMatchedSet);
+        CompareList(ref rowSpecialSet, ref colSpecialSet);
+    }
 
+    private void CompareList(ref List<MatchedSet> list1, ref List<MatchedSet> list2)
+    {
+        for (int i = 0; i < list1.Count; i++)
+        {
+            BlockField makeOverField;
+            int listIdx;
+
+            if (CompareBetween_Set_List(list1[i], ref list2, out makeOverField, out listIdx))
+            {
+                //교차필드를 찾았다. 
+                MergeMatchSet(makeOverField, list1[i], list2[listIdx]);
+                list1.RemoveAt(i);
+                list2.RemoveAt(listIdx);
+            }
+        }
+    }
+
+    bool CompareBetween_Set_List(MatchedSet set, ref List<MatchedSet> list, out BlockField makeOverField, out int listIdx)
+    {
+        for (int i = 0; i < set.fields.Length; i++)
+        {
+            for (int k = 0; k < list.Count; k++)
+            {
+                if (set.blockType != list[k].blockType)
+                    continue;
+                else
+                {
+                    for (int l = 0; l < list[k].fields.Length; l++)
+                    {
+                        if (set.fields[i] == list[k].fields[l])
+                        {
+                            makeOverField = set.fields[i];
+                            listIdx = k;
+
+                            return true;
+                        }
+                    }
+                }
+            } 
+        }
+
+        makeOverField = null;
+        listIdx = -1;
+
+        return false;
+    }
+
+    void MergeMatchSet(BlockField crossField, MatchedSet set1, MatchedSet set2)
+    {
+        MatchedSet mergeSet = new MatchedSet();
+        mergeSet.makeOverField = crossField;
+        mergeSet.fields = new BlockField[set1.fields.Length + set2.fields.Length - 2];
+
+        switch(mergeSet.fields.Length)
+        {
+            case 4:
+            case 5:
+            case 6:
+            default:
+                mergeSet.blockType = 12;
+                break;
+        }
+
+        int idx = 0;
+        for (int i = 0; i < set1.fields.Length; i++)
+        {
+            if (set1.fields[i] == mergeSet.makeOverField)
+                continue;
+
+            mergeSet.fields[idx] = set1.fields[i];
+            idx++;
+        }
+
+        for (int i = 0; i < set2.fields.Length; i++)
+        {
+            if (set2.fields[i] == mergeSet.makeOverField)
+                continue;
+
+            mergeSet.fields[idx] = set2.fields[i];
+            idx++;
+        }
+
+        crossSpecialSet.Add(mergeSet);
     }
     #endregion
 

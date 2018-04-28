@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 
-
 public interface iBlock
 {
     Block self { get; }
