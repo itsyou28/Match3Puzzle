@@ -29,4 +29,13 @@ public class UI_BtnEvent_ForFSM : MonoBehaviour
         FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_SELECT_4);
     }
 
+    public void ApplicationExit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit(); 
+#endif
+
+    }
 }

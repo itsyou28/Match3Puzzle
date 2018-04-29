@@ -123,6 +123,10 @@ namespace FiniteStateMachine
         GAMEOVER,
         ESCAPE,
         SKIP,
+        NEXT,
+
+        MAIN_TO_STAGE = 100,
+        MAIN_TO_EDITOR,
     }
 
 

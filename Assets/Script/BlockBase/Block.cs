@@ -173,7 +173,7 @@ public class Block : iBlock, iBlockForGO
 
     public void MoveToNextField()
     {
-        //이동중에 호출 받았을 때 next필드가 변경되서 블럭위치가 튀거나 이상한 움직임을 보이지 않도록 블럭해야 한다. 
+        //이동중에 호출 받았을 때 next필드가 변경되서 블럭위치가 튀거나 이상한 움직임을 보이지 않도록 막아야 한다. 
         //Debug.Log("MoveToNextField");
         if (eState != BlockState.Ready)
             return;

@@ -66,7 +66,15 @@ public class StageManager : MonoBehaviour, iStage
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_ToEditor);
         tstate.EventStart += OnStart_ToEditor;
 
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_BackToMain);
+        tstate.EventStart += OnStart_BackToMain;
+
         BlockMng.Inst.AllReady += OnAllReady;
+    }
+
+    private void OnStart_BackToMain(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        CleanUpStage();
     }
 
     private void OnAllReady()
@@ -76,10 +84,7 @@ public class StageManager : MonoBehaviour, iStage
 
     private void OnStart_ToEditor(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
-        StopAllCoroutines();
-        this.enabled = false;
-        fieldMng.CleanUp();
-        fieldMng = null;
+        CleanUpStage();
     }
 
     private void OnStart_FromEditor(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
@@ -105,15 +110,29 @@ public class StageManager : MonoBehaviour, iStage
             InitStage(curStageName);
         }
     }
-    
+
     void InitStage(string stageName)
     {
+        CleanUpStage();
+
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.DeployBlock();
         BroadcastMessage("ActiveField", false, SendMessageOptions.DontRequireReceiver);
         this.enabled = true;
     }
 
+
+    private void CleanUpStage()
+    {
+        StopAllCoroutines();
+        this.enabled = false;
+
+        if (fieldMng != null)
+        {
+            fieldMng.CleanUp();
+            fieldMng = null;
+        }
+    }
 
     public void SwapBlock(BlockField select, BlockField target)
     {

@@ -46,10 +46,10 @@ public class FSM_Manager : MonoBehaviour
 
         FSM_Layer.Inst.RegisterEventChangeLayerState(FSM_LAYER_ID.UserStory, OnChangeUserStory);
     }
-
+    
     private void OnResume_US_BackToMain(STATE_ID stateID)
     {
-        FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
+        //FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
     }
 
     private void Start()
@@ -70,9 +70,13 @@ public class FSM_Manager : MonoBehaviour
         {
             case STATE_ID.Main_Editor:
                 FSM_Layer.Inst.ChangeFSM(FSM_LAYER_ID.UserStory, FSM_ID.Editor);
+                if (transId == TRANS_ID.MAIN_TO_EDITOR)
+                    editor.SetTrigger(TRANS_PARAM_ID.TRIGGER_RESET);
                 break;
             case STATE_ID.Main_Stage:
                 FSM_Layer.Inst.ChangeFSM(FSM_LAYER_ID.UserStory, FSM_ID.Stage);
+                if (transId == TRANS_ID.MAIN_TO_STAGE)
+                    stage.SetTrigger(TRANS_PARAM_ID.TRIGGER_RESET);
                 break;
             case STATE_ID.Editor_ToStage:
                 FSM_Layer.Inst.ChangeFSM(FSM_LAYER_ID.UserStory, FSM_ID.Main);
