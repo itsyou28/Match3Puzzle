@@ -51,7 +51,7 @@ public enum BlockState
 [Serializable]
 public class Block : iBlock, iBlockForGO
 {
-    public static BlockFieldManager fieldMng;
+    [NonSerialized] public static BlockFieldManager fieldMng;
 
     public int ID { get; set; }
     public Block self { get { return this; } }
@@ -61,9 +61,9 @@ public class Block : iBlock, iBlockForGO
 
     iBlockField curField;
 
-    [NonSerialized]
-    iBlockGO blockGO;
+    [NonSerialized] iBlockGO blockGO;
 
+    [field:NonSerialized]
     public event Action OnTransitionState;
 
     int blockType;

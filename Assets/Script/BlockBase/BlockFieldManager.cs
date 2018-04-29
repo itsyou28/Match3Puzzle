@@ -81,8 +81,8 @@ public class BlockFieldManager
     {
         rowArrLastIdx = fields.GetLength(0) - 1;
         colArrLastIdx = fields.GetLength(1) - 1;
-        RowLength = rowArrLastIdx - 1;
-        ColLength = colArrLastIdx - 1;
+        RowLength = fields.GetLength(0) - 2;
+        ColLength = fields.GetLength(1) - 2;
         lastRow = RowLength;
         lastCol = ColLength;
 
@@ -180,7 +180,7 @@ public class BlockFieldManager
             row = UnityEngine.Random.Range(1, lastRow);
             col = UnityEngine.Random.Range(1, lastCol);
 
-            SwapBlock(field, fields[row, col], null);
+            SwapBlock(field, fields[row, col]);
         }
     }
 
@@ -210,11 +210,13 @@ public class BlockFieldManager
 
     bool swaping1 = false;
     bool swaping2 = false;
-    public void SwapBlock(BlockField selected, BlockField target, Action callback)
+    public void SwapBlock(BlockField selected, BlockField target)
     {
+        if (selected == null || selected.block == null || target == null || target.block == null)
+            return;
+
         swaping1 = false;
         swaping2 = false;
-        swapCallback = callback;
         selected.block.SwapMove(target, () => { swaping1 = true; SwapResult(); });
         target.block.SwapMove(selected, () => { swaping2 = true; SwapResult(); });
 
@@ -230,11 +232,14 @@ public class BlockFieldManager
         swapField[1] = target;
     }
 
-    Action swapCallback;
     void SwapResult()
     {
-        if (swaping1 && swaping2 && swapCallback != null)
-            swapCallback();
+        if (swaping1 && swaping2)
+
+        {
+            if (FindMatch())
+                ExcuteMatch();
+        }
     }
 
     public bool ValidateField()
@@ -288,7 +293,7 @@ public class BlockFieldManager
 
         CheckCrossMatchSet();
 
-        if (rowMatchedSet.Count + colMatchedSet.Count + rowSpecialSet.Count + colSpecialSet.Count + crossSpecialSet.Count> 0)
+        if (rowMatchedSet.Count + colMatchedSet.Count + rowSpecialSet.Count + colSpecialSet.Count + crossSpecialSet.Count > 0)
             return true;
 
         return false;
@@ -585,6 +590,7 @@ public class BlockFieldManager
                     set.blockType = 10;
                 break;
             case 4:
+            default:
                 set.blockType = 11;
                 break;
         }
@@ -633,7 +639,7 @@ public class BlockFieldManager
         //특수매칭 리스트 전체 순회를 돌며 세트간에 교차필드가 있는지 검사한다. 
         //교차필드가 있을 경우 두 세트를 하나로 병합한다. 
         //병합 세트를 크로스 세트 리스트에 삽입하고 기존 세트를 기존 리스트에서 제거한다. 
-        
+
         CompareList(ref rowMatchedSet, ref colMatchedSet);
         CompareList(ref rowMatchedSet, ref colSpecialSet);
         CompareList(ref rowSpecialSet, ref colMatchedSet);
@@ -678,7 +684,7 @@ public class BlockFieldManager
                         }
                     }
                 }
-            } 
+            }
         }
 
         makeOverField = null;
@@ -693,7 +699,7 @@ public class BlockFieldManager
         mergeSet.makeOverField = crossField;
         mergeSet.fields = new BlockField[set1.fields.Length + set2.fields.Length - 2];
 
-        switch(mergeSet.fields.Length)
+        switch (mergeSet.fields.Length)
         {
             case 4:
             case 5:

@@ -63,10 +63,14 @@ public class BlockMng : iPool<iBlock>
 
 
     public event Action AllReady;
+    public bool IsIngame { get; set; }
     public bool IsAllReady { get; private set; }
 
     public void UpdateAllReady()
     {
+        if (!IsIngame)
+            return;
+
         bool isReady = true;
 
         foreach(var p in activeBlock)

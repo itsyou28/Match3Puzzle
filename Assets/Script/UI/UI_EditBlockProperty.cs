@@ -6,7 +6,7 @@ public class UI_EditBlockProperty : UI_CircleMenu
     protected override void ChildAwake()
     {
         radius = 200;
-        maxNumber = 9;
+        maxNumber = 12;
     }
 
 
@@ -22,7 +22,7 @@ public class UI_EditBlockProperty : UI_CircleMenu
             });
         t.GetComponentInChildren<Text>().text = "SetRandom";
 
-        for (int i = 1; i < 9; i++)
+        for (int i = 1; i < maxNumber; i++)
         {
             int blockType = i;
             t = transform.GetChild(i);

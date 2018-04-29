@@ -69,6 +69,32 @@ public class StageManager : MonoBehaviour, iStage
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_BackToMain);
         tstate.EventStart += OnStart_BackToMain;
 
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Main, STATE_ID.Main_Stage);
+        tstate.EventStart += OnStart_Main_Stage;
+        tstate.EventEnd += OnEnd_Main_Stage;
+
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_Play);
+        tstate.EventStart += OnStart_Stage_Play;
+        tstate.EventEnd += OnEnd_Stage_Play;
+    }
+
+    private void OnEnd_Stage_Play(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        BlockMng.Inst.IsIngame = false;
+    }
+
+    private void OnStart_Stage_Play(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        BlockMng.Inst.IsIngame = true;
+    }
+
+    private void OnEnd_Main_Stage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        BlockMng.Inst.AllReady -= OnAllReady;
+    }
+
+    private void OnStart_Main_Stage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
         BlockMng.Inst.AllReady += OnAllReady;
     }
 
@@ -137,11 +163,7 @@ public class StageManager : MonoBehaviour, iStage
 
     public void SwapBlock(BlockField select, BlockField target)
     {
-        fieldMng.SwapBlock(select, target,
-            () =>
-            {
-                Match();
-            });
+        fieldMng.SwapBlock(select, target);
     }
 
     public void Match()

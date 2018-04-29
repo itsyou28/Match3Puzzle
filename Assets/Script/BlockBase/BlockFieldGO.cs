@@ -70,9 +70,9 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
                 break;
         }
 
-        DispEmptyMarker();
+        //DispEmptyMarker();
         DispCreateMarker();
-        DispDeadlinMarker();
+        //DispDeadlinMarker();
     }
 
     public void PushBack()
@@ -182,7 +182,7 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
 
     void UpdateEditorMode()
     {
-        DispEmptyMarker();
+        //DispEmptyMarker();
     }
 
     void UpdatePlayMode()
@@ -190,7 +190,7 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
         if (Field != null && Field.IsPlayable)
             Field.Update();
 
-        DispEmptyMarker();
+        //DispEmptyMarker();
     }
 
     void UpdateEmpty()

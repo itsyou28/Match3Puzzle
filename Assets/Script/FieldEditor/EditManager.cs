@@ -78,6 +78,7 @@ public class EditManager : MonoBehaviour, iEditManager
 
     private void OnStart_BackToMain(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
+        FieldSave();
         CleanUp();
     }
 

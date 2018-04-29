@@ -24,7 +24,7 @@ public interface iBlockField
 [Serializable]
 public class BlockField : iBlockField
 {
-    public static BlockFieldManager fieldMng;
+    [NonSerialized] public static BlockFieldManager fieldMng;
 
     public iBlock block;
     public int BlockType { get { return block == null ? -1 : block.BlockType; } }
@@ -78,7 +78,7 @@ public class BlockField : iBlockField
         SetDirection(0);
 
         X = Col;
-        Y = fieldMng.RowLength - Row + 1;
+        Y = fieldMng.RowLength - Row;
 
         string log = "Initialize // " + X + " " + Y;
         if (next != null)
