@@ -270,6 +270,21 @@ public class BlockField : iBlockField
             blockFieldGO.SetBlockField(this);
         }
     }
+
+    public bool IsActive { get { return isActive; } }
+    bool isActive = false;
+
+    public void Active(bool bIsEditMode)
+    {
+        isActive = true;
+        blockFieldGO.Active(bIsEditMode);
+    }
+
+    public void Deactive()
+    {
+        isActive = false;
+    }
+
     // call by blockFieldGO.FixedUpdate()
     public void Update()
     {
@@ -278,12 +293,7 @@ public class BlockField : iBlockField
             if (!prev.isEmpty)
             {
                 prev.block.MoveToNextField();
-                //Debug.Log(X + " " + Y + " // prev : " + prev.X + " " + prev.Y);
             }
-            //else if (!next.isEmpty || !next.IsMoveable)
-            //{
-            //    DiagnalProcess();
-            //}
         }
     }
 
@@ -332,7 +342,9 @@ public class BlockField : iBlockField
     public void OnPushbackBlock()
     {
         BlockMng.Pool.Push(block);
-        SetBlock(null);
+
+        if (isActive)
+            SetBlock(null);
     }
 
     //진입방향이 2개이상일 경우 블록이 지날 때마다 진입방향을 변경한다. 
@@ -362,8 +374,6 @@ public class BlockField : iBlockField
         if (isCreateField && block == null)
         {
             block = BlockMng.Pool.Pop();
-            if (block == null)
-                Debug.LogError("block is null");
             block.ResetRand(this, 6);
         }
         else if (block == null)

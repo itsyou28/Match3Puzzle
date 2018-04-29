@@ -6,6 +6,7 @@ public interface iBlockFieldGO
     void SetBlockField(BlockField field);
     void ChangeFieldProperty();
     void PushBack();
+    void Active(bool bMode);
 }
 
 public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
@@ -26,7 +27,7 @@ public class BlockFieldGO : MonoBehaviour, iBlockFieldGO
         curUpdate = UpdateEmpty;
     }
 
-    public void ActiveField(bool isEditMode)
+    public void Active(bool isEditMode)
     {
         if (isEditMode)
         {
@@ -206,6 +207,10 @@ public class BlockFieldGODummy : iBlockFieldGO
     {
     }
     public void PushBack()
+    {
+    }
+
+    public void Active(bool bMode)
     {
     }
 }

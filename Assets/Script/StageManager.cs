@@ -117,7 +117,7 @@ public class StageManager : MonoBehaviour, iStage
 
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.DeployBlock();
-        BroadcastMessage("ActiveField", false, SendMessageOptions.DontRequireReceiver);
+        fieldMng.ActiveFields(false);
         this.enabled = true;
     }
 
@@ -129,6 +129,7 @@ public class StageManager : MonoBehaviour, iStage
 
         if (fieldMng != null)
         {
+            fieldMng.DeactiveFields();
             fieldMng.CleanUp();
             fieldMng = null;
         }

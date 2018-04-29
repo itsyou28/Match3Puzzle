@@ -154,12 +154,28 @@ public class BlockFieldManager
         }
     }
 
+    public void ActiveFields(bool isEditMode)
+    {
+        foreach (var field in Fields())
+        {
+            field.Active(isEditMode);
+        }
+    }
+
+    public void DeactiveFields()
+    {
+        foreach (var field in Fields())
+        {
+            field.Deactive();
+        }
+    }
+
     public void Shuffle()
     {
         int row, col;
 
         //모든 블럭을 한 번씩 랜덤한 위치의 블럭과 교환한다. 
-        foreach (var field in GetField())
+        foreach (var field in Fields())
         {
             row = UnityEngine.Random.Range(1, lastRow);
             col = UnityEngine.Random.Range(1, lastCol);
@@ -172,7 +188,7 @@ public class BlockFieldManager
 
     List<BlockField> movedLineList = new List<BlockField>();
 
-    public IEnumerable<BlockField> GetField()
+    public IEnumerable<BlockField> Fields()
     {
         for (int i = 1; i <= lastRow; i++)
         {
@@ -224,7 +240,7 @@ public class BlockFieldManager
     public bool ValidateField()
     {
         bool result = true;
-        foreach (var field in GetField())
+        foreach (var field in Fields())
         {
             result &= field.ValidateField();
         }
@@ -235,14 +251,14 @@ public class BlockFieldManager
     public void SetFieldRelationInfo()
     {
         //모든 필드의 상호의존정보를 일괄 업데이트 한다. 
-        foreach (var field in GetField())
+        foreach (var field in Fields())
         {
             field.IsDeadline = true;
             field.SetPrevArray();
         }
 
         //생성필드만 검색해서 해당 라인의 deadline 속성을 변경한다. 
-        foreach (var field in GetField())
+        foreach (var field in Fields())
         {
             if (field.IsCreateField)
                 field.SetDeadline(false);
@@ -332,7 +348,7 @@ public class BlockFieldManager
     {
         bool result = true;
 
-        foreach (var field in GetField())
+        foreach (var field in Fields())
         {
             result &= !field.IsEmpty;
         }
