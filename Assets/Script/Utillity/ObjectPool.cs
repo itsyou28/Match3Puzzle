@@ -54,7 +54,10 @@ public class ObjectPool<T> : iPool<T>
 
     public void Push(T obj)
     {
-        m_stackObjectPool.Push(obj);
+        if (obj == null)
+            Debug.LogError("push null obj");
+        else
+            m_stackObjectPool.Push(obj);
     }
 
     public virtual void Destroy()
