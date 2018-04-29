@@ -8,11 +8,11 @@ public class UI_CreateStage : MonoBehaviour
 
     public void OnChangeStageName(string text)
     {
-        if (text.Length >= 11)
+        if (text.Length >= 21)
         {
-            newStageName.text = text.Remove(10);
+            newStageName.text = text.Remove(20);
 
-            EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.POPUP, "Warning", "스테이지 명은 10글자 이하로 해주세요", 0);
+            EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.POPUP, "Warning", "스테이지 명은 20글자 이하로 해주세요", 0);
         }
     }
 

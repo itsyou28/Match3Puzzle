@@ -445,6 +445,8 @@ public class BlockField : iBlockField
     //좌우필드의 대각이동 필요 여부를 검사한다
     bool CheckDiagnalMove(BlockField target)
     {
+        if (!target.IsPlayable)
+            return false;
         if (!target.isEmpty)
             return false;
         if (!target.isDeadline)
