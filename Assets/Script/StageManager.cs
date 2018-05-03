@@ -6,8 +6,10 @@ public interface iStage
 {
     void SwapBlock(BlockField selectField, BlockField targetField);
     void Match();
-    void SkillEffect_Sero(BlockField targetField);
-    void SkillEffect_Garo(BlockField targetField);
+    void Skill_Line(BlockField targetField, bool isRow);
+    void Skill_SmallBomb(BlockField targetField);
+    void Skill_MiddleBomb(BlockField targetField);
+    void Skill_BigBomb(BlockField targetField);
 }
 
 public class DummyStageManager : iStage
@@ -22,10 +24,19 @@ public class DummyStageManager : iStage
         Debug.LogWarning("Dummy CheckMatch");
     }
 
-    public void SkillEffect_Sero(BlockField targetField)
+    public void Skill_Line(BlockField targetField, bool isRow)
     {
     }
-    public void SkillEffect_Garo(BlockField targetField)
+
+    public void Skill_SmallBomb(BlockField targetField)
+    {
+    }
+
+    public void Skill_MiddleBomb(BlockField targetField)
+    {
+    }
+
+    public void Skill_BigBomb(BlockField targetField)
     {
     }
 }
@@ -172,13 +183,26 @@ public class StageManager : MonoBehaviour, iStage
             fieldMng.ExcuteMatch();
     }
 
-    public void SkillEffect_Sero(BlockField field)
+    public void Skill_Line(BlockField field, bool isRow)
     {
-        StartCoroutine(fieldMng.SkillEffect_Sero(field));
+        if (isRow)
+            StartCoroutine(fieldMng.Skill_LineGaro(field));
+        else
+            StartCoroutine(fieldMng.Skill_LineSero(field));
     }
 
-    public void SkillEffect_Garo(BlockField field)
+    public void Skill_SmallBomb(BlockField field)
     {
-        StartCoroutine(fieldMng.SkillEffect_Garo(field));
+        StartCoroutine(fieldMng.Skill_SmallBomb(field));
+    }
+
+    public void Skill_MiddleBomb(BlockField field)
+    {
+        StartCoroutine(fieldMng.Skill_MiddleBomb(field));
+    }
+
+    public void Skill_BigBomb(BlockField field)
+    {
+        StartCoroutine(fieldMng.Skill_BigBomb(field));
     }
 }
