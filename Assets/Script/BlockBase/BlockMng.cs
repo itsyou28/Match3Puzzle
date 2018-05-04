@@ -33,10 +33,19 @@ public class BlockMng : iPool<iBlock>
 
     Bindable<bool> bindAllReady;
 
+    const int maxTypeNum = 15;
+    const int maxArrSize = maxTypeNum + 1;
+    Bindable<int>[] arrBindMatchCount = new Bindable<int>[maxArrSize];
+
     private BlockMng()
     {
         pool = new ObjectPool<iBlock>(100, 20, CreateBlock);
         bindAllReady = BindRepo.Inst.GetBindedData(B_Bind_Idx.BLOCK_ALL_READY);
+
+        for (int i = 0; i < maxArrSize; i++)
+        {
+            arrBindMatchCount[i] = BindRepo.Inst.GetBindedData(N_Bind_Idx.MATCHCOUNT_BLOCKTYPE_START_IDX + i);
+        }
     }
 
     iBlock CreateBlock()
@@ -89,4 +98,16 @@ public class BlockMng : iPool<iBlock>
             AllReady();
     }
 
+    public void MatchCount(int blockType)
+    {
+        arrBindMatchCount[blockType].Value += 1;
+    }
+
+    public void ResetMatchCount()
+    {
+        for (int i = 0; i < maxArrSize; i++)
+        {
+            arrBindMatchCount[i].Value = 0;
+        }
+    }
 }

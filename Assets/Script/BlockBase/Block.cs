@@ -142,7 +142,7 @@ public class Block : iBlock, iBlockForGO
 
     public void SetBlockType(int blockType)
     {
-        if (blockType < 1 || blockType > 12)
+        if (blockType < 1 || blockType > 15)
             Debug.LogError("type error " + blockType);
 
         this.blockType = blockType;
@@ -174,19 +174,19 @@ public class Block : iBlock, iBlockForGO
     {
         switch (blockType)
         {
-            case 6:
+            case GlobalVal.BLOCKTYPE_SKILL_GARO:
                 StageManager.i.Skill_Line(curField.self, true);
                 break;
-            case 7:
+            case GlobalVal.BLOCKTYPE_SKILL_SERO:
                 StageManager.i.Skill_Line(curField.self, false);
                 break;
-            case 8:
+            case GlobalVal.BLOCKTYPE_SKILL_SMALLBOMB:
                 StageManager.i.Skill_SmallBomb(curField.self);
                 break;
-            case 9:
+            case GlobalVal.BLOCKTYPE_SKILL_MIDDLEBOMB:
                 StageManager.i.Skill_MiddleBomb(curField.self);
                 break;
-            case 10:
+            case GlobalVal.BLOCKTYPE_SKILL_BIGBOMB:
                 StageManager.i.Skill_BigBomb(curField.self);
                 break;
         }
@@ -197,6 +197,9 @@ public class Block : iBlock, iBlockForGO
         //이동중에 호출 받았을 때 next필드가 변경되서 블럭위치가 튀거나 이상한 움직임을 보이지 않도록 막아야 한다. 
         //Debug.Log("MoveToNextField");
         if (eState != BlockState.Ready)
+            return;
+
+        if (blockType == GlobalVal.BLOCKTYPE_BOX)
             return;
 
         if (curField.next.IsPlayable && curField.next.IsEmpty)
@@ -230,6 +233,8 @@ public class Block : iBlock, iBlockForGO
 
     private void MoveToTargetField(BlockField target)
     {
+        if (blockType == GlobalVal.BLOCKTYPE_BOX)
+            Debug.Log("Hmmmm");
         curField.SetBlock(null);
         SetField(target);
         curField.SetBlock(this);
@@ -239,10 +244,19 @@ public class Block : iBlock, iBlockForGO
 
     public void Match()
     {
+        if (blockType == GlobalVal.BLOCKTYPE_MOVEONLY)
+            return;
+
         if (eState != BlockState.MatchingGlow)
             ExcuteSkill(blockType);
 
         TransitionState(BlockState.MatchingGlow);
+        BlockMng.Inst.MatchCount(blockType);
+    }
+
+    public void ArriveGoalField()
+    {
+        Debug.LogWarning("Block arrive goal field");
     }
 
     public void MakeOver(int blockType)

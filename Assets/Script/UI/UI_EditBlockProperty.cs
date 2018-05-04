@@ -6,7 +6,7 @@ public class UI_EditBlockProperty : UI_CircleMenu
     protected override void ChildAwake()
     {
         radius = 200;
-        maxNumber = 12;
+        maxNumber = 16;
     }
 
 

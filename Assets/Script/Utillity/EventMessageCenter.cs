@@ -110,6 +110,7 @@ public enum EMC_CODE
     CREATE_STAGE, //string stageName
     EDITORMODE_POINTER_DOWN, //Vector3 pos
     EDITORMODE_POINTER_UP, //Vector3 pos
+    STAGE_CLEAR,
 }
 
 public class EMC_MAIN : EMC<EMC_CODE>

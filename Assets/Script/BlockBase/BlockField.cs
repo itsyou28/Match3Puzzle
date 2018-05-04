@@ -186,7 +186,7 @@ public class BlockField : iBlockField
 
     public void SetDeadline(bool isDeadline)
     {
-        BlockField field = this;
+        BlockField field = next;
 
         while (field.isMoveable)
         {
@@ -306,6 +306,11 @@ public class BlockField : iBlockField
         else
             isMoveable = true;
 
+        if (block != null && block.BlockType == GlobalVal.BLOCKTYPE_BOX)
+            isMoveable = false;
+        else
+            isMoveable = true;
+
         SetDeadline(!isMoveable);
     }
 
@@ -387,6 +392,8 @@ public class BlockField : iBlockField
         }
 
         this.block = block;
+
+        SetMoveable();
     }
 
     public void Match()

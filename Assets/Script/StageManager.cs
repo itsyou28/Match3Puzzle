@@ -61,6 +61,7 @@ public class StageManager : MonoBehaviour, iStage
     }
 
     BlockFieldManager fieldMng;
+    ClearChecker clearChecker;
 
     string curStageName;
 
@@ -152,6 +153,8 @@ public class StageManager : MonoBehaviour, iStage
     {
         CleanUpStage();
 
+        clearChecker = new ClearChecker(stageName);
+
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.DeployBlock();
         fieldMng.ActiveFields(false);
@@ -163,6 +166,11 @@ public class StageManager : MonoBehaviour, iStage
     {
         StopAllCoroutines();
         this.enabled = false;
+
+        if(clearChecker != null)
+        {
+            clearChecker.CleanUp();
+        }
 
         if (fieldMng != null)
         {

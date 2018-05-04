@@ -60,7 +60,7 @@ public class BlockFieldManager
     {
         FieldName = fieldFileName;
 
-        fields = DataManager.Inst.stageData.LoadStage(fieldFileName);
+        fields = DataManager.Inst.stageData.LoadStageFields(fieldFileName);
 
         Initialize();
 
@@ -75,7 +75,7 @@ public class BlockFieldManager
 
     public void SaveFields()
     {
-        DataManager.Inst.stageData.SaveStage(FieldName, fields);
+        DataManager.Inst.stageData.SaveStageFields(FieldName, fields);
     }
 
     void Initialize()
@@ -613,9 +613,12 @@ public class BlockFieldManager
             while (r <= rLimit)
             {
                 //l과 r이 동일할 경우 r을 1씩 증가시켜서 동일한 블럭 개수를 카운트한다. 
-                if (r < rLimit &&
-                    GetFieldFlip(line, r, isRow).IsPlayable && GetFieldFlip(line, r, isRow).BlockType > 0 &&
-                    GetFieldFlip(line, l, isRow).BlockType == GetFieldFlip(line, r, isRow).BlockType)
+                BlockField fieldR = GetFieldFlip(line, r, isRow);
+
+                if (r < rLimit && fieldR.IsPlayable && 
+                    fieldR.BlockType >= GlobalVal.BLOCKTYPE_NORMAL__MIN && 
+                    fieldR.BlockType <= GlobalVal.BLOCKTYPE_NORMAL_MAX &&
+                    GetFieldFlip(line, l, isRow).BlockType == fieldR.BlockType)
                 {
                     cnt++;
                 }
@@ -660,13 +663,13 @@ public class BlockFieldManager
         {
             case 3:
                 if (isRow)
-                    set.specialType = 6;
+                    set.specialType = GlobalVal.BLOCKTYPE_SKILL_SERO;
                 else
-                    set.specialType = 7;
+                    set.specialType = GlobalVal.BLOCKTYPE_SKILL_SERO;
                 break;
             case 4:
             default:
-                set.specialType = 8;
+                set.specialType = GlobalVal.BLOCKTYPE_SKILL_MIDDLEBOMB;
                 break;
         }
 
@@ -816,14 +819,14 @@ public class BlockFieldManager
         switch (mergeSet.fields.Length)
         {
             case 4:
-                mergeSet.specialType = 8;
+                mergeSet.specialType = GlobalVal.BLOCKTYPE_SKILL_SMALLBOMB;
                 break;
             case 5:
-                mergeSet.specialType = 9;
+                mergeSet.specialType = GlobalVal.BLOCKTYPE_SKILL_MIDDLEBOMB;
                 break;
             case 6:
             default:
-                mergeSet.specialType = 10;
+                mergeSet.specialType = GlobalVal.BLOCKTYPE_SKILL_BIGBOMB;
                 break;
         }
                 
