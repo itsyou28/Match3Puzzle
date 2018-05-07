@@ -616,7 +616,7 @@ public class BlockFieldManager
                 BlockField fieldR = GetFieldFlip(line, r, isRow);
 
                 if (r < rLimit && fieldR.IsPlayable && 
-                    fieldR.BlockType >= GlobalVal.BLOCKTYPE_NORMAL__MIN && 
+                    fieldR.BlockType >= GlobalVal.BLOCKTYPE_NORMAL_MIN && 
                     fieldR.BlockType <= GlobalVal.BLOCKTYPE_NORMAL_MAX &&
                     GetFieldFlip(line, l, isRow).BlockType == fieldR.BlockType)
                 {

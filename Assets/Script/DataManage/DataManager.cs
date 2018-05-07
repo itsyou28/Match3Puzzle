@@ -23,31 +23,31 @@ class DataManager
     
     public StageData stageData;
 
-    iDataFile[] arriData;
+    iDataFile[] arrIData;
 
     private DataManager()
     {
         stageData = new StageData();
 
-        arriData = new iDataFile[1];
-        arriData[0] = stageData;
+        arrIData = new iDataFile[1];
+        arrIData[0] = stageData;
 
         Load();
     }
 
     public void Load()
     {
-        for (int i = 0; i < arriData.Length; i++)
+        for (int i = 0; i < arrIData.Length; i++)
         {
-            arriData[i].Load();
+            arrIData[i].Load();
         }
     }
 
     public void Save()
     {
-        for (int i = 0; i < arriData.Length; i++)
+        for (int i = 0; i < arrIData.Length; i++)
         {
-            arriData[i].Save();
+            arrIData[i].Save();
         }
     }
 }

@@ -22,6 +22,7 @@ public interface iBlock
 
 public interface iBlockForGO
 {
+    int ID { get; }
     BlockState eState { get; }
     int BlockType { get; }
     event Action OnTransitionState;
@@ -251,7 +252,6 @@ public class Block : iBlock, iBlockForGO
             ExcuteSkill(blockType);
 
         TransitionState(BlockState.MatchingGlow);
-        BlockMng.Inst.MatchCount(blockType);
     }
 
     public void ArriveGoalField()
@@ -261,6 +261,7 @@ public class Block : iBlock, iBlockForGO
 
     public void MakeOver(int blockType)
     {
+        BlockMng.Inst.MatchCount(this.blockType);
         SetBlockType(blockType);
         TransitionState(BlockState.MakeOver);
     }
@@ -279,6 +280,8 @@ public class Block : iBlock, iBlockForGO
             blockGO = null;
         }
 
+        OnTransitionState = null;
+
         eState = BlockState.InPool;
         curField.OnPushbackBlock();
     }
@@ -294,6 +297,10 @@ public class Block : iBlock, iBlockForGO
                 break;
             case BlockState.Pushback:
                 CleanUp();
+                break;
+            case BlockState.MatchingDissolve:
+            case BlockState.MakeOverDissolve:
+                BlockMng.Inst.MatchCount(blockType);
                 break;
         }
 

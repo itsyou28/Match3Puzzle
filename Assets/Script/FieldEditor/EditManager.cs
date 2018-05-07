@@ -21,6 +21,10 @@ public interface iEditManager
 
 public class DummyEditManager : iEditManager
 {
+    public DummyEditManager()
+    {
+        Debug.LogWarning("Create DummyEdit Manager");
+    }
     public void AddMarker(Collider col) { }
     public void RemoveMarker(Collider col) { }
     public void SetPlayable() { }

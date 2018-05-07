@@ -36,9 +36,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     private void SetSprite()
     {
-        if (block.BlockType < 1 || block.BlockType > 15)
-            Debug.LogError("blockType Error " + block.BlockType);
-        sprite.sprite = BlockGOPool.Inst.arrBlockSprite[block.BlockType - 1];
+        sprite.sprite = BlockGOPool.Inst.GetBlockSprite(block.BlockType);
     }
 
     private void OnTransitionBlockState()

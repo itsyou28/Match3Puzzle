@@ -10,6 +10,7 @@ public interface iStage
     void Skill_SmallBomb(BlockField targetField);
     void Skill_MiddleBomb(BlockField targetField);
     void Skill_BigBomb(BlockField targetField);
+    iClearChecker ClearChecker { get; }
 }
 
 public class DummyStageManager : iStage
@@ -39,6 +40,8 @@ public class DummyStageManager : iStage
     public void Skill_BigBomb(BlockField targetField)
     {
     }
+
+    public iClearChecker ClearChecker{ get { return null; } }
 }
 
 public class StageManager : MonoBehaviour, iStage
@@ -59,6 +62,8 @@ public class StageManager : MonoBehaviour, iStage
             return instance;
         }
     }
+
+    public iClearChecker ClearChecker { get { return clearChecker; } }
 
     BlockFieldManager fieldMng;
     ClearChecker clearChecker;
@@ -85,9 +90,17 @@ public class StageManager : MonoBehaviour, iStage
         tstate.EventStart += OnStart_Main_Stage;
         tstate.EventEnd += OnEnd_Main_Stage;
 
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_Intro);
+        tstate.EventStart_Before += OnStartBefore_Stage_Intro;
+
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_Play);
         tstate.EventStart += OnStart_Stage_Play;
         tstate.EventEnd += OnEnd_Stage_Play;
+    }
+
+    private void OnStartBefore_Stage_Intro(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        BlockMng.Inst.ResetMatchCount();
     }
 
     private void OnEnd_Stage_Play(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)

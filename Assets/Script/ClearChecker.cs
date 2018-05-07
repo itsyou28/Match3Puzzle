@@ -1,12 +1,20 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
-public struct ClearCondition
+[System.Serializable]
+public class ClearCondition
 {
-    public int blockType;
+    public int clearIdx;
     public int requireCnt;
 }
 
-public class ClearChecker
+public interface iClearChecker
+{
+    bool IsEnable { get; }
+    IEnumerable<ClearCondition> GetCondition();
+}
+
+public class ClearChecker : iClearChecker
 {
     //드디어 클리어 조건 컨트롤
     //클리어 조건은 2개이상일 수 있다
@@ -21,6 +29,17 @@ public class ClearChecker
 
     ClearCondition[] conditions;
     Bindable<int>[] arrBindCnt;
+
+    public bool IsEnable
+    {
+        get
+        {
+            if (conditions != null)
+                return true;
+
+            return false;
+        }
+    }
 
     public ClearChecker(string stageName)
     {
@@ -37,9 +56,17 @@ public class ClearChecker
         for (int i = 0; i < conditions.Length; i++)
         {
             arrBindCnt[i] = BindRepo.Inst.GetBindedData(
-                 (N_Bind_Idx.MATCHCOUNT_BLOCKTYPE_START_IDX + conditions[i].blockType));
+                 (N_Bind_Idx.MATCHCOUNT_BLOCKTYPE_START_IDX + conditions[i].clearIdx));
 
             arrBindCnt[i].valueChanged += OnChangeBlockCount;
+        }
+    }
+
+    public IEnumerable<ClearCondition> GetCondition()
+    {
+        for (int i = 0; i < conditions.Length; i++)
+        {
+            yield return conditions[i];
         }
     }
 
@@ -63,7 +90,10 @@ public class ClearChecker
         }
 
         if (isClear)
+        {
+            Debug.LogWarning("Stage Clear!!");
             EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.STAGE_CLEAR);
+        }
     }
 
 }

@@ -105,7 +105,7 @@ public class EMC<T>
 public enum EMC_CODE
 {
     POPUP=100, //0:titleText, 1:contentText, 2:btnType(0:OK 1:Yes,NO), 3:callback
-    DISP_MSG,
+    DISP_MSG, //string message
     SELECT_STAGE, //string stageName
     CREATE_STAGE, //string stageName
     EDITORMODE_POINTER_DOWN, //Vector3 pos

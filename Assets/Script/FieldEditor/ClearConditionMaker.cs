@@ -3,9 +3,8 @@ using UnityEngine;
 
 public interface iClearConditionMaker
 {
-    void AddCondition(int blockType);
-    void RemoveCondition(int blockType);
-    void SetCount(int blockType, int requierCnt);
+    ClearCondition AddCondition(int clearIdx);
+    void RemoveCondition(int clearIdx);
     IEnumerator<ClearCondition> GetEnumerator();
 }
 
@@ -15,29 +14,28 @@ public class ClearConditionMaker : iClearConditionMaker
 
     string stageName;
 
-    public void AddCondition(int blockType)
+    public ClearCondition AddCondition(int clearIdx)
     {
         ClearCondition newCond = new ClearCondition();
-        newCond.blockType = blockType;
+        newCond.clearIdx = clearIdx;
 
-        dic.Add(blockType, newCond);
+        if (dic.ContainsKey(clearIdx))
+        {
+            EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.DISP_MSG, "이미 추가된 조건입니다");
+            return null;
+        }
+                    
+        dic.Add(clearIdx, newCond);
+
+        return newCond;
     }
 
-    public void RemoveCondition(int blockType)
+    public void RemoveCondition(int clearIdx)
     {
-        if (dic.ContainsKey(blockType))
-            dic.Remove(blockType);
+        if (dic.ContainsKey(clearIdx))
+            dic.Remove(clearIdx);
     }
 
-    public void SetCount(int blockType, int requierCnt)
-    {
-        ClearCondition condition = new ClearCondition();
-        condition.blockType = blockType;
-        condition.requireCnt = requierCnt;
-
-        if (dic.ContainsKey(blockType))
-            dic[blockType] = condition;
-    }
 
     ClearCondition[] GetConditionArr()
     {
@@ -47,6 +45,15 @@ public class ClearConditionMaker : iClearConditionMaker
         foreach (var item in dic.Values)
         {
             result[idx] = item;
+            idx++;
+        }
+
+        Debug.LogWarning("GetConditionArr : " + result.Length);
+
+        for (int i = 0; i < result.Length; i++)
+        {
+            if (result[i] == null)
+                Debug.LogError("hmm");
         }
 
         return result;
@@ -59,6 +66,7 @@ public class ClearConditionMaker : iClearConditionMaker
 
     public void Init(string stageName)
     {
+        Debug.Log("Init Condition");
         this.stageName = stageName;
 
         ClearCondition[] conditions = DataManager.Inst.stageData.LoadStageClearCondition(stageName);
@@ -71,12 +79,13 @@ public class ClearConditionMaker : iClearConditionMaker
 
         for (int i = 0; i < conditions.Length; i++)
         {
-            dic.Add(conditions[i].blockType, conditions[i]);
+            dic.Add(conditions[i].clearIdx, conditions[i]);
         }
     }
 
     public void SaveConditions()
     {
+        Debug.Log("SaveCondtion");
         DataManager.Inst.stageData.SaveStageClearConditions(stageName, GetConditionArr());
     }
 }
