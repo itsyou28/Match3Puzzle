@@ -15,10 +15,16 @@ public interface iEditManager
     void SetBlockRandom();
     void SetBlockType(int blockType);
     void Validate();
+
+    iClearConditionMaker iClearCondition { get; }
 }
 
 public class DummyEditManager : iEditManager
 {
+    public DummyEditManager()
+    {
+        Debug.LogWarning("Create DummyEdit Manager");
+    }
     public void AddMarker(Collider col) { }
     public void RemoveMarker(Collider col) { }
     public void SetPlayable() { }
@@ -29,6 +35,7 @@ public class DummyEditManager : iEditManager
     public void SetBlockRandom() { }
     public void SetBlockType(int blockType) { }
     public void Validate() { }
+    public iClearConditionMaker iClearCondition { get { return new ClearConditionMaker(); } }
 }
 
 public class EditManager : MonoBehaviour, iEditManager
@@ -50,7 +57,10 @@ public class EditManager : MonoBehaviour, iEditManager
         }
     }
 
+    public iClearConditionMaker iClearCondition { get { return conditionMng; } }
+
     BlockFieldManager fieldMng;
+    ClearConditionMaker conditionMng;
 
     LinkedList<BlockField> selectedList = new LinkedList<BlockField>();
     LinkedList<Collider> markerList = new LinkedList<Collider>();
@@ -78,13 +88,13 @@ public class EditManager : MonoBehaviour, iEditManager
 
     private void OnStart_BackToMain(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
-        FieldSave();
+        StageSave();
         CleanUp();
     }
 
     private void OnStart_FromStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
-        InitFields(curStageName);
+        InitStage(curStageName);
 
         //fromStage -> Idle
         FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
@@ -92,7 +102,7 @@ public class EditManager : MonoBehaviour, iEditManager
 
     private void OnStart_ToStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
-        FieldSave();
+        StageSave();
         CleanUp();
     }
 
@@ -102,18 +112,21 @@ public class EditManager : MonoBehaviour, iEditManager
         if (fieldMng != null)
         {
             fieldMng.CleanUp();
-            fieldMng = null; 
+            fieldMng = null;
         }
     }
 
-    private void FieldSave()
+    private void StageSave()
     {
         if (fieldMng != null)
         {
             fieldMng.SetFieldRelationInfo();
             fieldMng.ValidateField();
-            fieldMng.SaveFields(); 
+            fieldMng.SaveFields();
         }
+
+        if (conditionMng != null)
+            conditionMng.SaveConditions();
     }
 
     void OnSelectStage(params object[] args)
@@ -128,7 +141,7 @@ public class EditManager : MonoBehaviour, iEditManager
 
         if (FSM_Layer.Inst.GetCurFSM(FSM_LAYER_ID.UserStory).fsmID == FSM_ID.Editor)
         {
-            InitFields(curStageName);
+            InitStage(curStageName);
         }
     }
 
@@ -154,8 +167,11 @@ public class EditManager : MonoBehaviour, iEditManager
         CircleMenuTurnOff();
     }
 
-    public void InitFields(string stageName)
+    public void InitStage(string stageName)
     {
+        conditionMng = new ClearConditionMaker();
+        conditionMng.Init(stageName);
+
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.EditorInitialize();
         BroadcastMessage("ActiveField", true, SendMessageOptions.DontRequireReceiver);

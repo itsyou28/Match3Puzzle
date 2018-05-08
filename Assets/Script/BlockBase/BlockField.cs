@@ -186,7 +186,10 @@ public class BlockField : iBlockField
 
     public void SetDeadline(bool isDeadline)
     {
-        BlockField field = this;
+        if (next == null)
+            return;
+
+        BlockField field = next;
 
         while (field.isMoveable)
         {
@@ -251,6 +254,7 @@ public class BlockField : iBlockField
         {
             block.CleanUp();
         }
+        block = null;
     }
 
     public void SetBlockType(int blockType)
@@ -306,13 +310,18 @@ public class BlockField : iBlockField
         else
             isMoveable = true;
 
+        if (block != null && block.BlockType == GlobalVal.BLOCKTYPE_BOX)
+            isMoveable = false;
+        else
+            isMoveable = true;
+
         SetDeadline(!isMoveable);
     }
 
     public void CreateBlock()
     {
         iBlock block = BlockMng.Pool.Pop();
-        block.ResetRand(this, 6);
+        block.ResetRand(this, fieldMng.BlockDifficulty);
         SetBlock(block);
     }
 
@@ -374,7 +383,7 @@ public class BlockField : iBlockField
         if (isCreateField && block == null)
         {
             block = BlockMng.Pool.Pop();
-            block.ResetRand(this, 6);
+            block.ResetRand(this, fieldMng.BlockDifficulty);
         }
         else if (block == null)
         {
@@ -387,6 +396,8 @@ public class BlockField : iBlockField
         }
 
         this.block = block;
+
+        SetMoveable();
     }
 
     public void Match()

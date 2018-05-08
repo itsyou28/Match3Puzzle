@@ -22,6 +22,7 @@ public interface iBlock
 
 public interface iBlockForGO
 {
+    int ID { get; }
     BlockState eState { get; }
     int BlockType { get; }
     event Action OnTransitionState;
@@ -63,7 +64,7 @@ public class Block : iBlock, iBlockForGO
 
     [NonSerialized] iBlockGO blockGO;
 
-    [field:NonSerialized]
+    [field: NonSerialized]
     public event Action OnTransitionState;
 
     int blockType;
@@ -75,7 +76,7 @@ public class Block : iBlock, iBlockForGO
     {
         eState = BlockState.InPool;
         SetField(field);
-        this.blockType = blockType;
+        SetBlockType(blockType);
     }
 
     #region Block Reset
@@ -85,7 +86,7 @@ public class Block : iBlock, iBlockForGO
         TransitionState(BlockState.Initializing);
 
         SetField(field);
-        this.blockType = blockType;
+        SetBlockType(blockType);
 
         DeployScreen();
     }
@@ -95,7 +96,8 @@ public class Block : iBlock, iBlockForGO
         TransitionState(BlockState.Initializing);
 
         SetField(field);
-        blockType = UnityEngine.Random.Range(1, randMax);
+
+        SetBlockType(UnityEngine.Random.Range(GlobalVal.BLOCKTYPE_NORMAL_MIN, randMax));
 
         DeployScreen();
     }
@@ -105,7 +107,8 @@ public class Block : iBlock, iBlockForGO
         TransitionState(BlockState.Initializing);
 
         SetField(field);
-        blockType = BK_Function.Random(1, randMax, blockType);
+
+        SetBlockType(BK_Function.Random(GlobalVal.BLOCKTYPE_NORMAL_MIN, randMax, blockType));
 
         DeployScreen();
     }
@@ -140,6 +143,9 @@ public class Block : iBlock, iBlockForGO
 
     public void SetBlockType(int blockType)
     {
+        if (blockType < 1 || blockType > 15)
+            Debug.LogError("type error " + blockType);
+
         this.blockType = blockType;
     }
 
@@ -160,15 +166,31 @@ public class Block : iBlock, iBlockForGO
 
             TransitionState(BlockState.Ready);
 
-            if (blockTypeAtSwapStart == 9)
-            {
-                StageManager.i.SkillEffect_Sero(curField.self);
-            }
-            else if(blockTypeAtSwapStart == 10)
-            {
-                StageManager.i.SkillEffect_Garo(curField.self);
-            }
+            ExcuteSkill(blockTypeAtSwapStart);
+
         });
+    }
+
+    private void ExcuteSkill(int blockType)
+    {
+        switch (blockType)
+        {
+            case GlobalVal.BLOCKTYPE_SKILL_GARO:
+                StageManager.i.Skill_Line(curField.self, true);
+                break;
+            case GlobalVal.BLOCKTYPE_SKILL_SERO:
+                StageManager.i.Skill_Line(curField.self, false);
+                break;
+            case GlobalVal.BLOCKTYPE_SKILL_SMALLBOMB:
+                StageManager.i.Skill_SmallBomb(curField.self);
+                break;
+            case GlobalVal.BLOCKTYPE_SKILL_MIDDLEBOMB:
+                StageManager.i.Skill_MiddleBomb(curField.self);
+                break;
+            case GlobalVal.BLOCKTYPE_SKILL_BIGBOMB:
+                StageManager.i.Skill_BigBomb(curField.self);
+                break;
+        }
     }
 
     public void MoveToNextField()
@@ -176,6 +198,9 @@ public class Block : iBlock, iBlockForGO
         //이동중에 호출 받았을 때 next필드가 변경되서 블럭위치가 튀거나 이상한 움직임을 보이지 않도록 막아야 한다. 
         //Debug.Log("MoveToNextField");
         if (eState != BlockState.Ready)
+            return;
+
+        if (blockType == GlobalVal.BLOCKTYPE_BOX)
             return;
 
         if (curField.next.IsPlayable && curField.next.IsEmpty)
@@ -195,7 +220,7 @@ public class Block : iBlock, iBlockForGO
         else
         {
             BlockField diagnalField = curField.GetDiagnalField();
-            if(diagnalField != null)
+            if (diagnalField != null)
             {
                 MoveToTargetField(diagnalField);
             }
@@ -209,6 +234,8 @@ public class Block : iBlock, iBlockForGO
 
     private void MoveToTargetField(BlockField target)
     {
+        if (blockType == GlobalVal.BLOCKTYPE_BOX)
+            Debug.Log("Hmmmm");
         curField.SetBlock(null);
         SetField(target);
         curField.SetBlock(this);
@@ -218,12 +245,24 @@ public class Block : iBlock, iBlockForGO
 
     public void Match()
     {
+        if (blockType == GlobalVal.BLOCKTYPE_MOVEONLY)
+            return;
+
+        if (eState != BlockState.MatchingGlow)
+            ExcuteSkill(blockType);
+
         TransitionState(BlockState.MatchingGlow);
+    }
+
+    public void ArriveGoalField()
+    {
+        Debug.LogWarning("Block arrive goal field");
     }
 
     public void MakeOver(int blockType)
     {
-        this.blockType = blockType;
+        BlockMng.Inst.MatchCount(this.blockType);
+        SetBlockType(blockType);
         TransitionState(BlockState.MakeOver);
     }
 
@@ -241,6 +280,8 @@ public class Block : iBlock, iBlockForGO
             blockGO = null;
         }
 
+        OnTransitionState = null;
+
         eState = BlockState.InPool;
         curField.OnPushbackBlock();
     }
@@ -256,6 +297,10 @@ public class Block : iBlock, iBlockForGO
                 break;
             case BlockState.Pushback:
                 CleanUp();
+                break;
+            case BlockState.MatchingDissolve:
+            case BlockState.MakeOverDissolve:
+                BlockMng.Inst.MatchCount(blockType);
                 break;
         }
 

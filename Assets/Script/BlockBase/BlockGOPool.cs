@@ -33,7 +33,19 @@ public class BlockGOPool : MonoBehaviour, iPool<iBlockGO>
         }
     }
 
-    public Sprite[] arrBlockSprite;
+    [SerializeField]
+    Sprite[] arrBlockSprite;
+
+    public Sprite GetBlockSprite(int blockIdx)
+    {
+        if(blockIdx < GlobalVal.BLOCKTYPE_MIN || blockIdx > GlobalVal.BLOCKTYPE_MAX)
+        {
+            Debug.LogError("idx range over " + blockIdx);
+            return null;
+        }
+
+        return arrBlockSprite[blockIdx - 1];
+    }
 
     ObjectPool<iBlockGO> blockPool;
     

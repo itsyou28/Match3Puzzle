@@ -36,7 +36,7 @@ public class BlockGO : MonoBehaviour, iBlockGO
 
     private void SetSprite()
     {
-        sprite.sprite = BlockGOPool.Inst.arrBlockSprite[block.BlockType - 1];
+        sprite.sprite = BlockGOPool.Inst.GetBlockSprite(block.BlockType);
     }
 
     private void OnTransitionBlockState()

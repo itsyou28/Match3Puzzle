@@ -24,10 +24,13 @@ class StageData : iDataFile
         return false;
     }
 
-    public void AddStage(string stageName, BlockField[,] stageData)
+    public void AddStage(string stageName, BlockField[,] stageData, ClearCondition[] clearData = null)
     {
         stageFileList.AddFirst(stageName);
         FileManager.Inst.EditFileSave(GlobalVal.FieldDataPath, stageName, stageData);
+
+        if (clearData != null)
+            FileManager.Inst.EditFileSave(GlobalVal.ClearConditionDataPath, stageName, clearData);
 
     }
 
@@ -35,26 +38,27 @@ class StageData : iDataFile
     {
         stageFileList.Remove(stageName);
         FileManager.Inst.EditFileDelete(GlobalVal.FieldDataPath, stageName);
-
+        FileManager.Inst.EditFileDelete(GlobalVal.ClearConditionDataPath, stageName);
     }
 
-    public void SaveStage(string stageName, BlockField[,] stageData)
+    public void SaveStageFields(string stageName, BlockField[,] stageData)
     {
         FileManager.Inst.EditFileSave(GlobalVal.FieldDataPath, stageName, stageData);
     }
 
-    public BlockField[,] LoadStage(string stageName)
+    public void SaveStageClearConditions(string stageName, ClearCondition[] clearData)
     {
-        //BlockField[,] result;
+        FileManager.Inst.EditFileSave(GlobalVal.ClearConditionDataPath, stageName, clearData);
+    }
 
-        //if(!dicCachFields.TryGetValue(stageName, out result))
-        //{
-        //    result = FileManager.Inst.EditFileLoad(GlobalVal.FieldDataPath, stageName) as BlockField[,];
-        //    dicCachFields.Add(stageName, result);
-        //}
-
-        //return result;
+    public BlockField[,] LoadStageFields(string stageName)
+    {
         return FileManager.Inst.EditFileLoad(GlobalVal.FieldDataPath, stageName) as BlockField[,];
+    }
+
+    public ClearCondition[] LoadStageClearCondition(string stageName)
+    {
+        return FileManager.Inst.EditFileLoad(GlobalVal.ClearConditionDataPath, stageName) as ClearCondition[];
     }
 
     public void Load()

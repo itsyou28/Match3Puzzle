@@ -6,8 +6,11 @@ public interface iStage
 {
     void SwapBlock(BlockField selectField, BlockField targetField);
     void Match();
-    void SkillEffect_Sero(BlockField targetField);
-    void SkillEffect_Garo(BlockField targetField);
+    void Skill_Line(BlockField targetField, bool isRow);
+    void Skill_SmallBomb(BlockField targetField);
+    void Skill_MiddleBomb(BlockField targetField);
+    void Skill_BigBomb(BlockField targetField);
+    iClearChecker ClearChecker { get; }
 }
 
 public class DummyStageManager : iStage
@@ -22,12 +25,23 @@ public class DummyStageManager : iStage
         Debug.LogWarning("Dummy CheckMatch");
     }
 
-    public void SkillEffect_Sero(BlockField targetField)
+    public void Skill_Line(BlockField targetField, bool isRow)
     {
     }
-    public void SkillEffect_Garo(BlockField targetField)
+
+    public void Skill_SmallBomb(BlockField targetField)
     {
     }
+
+    public void Skill_MiddleBomb(BlockField targetField)
+    {
+    }
+
+    public void Skill_BigBomb(BlockField targetField)
+    {
+    }
+
+    public iClearChecker ClearChecker{ get { return null; } }
 }
 
 public class StageManager : MonoBehaviour, iStage
@@ -49,7 +63,10 @@ public class StageManager : MonoBehaviour, iStage
         }
     }
 
+    public iClearChecker ClearChecker { get { return clearChecker; } }
+
     BlockFieldManager fieldMng;
+    ClearChecker clearChecker;
 
     string curStageName;
 
@@ -58,6 +75,7 @@ public class StageManager : MonoBehaviour, iStage
         instance = this;
 
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.STAGE_CLEAR, OnClearStage);
 
         State tstate;
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_FromEditor);
@@ -73,9 +91,17 @@ public class StageManager : MonoBehaviour, iStage
         tstate.EventStart += OnStart_Main_Stage;
         tstate.EventEnd += OnEnd_Main_Stage;
 
+        tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_Intro);
+        tstate.EventStart_Before += OnStartBefore_Stage_Intro;
+
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_Play);
         tstate.EventStart += OnStart_Stage_Play;
         tstate.EventEnd += OnEnd_Stage_Play;
+    }
+
+    private void OnStartBefore_Stage_Intro(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
+    {
+        BlockMng.Inst.ResetMatchCount();
     }
 
     private void OnEnd_Stage_Play(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
@@ -121,6 +147,11 @@ public class StageManager : MonoBehaviour, iStage
         FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
     }
 
+    void OnClearStage(params object[] args)
+    {
+        FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_SELECT_1);
+    }
+
     void OnSelectStage(params object[] args)
     {
         if (args == null || args.Length == 0)
@@ -141,6 +172,8 @@ public class StageManager : MonoBehaviour, iStage
     {
         CleanUpStage();
 
+        clearChecker = new ClearChecker(stageName);
+
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.DeployBlock();
         fieldMng.ActiveFields(false);
@@ -152,6 +185,11 @@ public class StageManager : MonoBehaviour, iStage
     {
         StopAllCoroutines();
         this.enabled = false;
+
+        if(clearChecker != null)
+        {
+            clearChecker.CleanUp();
+        }
 
         if (fieldMng != null)
         {
@@ -172,13 +210,26 @@ public class StageManager : MonoBehaviour, iStage
             fieldMng.ExcuteMatch();
     }
 
-    public void SkillEffect_Sero(BlockField field)
+    public void Skill_Line(BlockField field, bool isRow)
     {
-        StartCoroutine(fieldMng.SkillEffect_Sero(field));
+        if (isRow)
+            StartCoroutine(fieldMng.Skill_LineGaro(field));
+        else
+            StartCoroutine(fieldMng.Skill_LineSero(field));
     }
 
-    public void SkillEffect_Garo(BlockField field)
+    public void Skill_SmallBomb(BlockField field)
     {
-        StartCoroutine(fieldMng.SkillEffect_Garo(field));
+        StartCoroutine(fieldMng.Skill_SmallBomb(field));
+    }
+
+    public void Skill_MiddleBomb(BlockField field)
+    {
+        StartCoroutine(fieldMng.Skill_MiddleBomb(field));
+    }
+
+    public void Skill_BigBomb(BlockField field)
+    {
+        StartCoroutine(fieldMng.Skill_BigBomb(field));
     }
 }
