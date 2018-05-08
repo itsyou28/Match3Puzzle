@@ -200,6 +200,7 @@ public class FileManager
             return true;
         }
 
+        Debug.LogError("Fail Delete File " + filePath);
         return false;
     }
 
@@ -325,7 +326,7 @@ public class FileManager
         FileSave("Resources/" + path, filename + ".bytes", saveObject);
 #else
         //에디터가 아닐 경우 PersitentDataPath에 저장한다. (빌드 후 리소스 경로에는 쓰기 권한이 없음)
-        FileSave(path, filename, saveObject);
+        FileSave(path, filename + ".bytes", saveObject);
 #endif
     }
 
@@ -356,7 +357,7 @@ public class FileManager
         if (CheckFileExists("Resources/" + path + "/" + filename + ".bytes"))
             DeleteFile("Resources/" + path, filename+".bytes");
 #else
-        if (CheckFileExists(path, filename))
+        if (CheckFileExists(path, filename+".bytes"))
             DeleteFile(path, filename+".bytes"); 
 #endif
     }
