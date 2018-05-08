@@ -97,7 +97,7 @@ public class Block : iBlock, iBlockForGO
 
         SetField(field);
 
-        SetBlockType(UnityEngine.Random.Range(1, randMax));
+        SetBlockType(UnityEngine.Random.Range(GlobalVal.BLOCKTYPE_NORMAL_MIN, randMax));
 
         DeployScreen();
     }
@@ -108,7 +108,7 @@ public class Block : iBlock, iBlockForGO
 
         SetField(field);
 
-        SetBlockType(BK_Function.Random(1, randMax, blockType));
+        SetBlockType(BK_Function.Random(GlobalVal.BLOCKTYPE_NORMAL_MIN, randMax, blockType));
 
         DeployScreen();
     }

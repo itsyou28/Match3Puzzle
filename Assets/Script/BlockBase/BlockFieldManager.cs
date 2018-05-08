@@ -17,20 +17,22 @@ public class BlockFieldManager
 {
     BlockField[,] fields;
 
+    public int BlockDifficulty = 6;
+
     //배열 길이 -2
     public int RowLength { get; private set; }
     public int ColLength { get; private set; }
-
+    
     int rowArrLastIdx, colArrLastIdx; //배열 길이 -1
     int lastRow, lastCol; //가장자리 필드를 제외한 마지막 배열 인덱스
 
-    public List<BlockField> ableField = new List<BlockField>();
+    List<BlockField> ableField = new List<BlockField>();
 
-    public List<MatchedSet> rowMatchedSet = new List<MatchedSet>();
-    public List<MatchedSet> colMatchedSet = new List<MatchedSet>();
-    public List<MatchedSet> rowSpecialSet = new List<MatchedSet>();
-    public List<MatchedSet> colSpecialSet = new List<MatchedSet>();
-    public List<MatchedSet> crossSpecialSet = new List<MatchedSet>();
+    List<MatchedSet> rowMatchedSet = new List<MatchedSet>();
+    List<MatchedSet> colMatchedSet = new List<MatchedSet>();
+    List<MatchedSet> rowSpecialSet = new List<MatchedSet>();
+    List<MatchedSet> colSpecialSet = new List<MatchedSet>();
+    List<MatchedSet> crossSpecialSet = new List<MatchedSet>();
 
     public string FieldName { get; private set; }
 
@@ -120,25 +122,13 @@ public class BlockFieldManager
         }
 
         //시작과 동시에 매칭 블럭이 없도록 조정
-        //while (FindMatch())
-        //{
-        //    for (int i = 0; i < matchedField.Count; i += 2)
-        //    {
-        //        matchedField[i].block.ResetRand(matchedField[i], 5);
-        //    }
-
-        //    if (!FindMatchAble())
-        //    {
-        //        //임의의 able 패턴을 생성(그냥 셔플->매치가 반복되면 유저가 게임 시작도 안했는데 게임이 진행되는 셈)
-        //    }
-        //}
+        ExcludeMatch();
     }
 
     public void EditorInitialize()
     {
         BlockField field;
 
-        //Playable Field 위치에 랜덤 블럭 생성
         for (int i = 0; i <= rowArrLastIdx; i++)
         {
             for (int j = 0; j <= colArrLastIdx; j++)
@@ -199,16 +189,7 @@ public class BlockFieldManager
             }
         }
     }
-
-    //해당 라인의 마지막 Field를 반환한다. 
-    //BlockField GetLineLast(BlockField field)
-    //{
-    //    while (!field.IsLast)
-    //        field = field.next;
-
-    //    return field;
-    //}
-
+    
     bool swaping1 = false;
     bool swaping2 = false;
     public void SwapBlock(BlockField selected, BlockField target)
@@ -302,66 +283,74 @@ public class BlockFieldManager
 
     public void ExcuteMatch()
     {
-        for (int i = 0; i < rowMatchedSet.Count; i++)
-        {
-            for (int j = 0; j < rowMatchedSet[i].fields.Length; j++)
-            {
-                rowMatchedSet[i].fields[j].Match();
-            }
-        }
-
-        for (int i = 0; i < colMatchedSet.Count; i++)
-        {
-            for (int j = 0; j < colMatchedSet[i].fields.Length; j++)
-            {
-                colMatchedSet[i].fields[j].Match();
-            }
-        }
-
-        for (int i = 0; i < rowSpecialSet.Count; i++)
-        {
-            rowSpecialSet[i].makeOverField.MakeOver(rowSpecialSet[i].specialType);
-            for (int j = 0; j < rowSpecialSet[i].fields.Length; j++)
-            {
-                rowSpecialSet[i].fields[j].MakeOverDissolve(rowSpecialSet[i].makeOverField);
-            }
-        }
-
-        for (int i = 0; i < colSpecialSet.Count; i++)
-        {
-            colSpecialSet[i].makeOverField.MakeOver(colSpecialSet[i].specialType);
-            for (int j = 0; j < colSpecialSet[i].fields.Length; j++)
-            {
-                colSpecialSet[i].fields[j].MakeOverDissolve(colSpecialSet[i].makeOverField);
-            }
-        }
-
-        for (int i = 0; i < crossSpecialSet.Count; i++)
-        {
-            crossSpecialSet[i].makeOverField.MakeOver(crossSpecialSet[i].specialType);
-            for (int j = 0; j < crossSpecialSet[i].fields.Length; j++)
-            {
-                crossSpecialSet[i].fields[j].MakeOverDissolve(crossSpecialSet[i].makeOverField);
-            }
-        }
+        Match(ref rowMatchedSet);
+        Match(ref colMatchedSet);
+        MakeOver(ref rowSpecialSet);
+        MakeOver(ref colSpecialSet);
+        MakeOver(ref crossSpecialSet);
 
         swapField[0] = null;
         swapField[1] = null;
     }
 
-    //필드가 비어있는지 체크한다. 
-    public bool IsNotEmpty()
+    void Match(ref List<MatchedSet> list)
     {
-        bool result = true;
-
-        foreach (var field in Fields())
+        for (int i = 0; i < list.Count; i++)
         {
-            result &= !field.IsEmpty;
+            for (int j = 0; j < list[i].fields.Length; j++)
+            {
+                list[i].fields[j].Match();
+            }
         }
-
-        return result;
     }
 
+    void MakeOver(ref List<MatchedSet> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            list[i].makeOverField.MakeOver(list[i].specialType);
+            for (int j = 0; j < list[i].fields.Length; j++)
+            {
+                list[i].fields[j].MakeOverDissolve(list[i].makeOverField);
+            }
+        }
+    }
+
+    void ExcludeMatch()
+    {
+        int count = 0;
+        while(FindMatch())
+        {
+            ExcludeMatch(ref rowMatchedSet);
+            ExcludeMatch(ref colMatchedSet);
+            ExcludeMatch(ref rowSpecialSet);
+            ExcludeMatch(ref colSpecialSet);
+            ExcludeMatch(ref crossSpecialSet);
+
+            count++;
+            if (count > 10)
+            {
+                Debug.LogError("Fail ExcludeMatch. while count over");
+                break;
+            }
+        }
+    }
+
+    void ExcludeMatch(ref List<MatchedSet> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            BlockField targetField = list[i].makeOverField;
+
+            if (targetField == null)
+                targetField = list[i].fields[1];
+
+            UnityEngine.Assertions.Assert.IsNotNull(targetField, "배열 접근 확인 필요");
+
+            targetField.block.ResetAnotherBlockType(targetField, BlockDifficulty);
+        }
+    }
+    
     #region 임시 스킬 실행 코드 
     public IEnumerator Skill_LineGaro(BlockField center)
     {

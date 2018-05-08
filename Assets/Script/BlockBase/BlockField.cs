@@ -251,6 +251,7 @@ public class BlockField : iBlockField
         {
             block.CleanUp();
         }
+        block = null;
     }
 
     public void SetBlockType(int blockType)
@@ -317,7 +318,7 @@ public class BlockField : iBlockField
     public void CreateBlock()
     {
         iBlock block = BlockMng.Pool.Pop();
-        block.ResetRand(this, 6);
+        block.ResetRand(this, fieldMng.BlockDifficulty);
         SetBlock(block);
     }
 
@@ -379,7 +380,7 @@ public class BlockField : iBlockField
         if (isCreateField && block == null)
         {
             block = BlockMng.Pool.Pop();
-            block.ResetRand(this, 6);
+            block.ResetRand(this, fieldMng.BlockDifficulty);
         }
         else if (block == null)
         {
