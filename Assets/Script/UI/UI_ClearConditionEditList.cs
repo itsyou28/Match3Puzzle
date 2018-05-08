@@ -52,7 +52,8 @@ public class UI_ClearConditionEditList : MonoBehaviour
 
     private void OnEndSelectStage(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
     {
-        InitList();
+        if (EditManager.i.iClearCondition != null)
+            InitList();
     }
 
     public void OnSelectClearIdx(int idx)
@@ -73,15 +74,13 @@ public class UI_ClearConditionEditList : MonoBehaviour
     {
         IEnumerator<ClearCondition> itor = EditManager.i.iClearCondition.GetEnumerator();
 
-        if (itor == null)
-        {
-            itor.Reset();
+        itor.Reset();
 
-            while (itor.MoveNext())
-            {
-                AddRow(itor.Current);
-            }
+        while (itor.MoveNext())
+        {
+            AddRow(itor.Current);
         }
+
     }
 
     private void ClearRows()

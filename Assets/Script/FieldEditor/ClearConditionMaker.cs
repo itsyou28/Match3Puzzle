@@ -47,15 +47,7 @@ public class ClearConditionMaker : iClearConditionMaker
             result[idx] = item;
             idx++;
         }
-
-        Debug.LogWarning("GetConditionArr : " + result.Length);
-
-        for (int i = 0; i < result.Length; i++)
-        {
-            if (result[i] == null)
-                Debug.LogError("hmm");
-        }
-
+        
         return result;
     }
 
