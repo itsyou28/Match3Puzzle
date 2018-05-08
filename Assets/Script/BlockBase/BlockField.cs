@@ -186,6 +186,9 @@ public class BlockField : iBlockField
 
     public void SetDeadline(bool isDeadline)
     {
+        if (next == null)
+            return;
+
         BlockField field = next;
 
         while (field.isMoveable)

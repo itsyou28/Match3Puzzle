@@ -24,11 +24,13 @@ class StageData : iDataFile
         return false;
     }
 
-    public void AddStage(string stageName, BlockField[,] stageData, ClearCondition[] clearData=null)
+    public void AddStage(string stageName, BlockField[,] stageData, ClearCondition[] clearData = null)
     {
         stageFileList.AddFirst(stageName);
         FileManager.Inst.EditFileSave(GlobalVal.FieldDataPath, stageName, stageData);
-        FileManager.Inst.EditFileSave(GlobalVal.ClearConditionDataPath, stageName, clearData);
+
+        if (clearData != null)
+            FileManager.Inst.EditFileSave(GlobalVal.ClearConditionDataPath, stageName, clearData);
 
     }
 
@@ -58,7 +60,7 @@ class StageData : iDataFile
     {
         return FileManager.Inst.EditFileLoad(GlobalVal.ClearConditionDataPath, stageName) as ClearCondition[];
     }
-    
+
     public void Load()
     {
         stageFileList = FileManager.Inst.EditFileLoad("data", "stageFileList") as LinkedList<string>;
