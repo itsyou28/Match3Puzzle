@@ -65,7 +65,7 @@ public class UI_ClearConditionEditList : MonoBehaviour
     {
         ClearCondition condition = EditManager.i.iClearCondition.AddCondition(curSelectedClearIdx);
 
-        if(condition != null)
+        if (condition != null)
             AddRow(condition);
     }
 
@@ -73,11 +73,14 @@ public class UI_ClearConditionEditList : MonoBehaviour
     {
         IEnumerator<ClearCondition> itor = EditManager.i.iClearCondition.GetEnumerator();
 
-        itor.Reset();
-
-        while (itor.MoveNext())
+        if (itor == null)
         {
-            AddRow(itor.Current);
+            itor.Reset();
+
+            while (itor.MoveNext())
+            {
+                AddRow(itor.Current);
+            }
         }
     }
 
@@ -97,7 +100,7 @@ public class UI_ClearConditionEditList : MonoBehaviour
 
         GameObject obj = Instantiate(rowOrigin);
         obj.transform.SetParent(contentPanel, false);
-        
+
         obj.GetComponent<UI_ClearConditionEditRow>().SetRowData(data);
 
         return obj;

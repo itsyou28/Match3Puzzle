@@ -75,6 +75,7 @@ public class StageManager : MonoBehaviour, iStage
         instance = this;
 
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
+        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.STAGE_CLEAR, OnClearStage);
 
         State tstate;
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Stage, STATE_ID.Stage_FromEditor);
@@ -144,6 +145,11 @@ public class StageManager : MonoBehaviour, iStage
 
         //fromEditor->Intro
         FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
+    }
+
+    void OnClearStage(params object[] args)
+    {
+        FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_SELECT_1);
     }
 
     void OnSelectStage(params object[] args)
