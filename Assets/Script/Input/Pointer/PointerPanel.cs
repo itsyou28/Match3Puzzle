@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections;
 using FiniteStateMachine;
 
 public class PointerPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    iInput editorInput = new Pointer_EditorDragMode();
-    iInput stageInput = new Pointer_StageMode();
-    iInput current;
+    iPointerInput editorInput = new Pointer_Editor_SelectMode();
+    iPointerInput stageInput = new Pointer_StageMode();
+    iPointerInput current;
 
     void Awake()
     {
@@ -55,7 +54,7 @@ public class PointerPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     }
 }
 
-public interface iInput
+public interface iPointerInput
 {
     void OnPointerDown(PointerEventData data);
     void OnPointerUp(PointerEventData data);
