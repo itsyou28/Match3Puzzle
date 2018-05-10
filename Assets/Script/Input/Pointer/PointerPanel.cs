@@ -3,10 +3,10 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using FiniteStateMachine;
 
-public class InputPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class PointerPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    EditorMode editorInput = new EditorMode();
-    StageMode stageInput = new StageMode();
+    iInput editorInput = new Pointer_EditorDragMode();
+    iInput stageInput = new Pointer_StageMode();
     iInput current;
 
     void Awake()

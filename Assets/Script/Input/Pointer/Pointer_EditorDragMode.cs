@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using FiniteStateMachine;
 
-public class EditorMode : iInput
+public class Pointer_EditorDragMode : iInput
 {
     Ray ray;
     RaycastHit hit;
