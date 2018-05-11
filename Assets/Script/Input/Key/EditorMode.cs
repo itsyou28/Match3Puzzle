@@ -31,13 +31,16 @@ namespace InputKeyProcessor
             EditManager.i.Validate();
         }
 
-        Bindable<bool> editMode;
+        Bindable<int> editMode; //1:Field 2:Block  3:ClearCondiriton
         public sealed override void BackQuoteDown()
         {
             if (editMode == null)
-                editMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_MODE);
+                editMode = BindRepo.Inst.GetBindedData(N_Bind_Idx.EDIT_MODE);
 
-            editMode.Value = !editMode.Value;
+            if (editMode.Value >= 3)
+                editMode.Value = 1;
+            else
+                editMode.Value += 1;
         }
     }
 }

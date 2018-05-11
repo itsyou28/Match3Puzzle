@@ -4,7 +4,7 @@ using System.Collections;
 public class UI_Switch_EditPropertyPanel : MonoBehaviour
 {
 
-    Bindable<bool> editMode;//true:Block, false:Field
+    Bindable<int> editMode; //1:Field 2:Block  3:ClearCondiriton
     Bindable<bool> pointerMode;//true:Select, false:Paint
 
     [SerializeField]
@@ -13,7 +13,7 @@ public class UI_Switch_EditPropertyPanel : MonoBehaviour
 
     private void Awake()
     {
-        editMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_MODE);
+        editMode = BindRepo.Inst.GetBindedData(N_Bind_Idx.EDIT_MODE);
         pointerMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_POINTER_MODE);
 
         editMode.valueChanged += OnChangeEditMode;
@@ -39,22 +39,22 @@ public class UI_Switch_EditPropertyPanel : MonoBehaviour
             arrPanels[i].SetActive(false);
         }
 
-        if (editMode.Value && pointerMode.Value)
+        if (editMode.Value == 2 && pointerMode.Value)
         {
             //Block Select
             arrPanels[0].SetActive(true);
         }
-        else if (!editMode.Value && pointerMode.Value)
+        else if (editMode.Value == 1 && pointerMode.Value)
         {
             //Field Select
             arrPanels[1].SetActive(true);
         }
-        else if (editMode.Value && !pointerMode.Value)
+        else if (editMode.Value == 2 && !pointerMode.Value)
         {
             //Block Paint
             arrPanels[2].SetActive(true);
         }
-        else if (!editMode.Value && !pointerMode.Value)
+        else if (editMode.Value == 1 && !pointerMode.Value)
         {
             //FIeld Paint
             arrPanels[3].SetActive(true);

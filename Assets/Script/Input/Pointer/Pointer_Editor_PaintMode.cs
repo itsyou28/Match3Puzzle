@@ -13,11 +13,11 @@ public class Pointer_Editor_PaintMode : iPointerInput
     delegate void fnPaint(Collider col);
     fnPaint dele_editMng_Paint;
 
-    Bindable<bool> editMode; //true:Block, false:Field
+    Bindable<int> editMode; //1:Field 2:Block  3:ClearCondiriton
 
     public Pointer_Editor_PaintMode()
     {
-        editMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_MODE);
+        editMode = BindRepo.Inst.GetBindedData(N_Bind_Idx.EDIT_MODE);
         editMode.valueChanged += OnChangeEditMode;
 
         OnChangeEditMode();
@@ -25,9 +25,9 @@ public class Pointer_Editor_PaintMode : iPointerInput
 
     private void OnChangeEditMode()
     {
-        if (editMode.Value)
+        if (editMode.Value == 2)
             dele_editMng_Paint = EditManager.i.PaintBlock;
-        else
+        else if(editMode.Value == 1)
             dele_editMng_Paint = EditManager.i.PaintField;
     }
 
