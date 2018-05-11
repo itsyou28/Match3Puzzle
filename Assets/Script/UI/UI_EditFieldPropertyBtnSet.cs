@@ -1,17 +1,24 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_EditFieldProperty : UI_CircleMenu
+public class UI_EditFieldPropertyBtnSet : MonoBehaviour
 {
-    protected override void ChildAwake()
+    [SerializeField]
+    GameObject btnOrigin;
+
+    private void Awake()
     {
-        radius = 150;
-        maxNumber = GlobalVal.FIELD_PROPERTY_MAX;
+        MakeBtn();
     }
 
-
-    protected override void SetBtnEvent()
+    void MakeBtn()
     {
+        for (int i = 0; i < GlobalVal.FIELD_PROPERTY_MAX; i++)
+        {
+            GameObject obj = Instantiate(btnOrigin);
+            obj.transform.SetParent(transform, false);
+        }
+
         Transform t;
 
         t = transform.GetChild(0);
