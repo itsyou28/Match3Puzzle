@@ -9,6 +9,8 @@ namespace InputKeyProcessor
         public virtual void SpaceDown() { }
         public virtual void BackspaceDown() { }
         public virtual void TabDown() { }
+        public virtual void QuoteDown() { }
+        public virtual void BackQuoteDown() { }
 
         public virtual void Num1Down() { }
         public virtual void Num2Down() { }
@@ -42,6 +44,7 @@ namespace InputKeyProcessor
         public virtual void JDown() { }
         public virtual void LDown() { }
         public virtual void VDown() { }
+
     }
 
 }

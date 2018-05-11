@@ -27,6 +27,17 @@ public class Pointer_Editor_SelectMode : iPointerInput
     Vector3 vStart, vEnd, vCenter, vHalf;
     public void OnPointerUp(PointerEventData data)
     {
+        if(Input.GetMouseButton(1) || Input.GetMouseButtonUp(1))
+        {
+            STATE_ID curID = FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory);
+
+            if (curID == STATE_ID.Editor_Idle)
+                FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
+            else if (curID == STATE_ID.Editor_EditBlock || curID == STATE_ID.Editor_EditField)
+                FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
+
+            EMC_MAIN.Inst.NoticeEventOccurrence(EMC_CODE.EDITORMODE_POINTER_UP, data);
+        }
     }
 
     public void OnBeginDrag(PointerEventData data)

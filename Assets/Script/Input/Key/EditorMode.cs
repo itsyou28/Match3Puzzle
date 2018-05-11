@@ -14,18 +14,30 @@ namespace InputKeyProcessor
             EditManager.i.OffSelect();
         }
 
-        Bindable<bool> editMode;
+        Bindable<bool> pointerMode;
         public sealed override void TabDown()
         {
-            if (editMode == null)
-                editMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_MODE);
+            if (pointerMode == null)
+                pointerMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_POINTER_MODE);
 
-            editMode.Value = !editMode.Value;
+            pointerMode.Value = !pointerMode.Value;
+
+            if (!pointerMode.Value)
+                EditManager.i.OffSelect();
         }
 
         public sealed override void VDown()
         {
             EditManager.i.Validate();
+        }
+
+        Bindable<bool> editMode;
+        public sealed override void BackQuoteDown()
+        {
+            if (editMode == null)
+                editMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_MODE);
+
+            editMode.Value = !editMode.Value;
         }
     }
 }

@@ -42,6 +42,11 @@ public class InputKeyboard : MonoBehaviour
             curProcess.BackspaceDown();
         if (Input.GetKeyDown(KeyCode.Tab))
             curProcess.TabDown();
+        if (Input.GetKeyDown(KeyCode.Quote))
+            curProcess.QuoteDown();
+        if (Input.GetKeyDown(KeyCode.BackQuote))
+            curProcess.BackQuoteDown();
+
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
             curProcess.Num1Down();
@@ -78,5 +83,6 @@ public class InputKeyboard : MonoBehaviour
             curProcess.LDown();
         if (Input.GetKeyDown(KeyCode.V))
             curProcess.VDown();
+
     }
 }

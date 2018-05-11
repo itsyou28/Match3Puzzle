@@ -79,8 +79,6 @@ public class EditManager : MonoBehaviour, iEditManager
         instance = this;
 
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
-        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_DOWN, OnPointerDown);
-        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_UP, OnPointerUp);
 
         selectedBlockProperty = BindRepo.Inst.GetBindedData(N_Bind_Idx.EDIT_SELECTED_BLOCK_PROPERTY);
         selectedFieldProperty = BindRepo.Inst.GetBindedData(N_Bind_Idx.EDIT_SELECTED_FIELD_PROPERTY);
@@ -154,30 +152,7 @@ public class EditManager : MonoBehaviour, iEditManager
             InitStage(curStageName);
         }
     }
-
-    void OnPointerDown(params object[] args)
-    {
-        CircleMenuTurnOff();
-    }
     
-    void OnPointerUp(params object[] args)
-    {
-        CircleMenuTurnOn();
-    }
-
-    private void CircleMenuTurnOn()
-    {
-        if (selectedList.Count > 0)
-            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
-    }
-
-    private void CircleMenuTurnOff()
-    {
-        if (FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory) != STATE_ID.Editor_Idle)
-            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
-    }
-
-
     public void InitStage(string stageName)
     {
         conditionMng = new ClearConditionMaker();
@@ -257,7 +232,10 @@ public class EditManager : MonoBehaviour, iEditManager
         markerList.Clear();
         selectedList.Clear();
 
-        CircleMenuTurnOff();
+        STATE_ID curID = FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory);
+
+        if (curID == STATE_ID.Editor_EditBlock || curID == STATE_ID.Editor_EditField)
+            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
     }
 
     public void SetPlayable()
