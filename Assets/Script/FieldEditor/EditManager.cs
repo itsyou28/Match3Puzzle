@@ -5,6 +5,8 @@ using FiniteStateMachine;
 
 public interface iEditManager
 {
+    void PaintBlock(Collider col);
+    void PaintField(Collider col);
     void AddMarker(Collider col);
     void RemoveMarker(Collider col);
     void SetPlayable();
@@ -25,6 +27,8 @@ public class DummyEditManager : iEditManager
     {
         Debug.LogWarning("Create DummyEdit Manager");
     }
+    public void PaintField(Collider col) { }
+    public void PaintBlock(Collider col) { }
     public void AddMarker(Collider col) { }
     public void RemoveMarker(Collider col) { }
     public void SetPlayable() { }
@@ -65,6 +69,9 @@ public class EditManager : MonoBehaviour, iEditManager
     LinkedList<BlockField> selectedList = new LinkedList<BlockField>();
     LinkedList<Collider> markerList = new LinkedList<Collider>();
 
+    Bindable<int> selectedBlockProperty;
+    Bindable<int> selectedFieldProperty;
+
     string curStageName;
 
     void Awake()
@@ -72,8 +79,9 @@ public class EditManager : MonoBehaviour, iEditManager
         instance = this;
 
         EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.SELECT_STAGE, OnSelectStage);
-        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_DOWN, OnPointerDown);
-        EMC_MAIN.Inst.AddEventCallBackFunction(EMC_CODE.EDITORMODE_POINTER_UP, OnPointerUp);
+
+        selectedBlockProperty = BindRepo.Inst.GetBindedData(N_Bind_Idx.EDIT_SELECTED_BLOCK_PROPERTY);
+        selectedFieldProperty = BindRepo.Inst.GetBindedData(N_Bind_Idx.EDIT_SELECTED_FIELD_PROPERTY);
 
         State tstate;
         tstate = FSM_Layer.Inst.GetState(FSM_LAYER_ID.UserStory, FSM_ID.Editor, STATE_ID.Editor_ToStage);
@@ -144,29 +152,7 @@ public class EditManager : MonoBehaviour, iEditManager
             InitStage(curStageName);
         }
     }
-
-    void OnPointerUp(params object[] args)
-    {
-        CircleMenuTurnOn();
-    }
-
-    private void CircleMenuTurnOn()
-    {
-        if (selectedList.Count > 0)
-            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_NEXT);
-    }
-
-    private static void CircleMenuTurnOff()
-    {
-        if (FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory) != STATE_ID.Editor_Idle)
-            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
-    }
-
-    void OnPointerDown(params object[] args)
-    {
-        CircleMenuTurnOff();
-    }
-
+    
     public void InitStage(string stageName)
     {
         conditionMng = new ClearConditionMaker();
@@ -175,6 +161,52 @@ public class EditManager : MonoBehaviour, iEditManager
         fieldMng = new BlockFieldManager(stageName);
         fieldMng.EditorInitialize();
         BroadcastMessage("ActiveField", true, SendMessageOptions.DontRequireReceiver);
+    }
+
+    public void PaintField(Collider col)
+    {
+        BlockField field = fieldMng.GetBlockField(
+            fieldMng.RowLength - (int)col.transform.localPosition.y, (int)col.transform.localPosition.x);
+
+        switch (selectedFieldProperty.Value)
+        {
+            case 0:
+                field.SetPlayable();
+                break;
+            case 1:
+                field.SetNonPlayable();
+                break;
+            case 2:
+                field.SetDirection(0);
+                break;
+            case 3:
+                field.SetDirection(1);
+                break;
+            case 4:
+                field.SetDirection(2);
+                break;
+            case 5:
+                field.SetDirection(3);
+                break;
+            case 6:
+                field.SetCreateField(true);
+                break;
+            case 7:
+                field.SetCreateField(false);
+                break;
+        }
+    }
+
+    public void PaintBlock(Collider col)
+    {
+        BlockField field = fieldMng.GetBlockField(
+            fieldMng.RowLength - (int)col.transform.localPosition.y, (int)col.transform.localPosition.x);
+
+        if (selectedBlockProperty.Value == 0)
+            field.SetBlockRandom();
+        else
+            field.SetBlockType(selectedBlockProperty.Value);
+
     }
 
     public void AddMarker(Collider col)
@@ -200,7 +232,10 @@ public class EditManager : MonoBehaviour, iEditManager
         markerList.Clear();
         selectedList.Clear();
 
-        CircleMenuTurnOff();
+        STATE_ID curID = FSM_Layer.Inst.GetCurStateID(FSM_LAYER_ID.UserStory);
+
+        if (curID == STATE_ID.Editor_EditBlock || curID == STATE_ID.Editor_EditField)
+            FSM_Layer.Inst.SetTrigger(FSM_LAYER_ID.UserStory, TRANS_PARAM_ID.TRIGGER_BACK);
     }
 
     public void SetPlayable()

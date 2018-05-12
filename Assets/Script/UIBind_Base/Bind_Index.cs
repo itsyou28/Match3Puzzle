@@ -21,6 +21,11 @@ public enum N_Bind_Idx
     MATCHCOUNT_BLOCKTYPE13,
     MATCHCOUNT_BLOCKTYPE14,
     MATCHCOUNT_BLOCKTYPE15,
+
+    EDIT_MODE = 200, //1:Field 2:Block  3:ClearCondiriton
+
+    EDIT_SELECTED_BLOCK_PROPERTY = 1000,
+    EDIT_SELECTED_FIELD_PROPERTY,
 }
 
 public enum F_Bind_Idx
@@ -38,7 +43,17 @@ public enum B_Bind_Idx
 {
     NONE = 0,
 
-    EDIT_MODE = 100,
+    EDIT_MODE___NoUse = 100, //true:Block, false:Field
+    EDIT_POINTER_MODE, //true:Select, false:Paint
 
     BLOCK_ALL_READY = 10000,
+}
+
+public enum V2_Bind_Idx
+{
+    NONE = 0,
+
+    POINTER_EDITOR_SELECTMODE_DRAG = 100,
+    POINTER_EDITOR_SELECTMODE_BEGIN_DRAG,
+    POINTER_EDITOR_SELECTMODE_END_DRAG,
 }

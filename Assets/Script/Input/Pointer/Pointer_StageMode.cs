@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using System.Collections;
 
 
-public class StageMode : iInput
+public class Pointer_StageMode : iPointerInput
 {
     Ray ray;
     RaycastHit hit;

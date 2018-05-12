@@ -1,19 +1,37 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections;
 using FiniteStateMachine;
 
-public class InputPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class PointerPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    EditorMode editorInput = new EditorMode();
-    StageMode stageInput = new StageMode();
-    iInput current;
+    iPointerInput editorSelectInput = new Pointer_Editor_SelectMode();
+    iPointerInput editorPaintInput = new Pointer_Editor_PaintMode();
+    iPointerInput stageInput = new Pointer_StageMode();
+    iPointerInput current;
+
+    Bindable<bool> pointerMode;//true:Select, false:Paint;
 
     void Awake()
     {
-        current = editorInput;
+        current = editorSelectInput;
+
+        pointerMode = BindRepo.Inst.GetBindedData(B_Bind_Idx.EDIT_POINTER_MODE);
+        pointerMode.valueChanged += OnChangeEditPointerMode;
 
         FSM_Layer.Inst.RegisterEventChangeLayerState(FSM_LAYER_ID.UserStory, OnChangeUS);
+    }
+
+    private void OnChangeEditPointerMode()
+    {
+        SwitchEditorInputMode();
+    }
+
+    private void SwitchEditorInputMode()
+    {
+        if (pointerMode.Value)
+            current = editorSelectInput;
+        else
+            current = editorPaintInput;
     }
 
     void OnChangeUS(TRANS_ID transID, STATE_ID stateID, STATE_ID preStateID)
@@ -21,7 +39,7 @@ public class InputPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         switch(stateID)
         {
             case STATE_ID.Main_Editor:
-                current = editorInput;
+                SwitchEditorInputMode();
                 break;
             case STATE_ID.Main_Stage:
                 current = stageInput;
@@ -55,7 +73,7 @@ public class InputPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     }
 }
 
-public interface iInput
+public interface iPointerInput
 {
     void OnPointerDown(PointerEventData data);
     void OnPointerUp(PointerEventData data);

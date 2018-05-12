@@ -36,7 +36,10 @@ public static class GlobalVal
         "13_BIGBOMB",
         "14_BOX",
         "15_MOVEONLY",
-    };   
+    };
+
+    public const int FIELD_PROPERTY_MAX = 8;
+    public const int BLOCK_PROPERTY_MAX = 16;
 }        
          
 public enum LogOption
